@@ -45,10 +45,12 @@
                                     @foreach ($categories as $category)
                                         <tr class="intro-x">
                                             <td>
-                                                <div class="text-slate-500 font-medium whitespace-nowrap mt-0.5">{{ $loop->iteration }}</div>
+                                                <div class="text-slate-500 font-medium whitespace-nowrap mt-0.5">
+                                                    {{ $loop->iteration }}</div>
                                             </td>
                                             <td>
-                                                <div class="text-slate-500 font-medium whitespace-nowrap mt-0.5">{{ $category->name }}
+                                                <div class="text-slate-500 font-medium whitespace-nowrap mt-0.5">
+                                                    {{ $category->name }}
                                                 </div>
                                             </td>
                                             <td class="text-center">{{ $category->slug }}</td>
@@ -56,8 +58,12 @@
                                                 <div class="flex justify-center items-center">
                                                     <a class="flex items-center mr-3" href=""> <i
                                                             data-lucide="check-square" class="w-4 h-4 mr-1"></i> Edit </a>
-                                                    <a class="flex items-center text-danger" href=""> <i
-                                                            data-lucide="trash-2" class="w-4 h-4 mr-1"></i> Delete </a>
+                                                    <form action="{{ route('category.destroy', ['category' => $category->id]) }}" method="POST">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="flex items-center text-danger"> <i data-lucide="trash-2" class="w-4 h-4 mr-1"></i> Delete </button>
+
+                                                    </form>
                                                 </div>
                                             </td>
                                         </tr>

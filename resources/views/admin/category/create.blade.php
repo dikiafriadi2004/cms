@@ -10,7 +10,7 @@
                 <form action="{{ route('category.store') }}" method="POST">
                     @csrf
                     <label for="regular-form-1" class="form-label">Category Name</label>
-                    <input id="regular-form-1" type="text" name="name" class="form-control" placeholder="Category Name">
+                    <input id="regular-form-1" type="text" id="name" name="name" class="form-control" placeholder="Category Name">
                     <button type="submit" class="btn btn-primary mt-5">Save</button>
                 </form>
             </div>

@@ -33,16 +33,15 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'name' => 'required',
+        ]);
 
-         $category = $request->validate([
-            'name' => 'required'
-         ]);
-
-         $category['slug'] = Str::slug($category['name']);
-
-         Category::create();
-
-         return redirect()->route('category.index');
+        Category::create([
+            'name' => $request->name,
+            'slug' => Str::slug($request->name)
+        ]);
+         return redirect()->route('category.index')->with('success', 'Category has been created');
           
     }
 
@@ -75,6 +74,7 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //
+        Category::where('id', $category->id)->delete();
+        return redirect()->route('category.index')->with('success', 'Category has been deleted');
     }
 }
