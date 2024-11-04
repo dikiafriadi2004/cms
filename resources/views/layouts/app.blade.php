@@ -35,7 +35,7 @@
         
         <!-- BEGIN: JS Assets-->
         <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCcjSQi4lR8KTtC5PVDcJuWb0u7ugXbz9U&libraries=places"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=["api"]&libraries=places"></script>
         <script src="backend/dist/js/app.js"></script>
         @stack('js')
         <!-- END: JS Assets-->
