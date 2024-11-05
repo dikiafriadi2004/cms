@@ -14,6 +14,7 @@
                 Categories
             </h2>
         </div>
+        <div class="swal-notif" data-swal="{!! Session::get('success') !!}"></div>
         <div class="grid grid-cols-12 gap-6 mt-5">
             <div class="intro-y col-span-12 lg:col-span-4">
                 <!-- BEGIN: Input -->
@@ -56,7 +57,7 @@
                                             <td class="text-center">{{ $category->slug }}</td>
                                             <td class="table-report__action w-56">
                                                 <div class="flex justify-center items-center">
-                                                    <a class="flex items-center mr-3" href=""> <i
+                                                    <a class="flex items-center mr-3" href="javascript:;" data-tw-toggle="modal" data-tw-target="#header-footer-modal-preview" > <i
                                                             data-lucide="check-square" class="w-4 h-4 mr-1"></i> Edit </a>
                                                     <form action="{{ route('category.destroy', ['category' => $category->id]) }}" method="POST">
                                                         @csrf
@@ -109,8 +110,23 @@
                 <!-- END: Vertical Form -->
             </div>
         </div>
+        @include('admin.category.modal-edit')
     </div>
+
 @endsection
 
 @push('js')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script type="text/javascript">
+    const swal = $('.swal-notif').data('swal');
+    if (swal) {
+        Swal.fire({
+            'title': 'Success',
+            'text': swal,
+            'icon': 'success',
+            'showConfirmButton': false,
+            'timer': 2000
+        })
+    }
+</script>
 @endpush
