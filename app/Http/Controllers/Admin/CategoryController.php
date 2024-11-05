@@ -59,13 +59,7 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        $data = Category::findOrFail($category->get('id'));
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Category has been created',
-            'data' => $data
-        ]);
+        // 
     }
 
     /**
