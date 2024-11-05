@@ -16,7 +16,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::all();
+        $categories = Category::paginate(10);
         return view('admin.category.index', compact('categories'));
     }
 
@@ -41,8 +41,9 @@ class CategoryController extends Controller
             'name' => $request->name,
             'slug' => Str::slug($request->name)
         ]);
-         return redirect()->route('category.index')->with('success', 'Category has been created');
-          
+
+        
+        return redirect()->route('category.index')->with('success', 'Category has been created');
     }
 
     /**
@@ -58,7 +59,13 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        //
+        $data = Category::findOrFail($category->get('id'));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Category has been created',
+            'data' => $data
+        ]);
     }
 
     /**
@@ -75,7 +82,7 @@ class CategoryController extends Controller
             'slug' => Str::slug($request->name)
         ]);
 
-         return redirect()->route('category.index')->with('success', 'Category has been updated');
+        return redirect()->route('category.index')->with('success', 'Category has been updated');
     }
 
     /**

@@ -57,12 +57,17 @@
                                             <td class="text-center">{{ $category->slug }}</td>
                                             <td class="table-report__action w-56">
                                                 <div class="flex justify-center items-center">
-                                                    <a class="flex items-center mr-3" href="javascript:;" data-tw-toggle="modal" data-tw-target="#header-footer-modal-preview" > <i
-                                                            data-lucide="check-square" class="w-4 h-4 mr-1"></i> Edit </a>
-                                                    <form action="{{ route('category.destroy', ['category' => $category->id]) }}" method="POST">
+                                                    <button class="flex items-center mr-3 edit" data-tw-toggle="modal"
+                                                        data-tw-target="#modalCategory{{ $category->id }}" data-tw-id="{{ $category->id }}"> <i data-lucide="check-square"
+                                                            class="w-4 h-4 mr-1"></i> Edit </button>
+                                                    <form
+                                                        action="{{ route('category.destroy', ['category' => $category->id]) }}"
+                                                        method="POST">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="flex items-center text-danger"> <i data-lucide="trash-2" class="w-4 h-4 mr-1"></i> Delete </button>
+                                                        <button type="submit" class="flex items-center text-danger"> <i
+                                                                data-lucide="trash-2" class="w-4 h-4 mr-1"></i> Delete
+                                                        </button>
 
                                                     </form>
                                                 </div>
@@ -72,39 +77,10 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="intro-y flex flex-wrap sm:flex-row sm:flex-nowrap items-center mt-3">
-                            <nav class="w-full sm:w-auto sm:mr-auto">
-                                <ul class="pagination">
-                                    <li class="page-item">
-                                        <a class="page-link" href="#"> <i class="w-4 h-4"
-                                                data-lucide="chevrons-left"></i> </a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="#"> <i class="w-4 h-4"
-                                                data-lucide="chevron-left"></i> </a>
-                                    </li>
-                                    <li class="page-item"> <a class="page-link" href="#">...</a> </li>
-                                    <li class="page-item"> <a class="page-link" href="#">1</a> </li>
-                                    <li class="page-item active"> <a class="page-link" href="#">2</a> </li>
-                                    <li class="page-item"> <a class="page-link" href="#">3</a> </li>
-                                    <li class="page-item"> <a class="page-link" href="#">...</a> </li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="#"> <i class="w-4 h-4"
-                                                data-lucide="chevron-right"></i> </a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="#"> <i class="w-4 h-4"
-                                                data-lucide="chevrons-right"></i> </a>
-                                    </li>
-                                </ul>
-                            </nav>
-                            <select class="w-20 form-select box mt-3 sm:mt-0">
-                                <option>10</option>
-                                <option>25</option>
-                                <option>35</option>
-                                <option>50</option>
-                            </select>
+                        <div class="intro-y col-span-12 flex flex-wrap sm:flex-row sm:flex-nowrap items-center">
+                            {{ $categories->links() }}
                         </div>
+                        <!-- END: Pagination -->
                     </div>
                 </div>
                 <!-- END: Vertical Form -->
@@ -112,21 +88,21 @@
         </div>
         @include('admin.category.modal-edit')
     </div>
-
 @endsection
 
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script type="text/javascript">
-    const swal = $('.swal-notif').data('swal');
-    if (swal) {
-        Swal.fire({
-            'title': 'Success',
-            'text': swal,
-            'icon': 'success',
-            'showConfirmButton': false,
-            'timer': 2000
-        })
-    }
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="text/javascript">
+        const swal = $('.swal-notif').data('swal');
+        if (swal) {
+            Swal.fire({
+                'title': 'Success',
+                'text': swal,
+                'icon': 'success',
+                'showConfirmButton': false,
+                'timer': 2000
+            })
+        }
+    </script>
+
 @endpush
