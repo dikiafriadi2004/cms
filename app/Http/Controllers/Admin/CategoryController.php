@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Category;
 use Illuminate\Support\Str;
-use function Ramsey\Uuid\v1;
-
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -34,7 +32,7 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|min:3',
         ]);
 
         Category::create([

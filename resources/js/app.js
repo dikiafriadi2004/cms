@@ -1,7 +1,7 @@
-import './bootstrap';
+import "./bootstrap";
+import "./vendor/dom";
+import "./vendor/tailwind-merge";
+import "./vendor/svg-loader";
 
-import Alpine from 'alpinejs';
-
-window.Alpine = Alpine;
-
-Alpine.start();
+// Load static files
+import.meta.glob(["../images/**"]);

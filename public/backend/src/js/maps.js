@@ -8,8 +8,8 @@ import axios from "axios";
         function initMap(el) {
             var iconBase = {
                 url: $("html").hasClass("dark")
-                    ? "/backend/dist/images/map-marker-dark.svg"
-                    : "/backend/dist/images/map-marker.svg",
+                    ? "/dist/images/map-marker-dark.svg"
+                    : "/dist/images/map-marker.svg",
             };
             var lightStyle = [
                 {

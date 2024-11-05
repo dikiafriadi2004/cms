@@ -17,7 +17,7 @@
         <div class="swal-notif" data-swal="{!! Session::get('success') !!}"></div>
         <div class="grid grid-cols-12 gap-6 mt-5">
             <div class="intro-y col-span-12 lg:col-span-4">
-                <!-- BEGIN: Input -->
+                <!-- BEGIN: Input -->`
                 @include('admin.category.create')
                 <!-- END: Input -->
                 <!-- END: Select Options -->
@@ -58,9 +58,10 @@
                                             <td class="table-report__action w-56">
                                                 <div class="flex justify-center items-center">
                                                     <button class="flex items-center mr-3 edit" data-tw-toggle="modal"
-                                                        data-tw-target="#modalCategory{{ $category->id }}" data-tw-id="{{ $category->id }}"> <i data-lucide="check-square"
+                                                        data-tw-target="#modalCategory{{ $category->id }}"
+                                                        data-tw-id="{{ $category->id }}"> <i data-lucide="check-square"
                                                             class="w-4 h-4 mr-1"></i> Edit </button>
-                                                    <form
+                                                    {{-- <form
                                                         action="{{ route('category.destroy', ['category' => $category->id]) }}"
                                                         method="POST">
                                                         @csrf
@@ -68,8 +69,13 @@
                                                         <button type="submit" class="flex items-center text-danger"> <i
                                                                 data-lucide="trash-2" class="w-4 h-4 mr-1"></i> Delete
                                                         </button>
+                                                    </form> --}}
+                                                    <button class="flex items-center  text-danger" data-tw-toggle="modal"
+                                                        data-tw-target="#modalDeleteCategory{{ $category->id }}"
+                                                        data-tw-id="{{ $category->id }}"> <i data-lucide="trash-2"
+                                                            class="w-4 h-4 mr-1"></i> Delete
+                                                    </button>
 
-                                                    </form>
                                                 </div>
                                             </td>
                                         </tr>
@@ -86,7 +92,11 @@
                 <!-- END: Vertical Form -->
             </div>
         </div>
+        {{-- Modal Edit --}}
         @include('admin.category.modal-edit')
+
+        {{-- Modal Delete --}}
+        @include('admin.category.modal-delete')
     </div>
 @endsection
 
@@ -104,5 +114,4 @@
             })
         }
     </script>
-
 @endpush

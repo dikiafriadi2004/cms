@@ -1,5 +1,8 @@
 .notification {
-    @apply relative text-white/70;
+    @apply relative text-slate-600;
+    &.notification--light {
+        @apply text-white/70;
+    }
     .notification__icon {
         @apply w-5 h-5;
     }
