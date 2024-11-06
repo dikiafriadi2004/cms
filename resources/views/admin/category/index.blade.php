@@ -17,7 +17,7 @@
         <div class="swal-notif" data-swal="{!! Session::get('success') !!}"></div>
         <div class="grid grid-cols-12 gap-6 mt-5">
             <div class="intro-y col-span-12 lg:col-span-4">
-                <!-- BEGIN: Input -->`
+                <!-- BEGIN: Input -->
                 @include('admin.category.create')
                 <!-- END: Input -->
                 <!-- END: Select Options -->

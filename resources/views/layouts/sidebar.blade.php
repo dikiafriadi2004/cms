@@ -13,22 +13,22 @@
         </li>
         <li class="side-nav__devider my-6"></li>
         <li>
-            <a href="javascript:;" class="side-menu {{ request()->is('admin*') ? 'side-menu--active' : '' }}">
+            <a href="javascript:;" class="side-menu {{ request()->is('blogs*') ? 'side-menu--active' : '' }}">
                 <div class="side-menu__icon"> <i data-lucide="edit"></i> </div>
                 <div class="side-menu__title">
                     Posts
                     <div class="side-menu__sub-icon "> <i data-lucide="chevron-down"></i> </div>
                 </div>
             </a>
-            <ul class="{{ request()->is('admin*') ? 'side-menu__sub-open' : '' }}">
+            <ul class="{{ request()->is('blogs*') ? 'side-menu__sub-open' : '' }}">
                 <li>
-                    <a href="{{ route('post.index') }}" class="side-menu {{ request()->is('admin/post*') ? 'side-menu--active' : '' }}">
+                    <a href="{{ route('post.index') }}" class="side-menu {{ request()->is('blogs/post*') ? 'side-menu--active' : '' }}">
                         <div class="side-menu__icon"> <i data-lucide="activity"></i> </div>
                         <div class="side-menu__title"> All Post </div>
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('category.index') }}" class="side-menu {{ request()->is('admin/category*') ? 'side-menu--active' : '' }}">
+                    <a href="{{ route('category.index') }}" class="side-menu {{ request()->is('blogs/category*') ? 'side-menu--active' : '' }}">
                         <div class="side-menu__icon"> <i data-lucide="activity"></i> </div>
                         <div class="side-menu__title"> Categories </div>
                     </a>

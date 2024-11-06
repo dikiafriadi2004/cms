@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Member;
 
-use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Models\Post;
+use App\Models\Category;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
@@ -14,7 +16,9 @@ class PostController extends Controller
      */
     public function index()
     {
-        return view('member.post.index');
+        $user = Auth::user();
+        $posts = Post::where('user_id', $user->id)->orderBy('id', 'desc')->paginate(10);
+        return view('member.post.index', compact('posts'));
     }
 
     /**
@@ -22,8 +26,8 @@ class PostController extends Controller
      */
     public function create(Category $category)
     {
-        $category = Category::orderByDesc('id')->get();
-        return view('member.post.create', compact('category'));
+        $categories = Category::orderByDesc('id')->get();
+        return view('member.post.create', compact('categories'));
     }
 
     /**
@@ -43,14 +47,32 @@ class PostController extends Controller
             'description.required' => 'Description wajib diisi',
             'content.required' => 'Content wajib diisi',
             'category_id.required' => 'Category wajib diisi',
-            'thumbnail.image' => 'Thumbnail wajib diisi',
+            'thumbnail.image' => 'Thumbnail hanya gambar',
+            'thumbnail.mimes' => "Ekstensi hanya JPEG, JPG, dan PNG",
+            'thumbnail.max' => 'Ukuran maksimum untuk thumbnail adalah 10Mb',
         ]);
 
         if ($request->hasFile('thumbnail')){
-            
             $image = $request->file('thumbnail');
             $image_name = time() . "_" . $image->getClientOriginalName();
+            $destination_path = public_path(getenv('CUSTOM_THUMBNAIL_LOCATION'));
+            $image->move($destination_path, $image_name);
         }
+
+        $category = [
+            'title' => $request->title,
+            'description' => $request->description,
+            'content' => $request->content,
+            'status' => $request->status,
+            'category_id' => $request->category_id,
+            'thumbnail' => isset($image_name) ? $image_name : null,
+            'slug' => Str::slug($request->title),
+            'user_id' => Auth::user()->id
+        ];
+
+        Post::create($category);
+
+        return redirect()->route('post.index')->with('success', 'Post has been created');
     }
 
     /**
