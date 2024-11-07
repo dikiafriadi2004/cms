@@ -43,7 +43,7 @@
                                     <i data-lucide="chevron-down" class="w-4 h-4 mr-2"></i> Content
                                 </div>
                                 <div class="mt-5">
-                                    <textarea class="w-full" name="content" rows="3">{{ old('content') }}</textarea>
+                                    <textarea class="w-full ckeditor" id="content" name="content" rows="3">{{ old('content') }}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -86,6 +86,7 @@
 @endsection
 
 @push('js')
+<script src="{{ asset('backend/dist/js/ckeditor/ckeditor.js') }}"></script>
 <script type="text/javascript">
     function readURL(input) {
         if (input.files && input.files[0]) {
