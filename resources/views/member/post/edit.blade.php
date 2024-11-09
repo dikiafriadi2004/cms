@@ -10,9 +10,10 @@
 @section('content')
     <form action="{{ route('post.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
+        @method('PUT')
         <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
             <h2 class="text-lg font-medium mr-auto">
-                Add New Post
+                Edit Post
             </h2>
             <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
 
@@ -24,7 +25,7 @@
             <!-- BEGIN: Post Content -->
             <div class="intro-y col-span-12 lg:col-span-9">
                 <input type="text" class="intro-y form-control py-3 px-4 box pr-10" name="title" placeholder="Title"
-                    value="{{ old('title') }}">
+                    value="{{ old('title',$post->title) }}">
                 <div class="post intro-y overflow-hidden box mt-5">
                     <div class="post__content tab-content">
                         <div id="content" class="tab-pane p-5 active" role="tabpanel" aria-labelledby="content-tab">
@@ -34,7 +35,7 @@
                                     <i data-lucide="chevron-down" class="w-4 h-4 mr-2"></i> Description
                                 </div>
                                 <div class="mt-5">
-                                    <textarea class="w-full" name="description" rows="3">{{ old('description') }}</textarea>
+                                    <textarea class="w-full" name="description" rows="3">{{ old('description',$post->description) }}</textarea>
                                 </div>
                             </div>
                             <div class="border border-slate-200/60 dark:border-darkmode-400 rounded-md p-5 mt-5">
@@ -43,7 +44,7 @@
                                     <i data-lucide="chevron-down" class="w-4 h-4 mr-2"></i> Content
                                 </div>
                                 <div class="mt-5">
-                                    <textarea class="w-full" name="content" rows="3">{{ old('content') }}</textarea>
+                                    <textarea class="w-full" name="content" rows="3">{!! old('content',$post->description) !!}</textarea>
                                 </div>
                             </div>
                         </div>
