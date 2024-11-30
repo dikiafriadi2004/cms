@@ -4,30 +4,31 @@
         <span class="hidden xl:block text-white text-lg ml-3"> Rubick </span> 
     </a>
     <div class="side-nav__devider my-6"></div>
-    <li>
-        <a href="{{ route('dashboard') }}" class="side-menu">
-            <div class="side-menu__icon"> <i data-lucide="home"></i> </div>
-            <div class="side-menu__title"> Dashboard </div>
-        </a>
-    </li>
     <ul>
         <li>
-            <a href="javascript:;.html" class="side-menu side-menu--active">
+            <a href="{{ route('dashboard.index') }}" class="side-menu {{ request()->routeIs('dashboard.index') ? 'side-menu--active' : '' }}">
+                <div class="side-menu__icon"> <i data-lucide="home"></i> </div>
+                <div class="side-menu__title"> Dashboard </div>
+            </a>
+        </li>
+        <li class="side-nav__devider my-6"></li>
+        <li>
+            <a href="javascript:;" class="side-menu {{ request()->is('admin/blog*') ? 'side-menu--active' : '' }}">
                 <div class="side-menu__icon"> <i data-lucide="file-text"></i> </div>
                 <div class="side-menu__title">
                     Blog 
                     <div class="side-menu__sub-icon transform rotate-180"> <i data-lucide="chevron-down"></i> </div>
                 </div>
             </a>
-            <ul class="side-menu__sub-open">
+            <ul class="{{ request()->is('admin/blog*') ? 'side-menu__sub-open' : '' }}">
                 <li>
-                    <a href="{{ route('posts.index') }}" class="side-menu side-menu--active">
+                    <a href="{{ route('posts.index') }}" class="side-menu {{ request()->routeIs('posts.*') ? 'side-menu--active' : '' }}">
                         <div class="side-menu__icon"> <i data-lucide="activity"></i> </div>
                         <div class="side-menu__title"> Posts </div>
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('categories.index') }}" class="side-menu">
+                    <a href="{{ route('categories.index') }}" class="side-menu {{ request()->routeIs('categories.*') ? 'side-menu--active' : '' }}">
                         <div class="side-menu__icon"> <i data-lucide="activity"></i> </div>
                         <div class="side-menu__title"> Categories </div>
                     </a>

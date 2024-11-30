@@ -1,17 +1,24 @@
 <?php
 
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\PostController;
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\PostController;
+use App\Http\Controllers\Frontend\BlogController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Frontend\HomepageController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
-Route::get('/admin/dashboard', function () {
-    return view('backend.admin.dashboard.index');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/', [HomepageController::class, 'index'])->name('home.index');
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [BlogController::class, 'detail'])->name('blog.detail');
+
+// Route::get('/admin/dashboard', function () {
+//     return view('backend.admin.dashboard.index');
+// })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -19,6 +26,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::prefix('admin')->group(function (){
+        Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+
         Route::prefix('blog')->group(function () {
             // 
             Route::resource('posts', PostController::class);
