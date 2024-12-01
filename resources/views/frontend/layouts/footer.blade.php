@@ -1,4 +1,4 @@
-<footer class="mt-70">
+<footer class="">
     <div class="container">
         <div class="row col-lg-12">
             <div class="row col-lg-12 mb-30">
