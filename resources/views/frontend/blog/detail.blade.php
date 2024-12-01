@@ -10,8 +10,8 @@
             <div class="row col-lg-12 mb-30">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('blog.index') }} }}">Blog</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('home.index') }}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('blog.index') }}">Blog</a></li>
                         <li class="breadcrumb-item active" aria-current="page">{{ $post->title }}</li>
                     </ol>
                 </nav>
