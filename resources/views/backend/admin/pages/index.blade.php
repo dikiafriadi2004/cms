@@ -16,7 +16,7 @@
         <div class="grid grid-cols-12 gap-6 mt-5">
             <div class="swal-notif" data-swal="{!! Session::get('success') !!}"></div>
             <div class="intro-y col-span-12 flex flex-wrap sm:flex-nowrap items-center mt-2">
-                <a href="{{ route('pages.create') }}" class="btn btn-primary shadow-md mr-2">Add New Post</a>
+                <a href="{{ route('pages.create') }}" class="btn btn-primary shadow-md mr-2">Add New Page</a>
                 <div class="hidden md:block mx-auto text-slate-500"></div>
                 <div class="w-full sm:w-auto mt-3 sm:mt-0 sm:ml-auto md:ml-0">
                     <div class="w-56 relative text-slate-500">
@@ -70,7 +70,7 @@
                                 <td class="table-report__action w-56">
                                     <div class="flex justify-center items-center">
                                         <a class="flex items-center mr-3"
-                                            href="{{ route('pages.edit', ['post' => $page->id]) }}"> <i
+                                            href="{{ route('pages.edit', ['page' => $page->id]) }}"> <i
                                                 data-lucide="check-square" class="w-4 h-4 mr-1"></i> Edit </a>
                                         <button class="flex items-center  text-danger" data-tw-toggle="modal"
                                             data-tw-target="#modalDeletePage{{ $page->id }}"

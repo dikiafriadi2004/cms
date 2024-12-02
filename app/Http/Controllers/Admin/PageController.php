@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\Admin\Page;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Models\Admin\Post;
 use Illuminate\Support\Facades\Auth;
 
 class PageController extends Controller
@@ -16,12 +18,12 @@ class PageController extends Controller
     {
         $user = Auth::user();
         $search = $request->search;
-        $posts = Page::where('user_id', $user->id)->where(function($query) use ($search){
+        $pages = Page::where('user_id', $user->id)->where(function($query) use ($search){
             if($search){
                 $query->where('title', 'like', "%{$search}%")->orWhere('content', 'like', "%{$search}%");
             }
         })->orderBy('id', 'desc')->paginate(10)->withQueryString();
-        return view('backend.admin.posts.index', compact('posts'));
+        return view('backend.admin.pages.index', compact('pages'));
     }
 
     /**
@@ -29,7 +31,7 @@ class PageController extends Controller
      */
     public function create()
     {
-        //
+        return view('backend.admin.pages.create');
     }
 
     /**
@@ -37,7 +39,25 @@ class PageController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'title' => 'required',
+            'content' => 'required',
+        ],[
+            'title.required' => 'Title a field is required',
+            'content.required' => 'Content a field is required',
+        ]);
+
+        $page = [
+            'title' => $request->title,
+            'content' => $request->content,
+            'status' => $request->status,
+            'slug' => Str::slug($request->title),
+            'user_id' => Auth::user()->id,
+        ];
+
+        Page::create($page);
+
+        return redirect()->route('pages.index')->with('success', 'Page has been created');
     }
 
     /**
@@ -53,7 +73,7 @@ class PageController extends Controller
      */
     public function edit(Page $page)
     {
-        //
+        return view('backend.admin.pages.edit', compact('page'));
     }
 
     /**
@@ -61,7 +81,25 @@ class PageController extends Controller
      */
     public function update(Request $request, Page $page)
     {
-        //
+        $request->validate([
+            'title' => 'required',
+            'content' => 'required',
+        ],[
+            'title.required' => 'Title a field is required',
+            'content.required' => 'Content a field is required',
+        ]);
+
+        $data = [
+            'title' => $request->title,
+            'content' => $request->content,
+            'status' => $request->status,
+            'slug' => Str::slug($request->title),
+            'user_id' => Auth::user()->id
+        ];
+
+        Page::where('id', $page->id)->update($data);
+
+        return redirect()->route('pages.index')->with('success', 'Page has been updated');
     }
 
     /**
@@ -69,6 +107,7 @@ class PageController extends Controller
      */
     public function destroy(Page $page)
     {
-        //
+        Post::where('id', $page->id)->delete();
+        return redirect()->route('pages.index')->with('success', 'Page has been deleted');
     }
 }
