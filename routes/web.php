@@ -7,6 +7,7 @@ use App\Http\Controllers\Frontend\BlogController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Frontend\HomepageController;
 
 Route::get('/', [HomepageController::class, 'index'])->name('home.index');
@@ -21,13 +22,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('admin')->group(function (){
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
-        Route::resource('pages', PageController::class);
 
         Route::prefix('blog')->group(function () {
             // 
             Route::resource('posts', PostController::class);
             Route::resource('categories', CategoryController::class);
         });
+
+        Route::resource('pages', PageController::class);
+
+        Route::resource('users', UserController::class);
+
     });
 });
 

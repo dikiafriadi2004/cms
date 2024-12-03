@@ -37,8 +37,14 @@
         </li>
         <li>
             <a href="{{ route('pages.index') }}" class="side-menu {{ request()->routeIs('pages.index') ? 'side-menu--active' : '' }}">
-                <div class="side-menu__icon"> <i data-lucide="notebook-text"></i> </div>
+                <div class="side-menu__icon"> <i data-lucide="layout"></i> </div>
                 <div class="side-menu__title"> Pages </div>
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('users.index') }}" class="side-menu {{ request()->routeIs('users.*') ? 'side-menu--active' : '' }}">
+                <div class="side-menu__icon"> <i data-lucide="users"></i> </div>
+                <div class="side-menu__title"> Users </div>
             </a>
         </li>
     </ul>

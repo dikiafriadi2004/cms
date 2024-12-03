@@ -24,7 +24,7 @@
         <div class="pos intro-y grid grid-cols-12 gap-5 mt-5">
             <!-- BEGIN: Post Content -->
             <div class="intro-y col-span-12 lg:col-span-9">
-                <input type="text" class="intro-y form-control py-3 px-4 box pr-10  @error('title') is-invalid @enderror"
+                <input type="text" class="intro-y form-control py-3 px-4 box pr-10 @error('title') is-invalid @enderror"
                     name="title" placeholder="Title" value="{{ old('title') }}">
                 @error('title')
                     <div class="alert alert-danger">{{ $message }}</div>
