@@ -8,7 +8,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Frontend\HomepageController;
-
+use App\Http\Controllers\Frontend\PageController as FrontendPageController;
 
 Route::get('/', [HomepageController::class, 'index'])->name('home.index');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');

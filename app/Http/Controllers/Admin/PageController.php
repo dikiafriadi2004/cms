@@ -107,7 +107,7 @@ class PageController extends Controller
      */
     public function destroy(Page $page)
     {
-        Post::where('id', $page->id)->delete();
+        Page::where('id', $page->id)->delete();
         return redirect()->route('pages.index')->with('success', 'Page has been deleted');
     }
 }
