@@ -15,7 +15,7 @@ Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [BlogController::class, 'detail'])->name('blog.detail');
 
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'blocked'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -32,6 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('pages', PageController::class);
 
         Route::resource('users', UserController::class);
+        Route::get('users/{user}/toggle-block', [UserController::class, 'toggleBlock'])->name('users.toggle-block');
 
     });
 });

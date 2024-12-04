@@ -5,7 +5,6 @@
 @endsection
 
 @push('css')
-    
 @endpush
 
 @section('content')
@@ -21,8 +20,9 @@
                 <div class="w-full sm:w-auto mt-3 sm:mt-0 sm:ml-auto md:ml-0">
                     <div class="w-56 relative text-slate-500">
                         <form action="{{ route('users.index') }}" method="GET">
-                            <input type="text" id="search" name="search" class="form-control w-56 box pr-10" placeholder="Search..." value="{{ request('search') }}">
-                            <i class="w-4 h-4 absolute my-auto inset-y-0 mr-3 right-0" data-lucide="search"></i> 
+                            <input type="text" id="search" name="search" class="form-control w-56 box pr-10"
+                                placeholder="Search..." value="{{ request('search') }}">
+                            <i class="w-4 h-4 absolute my-auto inset-y-0 mr-3 right-0" data-lucide="search"></i>
                         </form>
                     </div>
                 </div>
@@ -57,11 +57,22 @@
                                     </div>
                                 </td>
                                 <td class="text-center">{{ $user->created_at->isoFormat('dddd, D MMMM Y') }}</td>
-                                <td class="text-center">{{ $user->email_verified_at != null ? 'Verified' : 'Not Verify' }}</td>
-                                <td class="text-center">
-                                    <a href="">No</a>
+                                <td class="text-center">{{ $user->email_verified_at != null ? 'Verified' : 'Not Verify' }}
                                 </td>
-                                
+                                <td class="text-center">
+                                    <a href="{{ route('users.toggle-block', ['user' => $user->id]) }}">
+                                        @if ($user->blocked_at == null)
+                                            <div class="flex items-center text-success">
+                                                <span>No</span>
+                                            </div>
+                                        @else
+                                            <div class="flex items-center text-danger">
+                                                <span>Yes</span>
+                                            </div>
+                                        @endif
+                                    </a>
+                                </td>
+
                                 <td class="table-report__action w-56">
                                     <div class="flex justify-center items-center">
                                         <a class="flex items-center mr-3"
