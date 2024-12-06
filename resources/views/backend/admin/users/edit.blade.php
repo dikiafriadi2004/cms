@@ -68,7 +68,7 @@
                         </div>
                         @foreach ($permissions as $permission)
                             <div class="form-check mt-5">
-                                <input id="permissions-{{ $permission->name }}" class="form-check-input" type="checkbox" value="{{ $permission->name }}"
+                                <input id="permissions-{{ $permission->name }}" class="form-check-input" type="checkbox" value="{{ $permission->name }}" {{ (old('permission', $userPermissions) && in_array($permission->name, old('permission', $userPermissions))) ? 'checked' : '' }}
                                     name="permissions[]">
                                 <label class="form-check-label" for="permissions-{{ $permission->name }}">{{ $permission->name }}</label>
                             </div>

@@ -31,7 +31,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('backend.admin.users.create');
+        $permissions = Permission::get();
+        return view('backend.admin.users.create', compact('permissions'));
     }
 
     /**
@@ -59,10 +60,11 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'email_verified_at' => $email_verified_at,
-            'password' => bcrypt($request->new_password)
+            'password' => bcrypt($request->password)
         ];
 
-        User::create($data);
+        $newUser = User::create($data);
+        $newUser->syncPermissions($request->permissions);
 
         return redirect()->route('users.index')->with('success', 'User has been created');
     }
@@ -81,7 +83,8 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $permissions = Permission::get();
-        return view('backend.admin.users.edit', compact('user', 'permissions'));
+        $userPermissions = $user->getPermissionNames()->toArray();
+        return view('backend.admin.users.edit', compact('user', 'permissions', 'userPermissions'));
     }
 
     /**

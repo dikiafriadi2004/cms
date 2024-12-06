@@ -45,7 +45,7 @@ class PostPolicy
      */
     public function delete(User $user, Post $post): bool
     {
-        return $user->id === $post->user_id;
+        return $user->can('Admin Posts') || $user->id === $post->user_id;
     }
 
     /**
@@ -66,6 +66,6 @@ class PostPolicy
 
     public function edit(User $user, Post $post): bool
     {
-        return $user->id === $post->user_id;
+        return $user->can('Admin Posts') ||  $user->id === $post->user_id;
     }
 }

@@ -35,6 +35,7 @@
                             <th class="whitespace-nowrap">#</th>
                             <th class="whitespace-nowrap">NAME</th>
                             <th class="whitespace-nowrap">EMAIL</th>
+                            <th class="whitespace-nowrap">PERMISSIONS</th>
                             <th class="text-center whitespace-nowrap">REGISTER DATE</th>
                             <th class="text-center whitespace-nowrap">VERIFY EMAIL</th>
                             <th class="text-center whitespace-nowrap">BLOCK</th>
@@ -54,6 +55,13 @@
                                 </td>
                                 <td>
                                     <div class="text-slate-500 font-medium whitespace-nowrap mt-0.5">{{ $user->email }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="text-slate-500 text-center">
+                                        @if ($user->permissions->isEmpty() == false)
+                                            {{ $user->permissions->pluck('name')->implode(', ') }}
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="text-center">{{ $user->created_at->isoFormat('dddd, D MMMM Y') }}</td>

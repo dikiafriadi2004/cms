@@ -25,14 +25,14 @@ Route::middleware(['auth', 'verified', 'blocked'])->group(function () {
 
         Route::prefix('blog')->group(function () {
             // 
-            Route::resource('posts', PostController::class);
-            Route::resource('categories', CategoryController::class);
+            Route::resource('posts', PostController::class)->middleware(['role_or_permission:Admin Posts']);
+            Route::resource('categories', CategoryController::class)->middleware(['role_or_permission:Admin Categories']);
         });
 
-        Route::resource('pages', PageController::class);
+        Route::resource('pages', PageController::class)->middleware(['role_or_permission:Admin Pages']);
 
-        Route::resource('users', UserController::class);
-        Route::get('users/{user}/toggle-block', [UserController::class, 'toggleBlock'])->name('users.toggle-block');
+        Route::resource('users', UserController::class)->middleware(['role_or_permission:Admin Users']);
+        Route::get('users/{user}/toggle-block', [UserController::class, 'toggleBlock'])->name('users.toggle-block')->middleware(['role_or_permission:Admin Users']);
 
     });
 });
