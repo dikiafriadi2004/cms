@@ -14,6 +14,20 @@
         </li>
         <li class="side-nav__devider my-6"></li>
         <li>
+            <a href="{{ route('admin.cms.index') }}"
+                class="side-menu {{ request()->routeIs('admin.cms.index') ? 'side-menu--active' : '' }}">
+                <div class="side-menu__icon"> <i data-lucide="file-text"></i> </div>
+                <div class="side-menu__title"> CMS </div>
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('admin.menu.index') }}"
+                class="side-menu {{ request()->routeIs('admin.menu.index') ? 'side-menu--active' : '' }}">
+                <div class="side-menu__icon"> <i data-lucide="file-text"></i> </div>
+                <div class="side-menu__title"> Menu </div>
+            </a>
+        </li>
+        <li>
             <a href="javascript:;" class="side-menu {{ request()->is('admin/blog*') ? 'side-menu--active' : '' }}">
                 <div class="side-menu__icon"> <i data-lucide="file-text"></i> </div>
                 <div class="side-menu__title">

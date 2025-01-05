@@ -36,7 +36,7 @@
                                     <i data-lucide="chevron-down" class="w-4 h-4 mr-2"></i> Description
                                 </div>
                                 <div class="mt-5">
-                                    <textarea class="w-full" name="description" rows="3">{{ old('description', $post->description) }}</textarea>
+                                    <textarea class="w-full" name="description" rows="3" maxlength="50">{{ old('description', $post->description) }}</textarea>
                                 </div>
                             </div>
                             <div class="border border-slate-200/60 dark:border-darkmode-400 rounded-md p-5 mt-5">

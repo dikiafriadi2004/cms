@@ -23,13 +23,10 @@
                     <div class="footer-copy">
                         <ul class="navbar-footer">
                             <li>
-                                <a href="">Produk</a>
+                                <a href="/blog">Blog</a>
                             </li>
                             <li>
-                                <a href="">Blog</a>
-                            </li>
-                            <li>
-                                <a href="">Privacy Police</a>
+                                <a href="/privacy">Privacy Policy</a>
                             </li>
                         </ul>
                     </div>
