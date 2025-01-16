@@ -22,11 +22,16 @@ class RolePermissionSeeder extends Seeder
         Permission::create(['name' => 'Admin Categories']);
         Permission::create(['name' => 'Admin Pages']);
         Permission::create(['name' => 'Admin Users']);
+        Permission::create(['name' => 'Admin CMS']);
+        Permission::create(['name' => 'Admin Menu']);
 
         $roleAdmin = Role::findByName('admin');
         $roleAdmin->givePermissionTo('Admin Posts');
         $roleAdmin->givePermissionTo('Admin Categories');
         $roleAdmin->givePermissionTo('Admin Pages');
         $roleAdmin->givePermissionTo('Admin Users');
+        $roleAdmin->givePermissionTo('Admin CMS');
+        $roleAdmin->givePermissionTo('Admin Menu');
+
     }
 }
