@@ -1,4 +1,4 @@
-@extends('frontend.layouts.standalone')
+@extends('frontend.layouts.frontend')
 
 @section('title', 'Tentang Kami - ' . ($settings['site_name'] ?? 'Konter Digital'))
 @section('description', 'Pelajari lebih lanjut tentang ' . ($settings['site_name'] ?? 'Konter Digital') . ' - Server Pulsa Terpercaya di Indonesia')

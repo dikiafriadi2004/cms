@@ -6,24 +6,28 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div class="grid lg:grid-cols-2 gap-12 items-center">
             <div class="text-white">
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">Kelola Bisnis Pulsa Anda dengan Mudah</h1>
-                <p class="text-lg md:text-xl mb-8 text-purple-100">Aplikasi server pulsa terlengkap untuk memudahkan transaksi pulsa, paket data, token listrik, dan pembayaran digital lainnya.</p>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">{{ $settings['hero_title'] ?? 'Kelola Bisnis Pulsa Anda dengan Mudah' }}</h1>
+                <p class="text-lg md:text-xl mb-8 text-purple-100">{{ $settings['hero_subtitle'] ?? 'Aplikasi server pulsa terlengkap untuk memudahkan transaksi pulsa, paket data, token listrik, dan pembayaran digital lainnya.' }}</p>
                 <div class="flex flex-wrap gap-4 mb-12">
-                    <a href="https://play.google.com/store" target="_blank" class="inline-flex items-center bg-white text-purple-600 px-8 py-4 rounded-full font-semibold hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                    <a href="{{ $settings['hero_button_url'] ?? 'https://play.google.com/store' }}" target="_blank" class="inline-flex items-center bg-white text-purple-600 px-8 py-4 rounded-full font-semibold hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
                         <svg class="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 24 24"><path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/></svg>
-                        <div class="text-left"><div class="text-xs">Download di</div><div class="text-lg font-bold">Google Play</div></div>
+                        <div class="text-left"><div class="text-xs">Download di</div><div class="text-lg font-bold">{{ $settings['hero_button_text'] ?? 'Google Play' }}</div></div>
                     </a>
                     <a href="#features" class="inline-flex items-center border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-purple-600 transition-all duration-300">Lihat Fitur<svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></a>
                 </div>
                 <div class="grid grid-cols-3 gap-6">
-                    <div><div class="text-3xl md:text-4xl font-bold mb-1">10K+</div><div class="text-sm text-purple-200">Pengguna Aktif</div></div>
-                    <div><div class="text-3xl md:text-4xl font-bold mb-1">50K+</div><div class="text-sm text-purple-200">Transaksi/Hari</div></div>
-                    <div><div class="text-3xl md:text-4xl font-bold mb-1">4.8★</div><div class="text-sm text-purple-200">Rating Aplikasi</div></div>
+                    <div><div class="text-3xl md:text-4xl font-bold mb-1">{{ $settings['hero_stat_1_number'] ?? '10K+' }}</div><div class="text-sm text-purple-200">{{ $settings['hero_stat_1_label'] ?? 'Pengguna Aktif' }}</div></div>
+                    <div><div class="text-3xl md:text-4xl font-bold mb-1">{{ $settings['hero_stat_2_number'] ?? '50K+' }}</div><div class="text-sm text-purple-200">{{ $settings['hero_stat_2_label'] ?? 'Transaksi/Hari' }}</div></div>
+                    <div><div class="text-3xl md:text-4xl font-bold mb-1">{{ $settings['hero_stat_3_number'] ?? '4.8★' }}</div><div class="text-sm text-purple-200">{{ $settings['hero_stat_3_label'] ?? 'Rating Aplikasi' }}</div></div>
                 </div>
             </div>
             <div class="relative">
                 <div class="relative z-10 max-w-md mx-auto">
-                    <img src="https://via.placeholder.com/400x800/667eea/ffffff?text=App+Screenshot" alt="App Screenshot" class="rounded-3xl shadow-2xl transform hover:scale-105 transition-transform duration-300">
+                    @if(isset($settings['hero_image']) && $settings['hero_image'])
+                        <img src="{{ asset('storage/' . $settings['hero_image']) }}" alt="App Screenshot" class="rounded-3xl shadow-2xl transform hover:scale-105 transition-transform duration-300">
+                    @else
+                        <img src="https://via.placeholder.com/400x800/667eea/ffffff?text=App+Screenshot" alt="App Screenshot" class="rounded-3xl shadow-2xl transform hover:scale-105 transition-transform duration-300">
+                    @endif
                 </div>
                 <div class="absolute top-1/4 -right-8 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
                 <div class="absolute bottom-1/4 -left-8 w-72 h-72 bg-indigo-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" style="animation-delay: 1s;"></div>
@@ -148,11 +152,11 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
         <h2 class="text-3xl md:text-5xl font-bold text-white mb-6">Siap Memulai Bisnis Pulsa Anda?</h2>
         <p class="text-lg md:text-xl text-purple-100 mb-8 max-w-2xl mx-auto">Download aplikasi sekarang dan dapatkan bonus saldo deposit untuk transaksi pertama Anda!</p>
-        <a href="https://play.google.com/store" target="_blank" class="inline-flex items-center bg-white text-purple-600 px-10 py-5 rounded-full font-bold text-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+        <a href="{{ $settings['hero_button_url'] ?? 'https://play.google.com/store' }}" target="_blank" class="inline-flex items-center bg-white text-purple-600 px-10 py-5 rounded-full font-bold text-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
             <svg class="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 24 24"><path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/></svg>
             <div class="text-left">
                 <div class="text-xs">Download Gratis di</div>
-                <div class="text-xl font-bold">Google Play Store</div>
+                <div class="text-xl font-bold">{{ $settings['hero_button_text'] ?? 'Google Play Store' }}</div>
             </div>
         </a>
         <p class="text-purple-200 mt-6 text-sm">Tersedia untuk Android • Gratis • Tanpa Biaya Tersembunyi</p>

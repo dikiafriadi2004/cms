@@ -1,4 +1,4 @@
-@extends('frontend.layouts.standalone')
+@extends('frontend.layouts.frontend')
 
 @section('title', $post->title . ' - ' . ($settings['site_name'] ?? 'Konter Digital'))
 @section('description', strip_tags(substr($post->content, 0, 160)))

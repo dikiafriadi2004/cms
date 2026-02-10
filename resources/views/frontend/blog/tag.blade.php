@@ -1,4 +1,4 @@
-@extends('frontend.layouts.standalone')
+@extends('frontend.layouts.frontend')
 
 @section('title', $tag->meta_title ?: $tag->name . ' - Blog - ' . ($settings['site_name'] ?? 'Konter Digital'))
 @section('description', $tag->meta_description ?: 'Browse articles tagged with ' . $tag->name)

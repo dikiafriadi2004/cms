@@ -1,4 +1,4 @@
-@extends('frontend.layouts.standalone')
+@extends('frontend.layouts.frontend')
 
 @section('title', 'Contact Us - ' . ($settings['site_name'] ?? 'Konter Digital'))
 @section('description', 'Get in touch with us. We are here to help you.')
