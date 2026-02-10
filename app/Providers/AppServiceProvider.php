@@ -31,8 +31,8 @@ class AppServiceProvider extends ServiceProvider
             // Ignore if database is not yet migrated
         }
 
-        // Use Bootstrap for pagination
-        Paginator::useBootstrapFive();
+        // Use Tailwind for pagination
+        Paginator::useTailwind();
 
         // Share global settings with all views
         View::composer('*', function ($view) {

@@ -114,6 +114,7 @@
                                  x-transition:leave-end="transform opacity-0 scale-95"
                                  class="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none"
                                  style="display: none;">
+                                <a href="{{ route('admin.profile.edit') }}" class="block px-3 py-1 text-sm leading-6 text-gray-900 hover:bg-gray-50">Profile</a>
                                 <a href="{{ route('home') }}" target="_blank" class="block px-3 py-1 text-sm leading-6 text-gray-900 hover:bg-gray-50">View Site</a>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf

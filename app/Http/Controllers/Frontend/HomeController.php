@@ -66,6 +66,20 @@ class HomeController extends Controller
         return view('frontend.page', compact('page', 'settings', 'headerMenu', 'footerMenu'));
     }
 
+    public function about()
+    {
+        // Get settings and menus
+        $settings = Setting::pluck('value', 'key')->toArray();
+        $headerMenu = Menu::where('location', 'header')->with(['items' => function($query) {
+            $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order')->with('children');
+        }])->first();
+        $footerMenu = Menu::where('location', 'footer')->with(['items' => function($query) {
+            $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order');
+        }])->first();
+
+        return view('frontend.about', compact('settings', 'headerMenu', 'footerMenu'));
+    }
+
     private function trackPageView($page)
     {
         // Simple page view tracking

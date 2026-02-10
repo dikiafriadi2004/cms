@@ -1,120 +1,119 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-gray-50">
+<html lang="id">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Login - {{ config('app.name', 'Konter Digital CMS') }}</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 20px 40px -15px rgba(0, 0, 0, 0.1)',
+                        'glow': '0 0 20px rgba(79, 70, 229, 0.15)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes blob {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(20px, -50px) scale(1.1); }
+            50% { transform: translate(-20px, 20px) scale(0.9); }
+            75% { transform: translate(50px, 50px) scale(1.05); }
+        }
+        .animate-blob { animation: blob 7s infinite; }
+        .animation-delay-2000 { animation-delay: 2s; }
+    </style>
 </head>
-<body class="h-full">
-    <div class="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div class="sm:mx-auto sm:w-full sm:max-w-md">
-            <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
-                Konter Digital CMS
-            </h2>
-            <p class="mt-2 text-center text-sm text-gray-600">
-                Sign in to your account
-            </p>
-        </div>
+<body class="min-h-screen w-full flex items-center justify-center bg-slate-50 relative overflow-hidden">
+    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
 
-        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-            <div class="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
-                <form class="space-y-6" method="POST" action="{{ route('login') }}">
-                    @csrf
+    <div class="relative w-full max-w-[440px] px-6">
+        <div class="bg-white rounded-3xl shadow-soft border border-slate-100 p-8 sm:p-10 relative z-10">
+            <div class="text-center mb-10">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-primary-600 to-indigo-500 text-white shadow-glow mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Welcome Back</h2>
+                <p class="text-slate-500 text-sm mt-2">Enter your credentials to access the dashboard.</p>
+            </div>
 
-                    <!-- Email Address -->
-                    <div>
-                        <label for="email" class="block text-sm font-medium leading-6 text-gray-900">
-                            Email address
-                        </label>
-                        <div class="mt-2">
-                            <input id="email" 
-                                   name="email" 
-                                   type="email" 
-                                   autocomplete="email" 
-                                   required 
-                                   value="{{ old('email') }}"
-                                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 @error('email') ring-red-500 @enderror">
+            <form method="POST" action="{{ route('login') }}" class="space-y-5">
+                @csrf
+                
+                <div class="relative group">
+                    <label for="email" class="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Email Address</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-slate-400 group-focus-within:text-primary-600 transition-colors" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                            </svg>
                         </div>
-                        @error('email')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <input type="email" id="email" name="email" value="{{ old('email') }}" required autocomplete="email" class="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition duration-200 sm:text-sm" placeholder="name@company.com">
                     </div>
+                    @error('email')
+                        <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                    <!-- Password -->
-                    <div>
-                        <label for="password" class="block text-sm font-medium leading-6 text-gray-900">
-                            Password
-                        </label>
-                        <div class="mt-2">
-                            <input id="password" 
-                                   name="password" 
-                                   type="password" 
-                                   autocomplete="current-password" 
-                                   required
-                                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 @error('password') ring-red-500 @enderror">
-                        </div>
-                        @error('password')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                <div class="relative group">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label for="password" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Password</label>
                     </div>
-
-                    <!-- Remember Me -->
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <input id="remember" 
-                                   name="remember" 
-                                   type="checkbox" 
-                                   class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
-                            <label for="remember" class="ml-3 block text-sm leading-6 text-gray-900">
-                                Remember me
-                            </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-slate-400 group-focus-within:text-primary-600 transition-colors" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                            </svg>
                         </div>
-
-                        <div class="text-sm leading-6">
-                            <a href="{{ route('password.request') }}" class="font-semibold text-indigo-600 hover:text-indigo-500">
-                                Forgot password?
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Submit Button -->
-                    <div>
-                        <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                            Sign in
+                        <input type="password" id="password" name="password" required autocomplete="current-password" class="block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition duration-200 sm:text-sm" placeholder="••••••••">
+                        <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <svg class="h-5 w-5 text-slate-400 hover:text-slate-600 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
                         </button>
                     </div>
-                </form>
+                    @error('password')
+                        <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                <!-- Register Link -->
-                <div class="mt-6">
-                    <div class="relative">
-                        <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-gray-200"></div>
-                        </div>
-                        <div class="relative flex justify-center text-sm font-medium leading-6">
-                            <span class="bg-white px-6 text-gray-900">Don't have an account?</span>
-                        </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input id="remember-me" name="remember" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-600 border-slate-300 rounded">
+                        <label for="remember-me" class="ml-2 block text-sm text-slate-600">Keep me signed in</label>
                     </div>
-
-                    <div class="mt-6">
-                        <a href="{{ route('register') }}" class="flex w-full justify-center rounded-md bg-white px-3 py-1.5 text-sm font-semibold leading-6 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                            Register now
-                        </a>
+                    <div class="text-sm">
+                        <a href="{{ route('password.request') }}" class="font-medium text-primary-600 hover:text-primary-500">Forgot password?</a>
                     </div>
                 </div>
-            </div>
 
-            <!-- Demo Credentials -->
-            <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h3 class="text-sm font-semibold text-blue-900 mb-2">Demo Credentials:</h3>
-                <div class="text-xs text-blue-800 space-y-1">
-                    <p><strong>Admin:</strong> admin@konterdigital.com / password123</p>
-                    <p><strong>Editor:</strong> editor@konterdigital.com / password123</p>
-                </div>
-            </div>
+                <button type="submit" class="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg shadow-primary-600/20 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-600 transition-all duration-200 transform hover:-translate-y-0.5">Sign In</button>
+            </form>
         </div>
+
+        <p class="text-center text-slate-400 text-xs mt-6">&copy; {{ date('Y') }} {{ config('app.name', 'Konter Digital') }}. All rights reserved.</p>
     </div>
 </body>
 </html>

@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\AdController;
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
+use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\BlogController;
 use App\Http\Controllers\Frontend\ContactController;
@@ -21,8 +22,19 @@ require __DIR__.'/auth.php';
 
 // Frontend Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Test route
+Route::get('/test-blog/{post}', function(App\Models\Post $post) {
+    return response()->json([
+        'title' => $post->title,
+        'slug' => $post->slug,
+        'status' => $post->status,
+        'published_at' => $post->published_at,
+    ]);
+});
+
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
-Route::get('/blog/{post}', [BlogController::class, 'show'])->name('blog.show');
+Route::get('/blog/{post:slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/category/{category}', [BlogController::class, 'category'])->name('blog.category');
 Route::get('/tag/{tag}', [BlogController::class, 'tag'])->name('blog.tag');
 
@@ -30,10 +42,18 @@ Route::get('/tag/{tag}', [BlogController::class, 'tag'])->name('blog.tag');
 Route::get('/contact', [ContactController::class, 'show'])->name('contact.show');
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
+// About Us Route
+Route::get('/about', [HomeController::class, 'about'])->name('about');
+
 // Admin Routes
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard')->middleware('permission:dashboard.view');
+    
+    // Profile - Available for all authenticated users
+    Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
     
     // Posts
     Route::get('posts/create', [PostController::class, 'create'])->name('posts.create')->middleware('permission:posts.create');

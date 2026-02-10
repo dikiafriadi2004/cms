@@ -48,7 +48,7 @@ class BlogController extends Controller
             });
         }
 
-        $posts = $query->paginate(12);
+        $posts = $query->paginate(9);
         $categories = Category::active()->withCount('publishedPosts')->get();
         $popularPosts = Post::published()
             ->orderBy('views_count', 'desc')
@@ -87,12 +87,26 @@ class BlogController extends Controller
             ->limit(4)
             ->get();
 
+        // Get popular posts
+        $popularPosts = Post::published()
+            ->where('id', '!=', $post->id)
+            ->with(['user', 'category'])
+            ->orderBy('views_count', 'desc')
+            ->limit(5)
+            ->get();
+
         $post->load(['user', 'category', 'tags']);
 
-        return view('frontend.blog.show', array_merge(
-            $this->getCommonData(),
-            compact('post', 'relatedPosts')
-        ));
+        // Get common data manually
+        $settings = Setting::pluck('value', 'key')->toArray();
+        $headerMenu = Menu::where('location', 'header')->with(['items' => function($query) {
+            $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order')->with('children');
+        }])->first();
+        $footerMenu = Menu::where('location', 'footer')->with(['items' => function($query) {
+            $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order');
+        }])->first();
+
+        return view('frontend.blog.show', compact('post', 'relatedPosts', 'popularPosts', 'settings', 'headerMenu', 'footerMenu'));
     }
 
     public function category(Category $category)
@@ -104,7 +118,7 @@ class BlogController extends Controller
         $posts = $category->publishedPosts()
             ->with(['user', 'tags'])
             ->latest('published_at')
-            ->paginate(12);
+            ->paginate(9);
 
         return view('frontend.blog.category', array_merge(
             $this->getCommonData(),
@@ -121,7 +135,7 @@ class BlogController extends Controller
         $posts = $tag->publishedPosts()
             ->with(['user', 'category'])
             ->latest('published_at')
-            ->paginate(12);
+            ->paginate(9);
 
         return view('frontend.blog.tag', array_merge(
             $this->getCommonData(),
