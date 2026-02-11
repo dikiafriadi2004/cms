@@ -5,7 +5,7 @@
 
 @section('content')
 <div class="max-w-3xl">
-    <form action="{{ route('admin.ads.store') }}" method="POST" class="space-y-6">
+    <form action="{{ route('admin.ads.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
         @csrf
 
         <!-- Basic Information -->
@@ -35,6 +35,7 @@
                     <select name="type" id="type" required
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('type') border-red-500 @enderror">
                         <option value="">Select ad type...</option>
+                        <option value="image" {{ old('type') == 'image' ? 'selected' : '' }}>Image Banner (Upload)</option>
                         <option value="adsense" {{ old('type') == 'adsense' ? 'selected' : '' }}>Google AdSense</option>
                         <option value="adsera" {{ old('type') == 'adsera' ? 'selected' : '' }}>Adsera</option>
                         <option value="manual" {{ old('type') == 'manual' ? 'selected' : '' }}>Manual HTML</option>
@@ -57,9 +58,23 @@
                         <option value="sidebar" {{ old('position') == 'sidebar' ? 'selected' : '' }}>Sidebar</option>
                         <option value="content_top" {{ old('position') == 'content_top' ? 'selected' : '' }}>Content Top</option>
                         <option value="content_bottom" {{ old('position') == 'content_bottom' ? 'selected' : '' }}>Content Bottom</option>
+                        <option value="in_content" {{ old('position') == 'in_content' ? 'selected' : '' }}>In Content (Di Tengah Artikel)</option>
                         <option value="between_posts" {{ old('position') == 'between_posts' ? 'selected' : '' }}>Between Posts</option>
                     </select>
                     @error('position')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- In Content Paragraph (only for in_content position) -->
+                <div id="inContentParagraphField" style="display: none;">
+                    <label for="in_content_paragraph" class="block text-sm font-medium text-gray-700 mb-1">
+                        Paragraph Number <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" name="in_content_paragraph" id="in_content_paragraph" value="{{ old('in_content_paragraph', 3) }}" min="1"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('in_content_paragraph') border-red-500 @enderror">
+                    <p class="mt-1 text-xs text-gray-500">Ads akan muncul setelah paragraf ke-berapa (contoh: 3 = setelah paragraf ketiga)</p>
+                    @error('in_content_paragraph')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
@@ -79,15 +94,101 @@
             </div>
         </div>
 
-        <!-- Ad Code -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <!-- Image Upload Section (for image type) -->
+        <div id="imageSection" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" style="display: none;">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Image Banner</h3>
+            
+            <div class="space-y-4">
+                <!-- Image Upload -->
+                <div>
+                    <label for="image" class="block text-sm font-medium text-gray-700 mb-1">
+                        Upload Image <span class="text-red-500">*</span>
+                    </label>
+                    <input type="file" name="image" id="image" accept="image/*"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('image') border-red-500 @enderror">
+                    <p class="mt-1 text-xs text-gray-500">Supported: JPG, PNG, GIF, WebP (Max: 2MB)</p>
+                    @error('image')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Link URL -->
+                <div>
+                    <label for="link" class="block text-sm font-medium text-gray-700 mb-1">
+                        Link URL (Optional)
+                    </label>
+                    <input type="url" name="link" id="link" value="{{ old('link') }}"
+                        placeholder="https://example.com/promo"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('link') border-red-500 @enderror">
+                    <p class="mt-1 text-xs text-gray-500">URL tujuan ketika banner diklik (kosongkan jika tidak perlu link)</p>
+                    @error('link')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Open in New Tab -->
+                <div>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="open_new_tab" value="1" {{ old('open_new_tab', true) ? 'checked' : '' }}
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">Open link in new tab</span>
+                    </label>
+                </div>
+
+                <!-- Size Settings -->
+                <div class="border-t pt-4 mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Ukuran Gambar
+                    </label>
+                    
+                    <select name="size_preset" id="size_preset"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-3">
+                        <option value="medium" {{ old('size_preset', 'medium') == 'medium' ? 'selected' : '' }}>Medium (Rekomendasi)</option>
+                        <option value="small" {{ old('size_preset') == 'small' ? 'selected' : '' }}>Small (Kecil)</option>
+                        <option value="large" {{ old('size_preset') == 'large' ? 'selected' : '' }}>Large (Besar)</option>
+                        <option value="auto" {{ old('size_preset') == 'auto' ? 'selected' : '' }}>Auto (Full Width Responsive)</option>
+                        <option value="custom" {{ old('size_preset') == 'custom' ? 'selected' : '' }}>Custom (Atur Sendiri)</option>
+                    </select>
+
+                    <!-- Custom Size Fields -->
+                    <div id="customSizeFields" style="display: none;" class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="custom_width" class="block text-sm font-medium text-gray-700 mb-1">
+                                Width (px)
+                            </label>
+                            <input type="number" name="custom_width" id="custom_width" value="{{ old('custom_width') }}" min="50" max="2000"
+                                placeholder="e.g., 728"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="custom_height" class="block text-sm font-medium text-gray-700 mb-1">
+                                Height (px)
+                            </label>
+                            <input type="number" name="custom_height" id="custom_height" value="{{ old('custom_height') }}" min="50" max="2000"
+                                placeholder="e.g., 90"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                    </div>
+
+                    <p class="mt-2 text-xs text-gray-500">
+                        <strong>Rekomendasi ukuran:</strong><br>
+                        • Header/Footer: 728x90 atau 970x90<br>
+                        • Sidebar: 300x250 atau 300x600<br>
+                        • Content: 728x90 atau 336x280
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ad Code (for non-image types) -->
+        <div id="codeSection" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Ad Code</h3>
             
             <div>
                 <label for="code" class="block text-sm font-medium text-gray-700 mb-1">
                     HTML/JavaScript Code <span class="text-red-500">*</span>
                 </label>
-                <textarea name="code" id="code" rows="10" required
+                <textarea name="code" id="code" rows="10"
                     placeholder="Paste your ad code here (AdSense script, Adsera code, or custom HTML)"
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm @error('code') border-red-500 @enderror">{{ old('code') }}</textarea>
                 <p class="mt-1 text-xs text-gray-500">Paste the complete ad code from your ad provider</p>
@@ -116,22 +217,22 @@
                             <span class="ml-2 text-sm text-gray-700">Homepage</span>
                         </label>
                         <label class="flex items-center">
-                            <input type="checkbox" name="display_rules[pages][]" value="blog" 
-                                {{ in_array('blog', old('display_rules.pages', [])) ? 'checked' : '' }}
+                            <input type="checkbox" name="display_rules[pages][]" value="blog_index" 
+                                {{ in_array('blog_index', old('display_rules.pages', [])) ? 'checked' : '' }}
                                 class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                            <span class="ml-2 text-sm text-gray-700">Blog</span>
+                            <span class="ml-2 text-sm text-gray-700">Blog Index (List Artikel)</span>
                         </label>
                         <label class="flex items-center">
-                            <input type="checkbox" name="display_rules[pages][]" value="post" 
-                                {{ in_array('post', old('display_rules.pages', [])) ? 'checked' : '' }}
+                            <input type="checkbox" name="display_rules[pages][]" value="blog_detail" 
+                                {{ in_array('blog_detail', old('display_rules.pages', [])) ? 'checked' : '' }}
                                 class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                            <span class="ml-2 text-sm text-gray-700">Single Post</span>
+                            <span class="ml-2 text-sm text-gray-700">Blog Detail (Single Post)</span>
                         </label>
                         <label class="flex items-center">
-                            <input type="checkbox" name="display_rules[pages][]" value="page" 
-                                {{ in_array('page', old('display_rules.pages', [])) ? 'checked' : '' }}
+                            <input type="checkbox" name="display_rules[pages][]" value="static_page" 
+                                {{ in_array('static_page', old('display_rules.pages', [])) ? 'checked' : '' }}
                                 class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                            <span class="ml-2 text-sm text-gray-700">Pages</span>
+                            <span class="ml-2 text-sm text-gray-700">Static Pages</span>
                         </label>
                     </div>
                 </div>
@@ -162,4 +263,65 @@
         </div>
     </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const typeSelect = document.getElementById('type');
+    const positionSelect = document.getElementById('position');
+    const imageSection = document.getElementById('imageSection');
+    const codeSection = document.getElementById('codeSection');
+    const codeTextarea = document.getElementById('code');
+    const imageInput = document.getElementById('image');
+    const inContentParagraphField = document.getElementById('inContentParagraphField');
+    const inContentParagraphInput = document.getElementById('in_content_paragraph');
+    const sizePresetSelect = document.getElementById('size_preset');
+    const customSizeFields = document.getElementById('customSizeFields');
+
+    function toggleSections() {
+        const selectedType = typeSelect.value;
+        
+        if (selectedType === 'image') {
+            imageSection.style.display = 'block';
+            codeSection.style.display = 'none';
+            codeTextarea.removeAttribute('required');
+            imageInput.setAttribute('required', 'required');
+        } else {
+            imageSection.style.display = 'none';
+            codeSection.style.display = 'block';
+            codeTextarea.setAttribute('required', 'required');
+            imageInput.removeAttribute('required');
+        }
+    }
+
+    function toggleInContentField() {
+        const selectedPosition = positionSelect.value;
+        
+        if (selectedPosition === 'in_content') {
+            inContentParagraphField.style.display = 'block';
+            inContentParagraphInput.setAttribute('required', 'required');
+        } else {
+            inContentParagraphField.style.display = 'none';
+            inContentParagraphInput.removeAttribute('required');
+        }
+    }
+
+    function toggleCustomSizeFields() {
+        const selectedPreset = sizePresetSelect.value;
+        
+        if (selectedPreset === 'custom') {
+            customSizeFields.style.display = 'grid';
+        } else {
+            customSizeFields.style.display = 'none';
+        }
+    }
+
+    typeSelect.addEventListener('change', toggleSections);
+    positionSelect.addEventListener('change', toggleInContentField);
+    sizePresetSelect.addEventListener('change', toggleCustomSizeFields);
+    
+    toggleSections(); // Initial state
+    toggleInContentField(); // Initial state
+    toggleCustomSizeFields(); // Initial state
+});
+</script>
 @endsection

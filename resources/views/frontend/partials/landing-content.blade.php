@@ -1,208 +1,261 @@
+<!-- Header Ads -->
+@if(isset($ads['header']) && $ads['header']->count() > 0)
+    @foreach($ads['header'] as $ad)
+        <div class="w-full">
+            {!! $ad->render() !!}
+        </div>
+    @endforeach
+@endif
+
 <!-- Hero Section -->
-<section class="relative pt-20 pb-16 md:pt-32 md:pb-24 overflow-hidden bg-gradient-to-br from-purple-600 via-indigo-600 to-purple-800">
-    <div class="absolute inset-0 opacity-10">
-        <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;1&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
-    </div>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div class="grid lg:grid-cols-2 gap-12 items-center">
-            <div class="text-white">
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">{{ $settings['hero_title'] ?? 'Kelola Bisnis Pulsa Anda dengan Mudah' }}</h1>
-                <p class="text-lg md:text-xl mb-8 text-purple-100">{{ $settings['hero_subtitle'] ?? 'Aplikasi server pulsa terlengkap untuk memudahkan transaksi pulsa, paket data, token listrik, dan pembayaran digital lainnya.' }}</p>
-                <div class="flex flex-wrap gap-4 mb-12">
-                    <a href="{{ $settings['hero_button_url'] ?? 'https://play.google.com/store' }}" target="_blank" class="inline-flex items-center bg-white text-purple-600 px-8 py-4 rounded-full font-semibold hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-                        <svg class="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 24 24"><path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/></svg>
-                        <div class="text-left"><div class="text-xs">Download di</div><div class="text-lg font-bold">{{ $settings['hero_button_text'] ?? 'Google Play' }}</div></div>
-                    </a>
-                    <a href="#features" class="inline-flex items-center border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-purple-600 transition-all duration-300">Lihat Fitur<svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></a>
+<section class="relative pt-44 pb-32 overflow-hidden bg-white">
+    <div class="absolute top-0 right-0 w-1/3 h-full bg-brand-50/50 rounded-l-[5rem] -z-10 hidden lg:block"></div>
+    <div class="absolute top-20 left-10 w-64 h-64 bg-brand-600/5 rounded-full blur-3xl -z-10"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row items-center gap-16">
+            <!-- Left Content -->
+            <div class="lg:w-1/2 space-y-8 text-center lg:text-left">
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-brand-50 text-brand-600 rounded-full">
+                    <span class="w-2 h-2 bg-brand-600 rounded-full animate-pulse"></span>
+                    <span class="text-xs font-bold uppercase tracking-wider">
+                        {{ $settings['hero_badge_text'] ?? 'Tersedia di Android & iOS' }}
+                    </span>
                 </div>
-                <div class="grid grid-cols-3 gap-6">
-                    <div><div class="text-3xl md:text-4xl font-bold mb-1">{{ $settings['hero_stat_1_number'] ?? '10K+' }}</div><div class="text-sm text-purple-200">{{ $settings['hero_stat_1_label'] ?? 'Pengguna Aktif' }}</div></div>
-                    <div><div class="text-3xl md:text-4xl font-bold mb-1">{{ $settings['hero_stat_2_number'] ?? '50K+' }}</div><div class="text-sm text-purple-200">{{ $settings['hero_stat_2_label'] ?? 'Transaksi/Hari' }}</div></div>
-                    <div><div class="text-3xl md:text-4xl font-bold mb-1">{{ $settings['hero_stat_3_number'] ?? '4.8★' }}</div><div class="text-sm text-purple-200">{{ $settings['hero_stat_3_label'] ?? 'Rating Aplikasi' }}</div></div>
+                
+                <h1 class="text-5xl md:text-7xl font-extrabold text-brand-900 leading-[1.1]">
+                    @php
+                        $heroTitle = $settings['hero_title'] ?? 'Kelola Bisnis Digital dalam Satu Genggaman';
+                        // Split by line breaks
+                        $lines = preg_split('/\r\n|\r|\n/', $heroTitle);
+                        $totalLines = count($lines);
+                    @endphp
+                    @foreach($lines as $index => $line)
+                        @if($index === $totalLines - 1)
+                            <span class="text-brand-600">{{ $line }}</span>
+                        @else
+                            {{ $line }}<br>
+                        @endif
+                    @endforeach
+                </h1>
+                
+                <p class="text-slate-500 text-lg md:text-xl leading-relaxed max-w-xl mx-auto lg:mx-0">
+                    {{ $settings['hero_subtitle'] ?? 'Aplikasi Konter Digital dirancang khusus untuk memudahkan Anda bertransaksi pulsa, paket data, hingga PPOB dengan interface yang sangat user-friendly.' }}
+                </p>
+                
+                <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                    <a href="{{ $settings['hero_button_url'] ?? '#' }}" 
+                       class="group px-8 py-5 bg-brand-900 text-white font-bold rounded-2xl hover:bg-brand-800 transition shadow-xl shadow-brand-900/20 flex items-center gap-3">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 20.5V3.5C3 2.9 3.4 2.5 4 2.5C4.2 2.5 4.4 2.6 4.6 2.7L19.3 11.2C19.7 11.4 19.9 11.7 19.9 12.1C19.9 12.5 19.7 12.8 19.3 13L4.6 21.5C4.4 21.6 4.2 21.7 4 21.7C3.4 21.7 3 21.3 3 20.7V20.5Z"/>
+                        </svg>
+                        {{ $settings['hero_button_text'] ?? 'Download Play Store' }}
+                    </a>
+                    <a href="#layanan" 
+                       class="px-8 py-5 bg-white text-slate-700 font-bold rounded-2xl border border-slate-200 hover:bg-slate-50 transition">
+                        {{ $settings['hero_button_secondary_text'] ?? 'Pelajari Fitur' }}
+                    </a>
                 </div>
             </div>
-            <div class="relative">
-                <div class="relative z-10 max-w-md mx-auto">
+            
+            <!-- Right Content - App Screenshot -->
+            <div class="lg:w-1/2 relative flex justify-center items-center">
+                <div class="absolute w-[80%] h-[80%] bg-brand-600 rounded-[3rem] rotate-6 opacity-10"></div>
+                <div class="absolute w-[80%] h-[80%] border-2 border-brand-600/20 rounded-[3rem] -rotate-3"></div>
+                
+                <div class="relative z-10 drop-shadow-[0_35px_35px_rgba(79,70,229,0.2)]">
                     @if(isset($settings['hero_image']) && $settings['hero_image'])
-                        <img src="{{ asset('storage/' . $settings['hero_image']) }}" alt="App Screenshot" class="rounded-3xl shadow-2xl transform hover:scale-105 transition-transform duration-300">
+                        <img src="{{ asset('storage/' . $settings['hero_image']) }}" 
+                             alt="App Screenshot" 
+                             class="max-w-[280px] md:max-w-[350px] h-auto rounded-[2.5rem] border-[8px] border-slate-900 shadow-2xl">
                     @else
-                        <img src="https://via.placeholder.com/400x800/667eea/ffffff?text=App+Screenshot" alt="App Screenshot" class="rounded-3xl shadow-2xl transform hover:scale-105 transition-transform duration-300">
+                        <img src="https://via.placeholder.com/350x700/4f46e5/ffffff?text=App+Screenshot" 
+                             alt="App Screenshot" 
+                             class="max-w-[280px] md:max-w-[350px] h-auto rounded-[2.5rem] border-[8px] border-slate-900 shadow-2xl">
                     @endif
+                    
+                    <!-- Floating Card 1 - Transaction Success -->
+                    <div class="absolute -left-10 top-1/4 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 animate-bounce transition-all duration-1000 hidden md:block">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase">Status</p>
+                                <p class="text-sm font-bold text-slate-900">Transaksi Sukses</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Floating Card 2 - Daily Profit -->
+                    <div class="absolute -right-10 bottom-1/4 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 animate-pulse hidden md:block">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center font-bold">
+                                Rp
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase">Laba Hari Ini</p>
+                                <p class="text-sm font-bold text-slate-900">+ Rp 250.000</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="absolute top-1/4 -right-8 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
-                <div class="absolute bottom-1/4 -left-8 w-72 h-72 bg-indigo-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" style="animation-delay: 1s;"></div>
             </div>
         </div>
     </div>
 </section>
-
 
 <!-- Features Section -->
-<section id="features" class="py-16 md:py-24 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Fitur Unggulan</h2>
-            <p class="text-lg text-gray-600">Semua yang Anda butuhkan untuk mengelola bisnis pulsa</p>
-        </div>
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition-shadow duration-300">
-                <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-6">
-                    <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+<section id="fitur" class="py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl font-bold mb-16">Fitur Unggulan Kami</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div class="space-y-4">
+                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Transaksi Cepat</h3>
-                <p class="text-gray-600">Proses transaksi pulsa, paket data, dan token listrik dalam hitungan detik dengan sistem otomatis.</p>
+                <h3 class="text-xl font-bold text-slate-900">Kecepatan Transaksi</h3>
+                <p class="text-slate-500">Sistem terotomasi penuh yang memproses transaksi Anda kurang dari 5 detik.</p>
             </div>
-            <div class="bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition-shadow duration-300">
-                <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6">
-                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            <div class="space-y-4">
+                <div class="w-16 h-16 bg-green-100 text-green-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Aman & Terpercaya</h3>
-                <p class="text-gray-600">Sistem keamanan berlapis dengan enkripsi data dan proteksi transaksi untuk menjaga bisnis Anda.</p>
+                <h3 class="text-xl font-bold text-slate-900">Keamanan Terjamin</h3>
+                <p class="text-slate-500">Enkripsi data berlapis dan fitur PIN ganda untuk melindungi saldo Anda.</p>
             </div>
-            <div class="bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition-shadow duration-300">
-                <div class="w-16 h-16 bg-yellow-100 rounded-2xl flex items-center justify-center mb-6">
-                    <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <div class="space-y-4">
+                <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Laporan Real-time</h3>
-                <p class="text-gray-600">Monitor penjualan, keuntungan, dan riwayat transaksi secara real-time dengan dashboard lengkap.</p>
-            </div>
-            <div class="bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition-shadow duration-300">
-                <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6">
-                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Multi Payment</h3>
-                <p class="text-gray-600">Terima pembayaran dari berbagai metode: transfer bank, e-wallet, dan saldo deposit.</p>
-            </div>
-            <div class="bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition-shadow duration-300">
-                <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mb-6">
-                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Support 24/7</h3>
-                <p class="text-gray-600">Tim support siap membantu Anda kapan saja melalui chat, email, atau telepon.</p>
-            </div>
-            <div class="bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition-shadow duration-300">
-                <div class="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mb-6">
-                    <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">User Friendly</h3>
-                <p class="text-gray-600">Interface yang mudah digunakan, cocok untuk pemula maupun profesional.</p>
+                <h3 class="text-xl font-bold text-slate-900">Komisi Downline</h3>
+                <p class="text-slate-500">Dapatkan pasif income dengan mengajak teman bergabung menjadi mitra.</p>
             </div>
         </div>
     </div>
 </section>
-
 
 <!-- Products Section -->
-<section class="py-16 md:py-24">
+<section id="produk" class="py-24 bg-slate-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Produk Tersedia</h2>
-            <p class="text-lg text-gray-600">Berbagai produk digital untuk memenuhi kebutuhan pelanggan Anda</p>
+        <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-4 text-center md:text-left">
+            <div>
+                <h2 class="text-3xl font-bold mb-4">Layanan Produk Digital</h2>
+                <p class="text-slate-500">Produk terlengkap untuk menunjang kebutuhan konter Anda.</p>
+            </div>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6 text-center hover:shadow-lg transition-shadow">
-                <div class="text-4xl mb-3">📱</div>
-                <h3 class="font-bold text-gray-900 mb-1">Pulsa</h3>
-                <p class="text-sm text-gray-600">Semua Operator</p>
+            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100">
+                <span class="text-4xl mb-4 block">📱</span>
+                <h4 class="font-bold">Pulsa All Operator</h4>
             </div>
-            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 text-center hover:shadow-lg transition-shadow">
-                <div class="text-4xl mb-3">📶</div>
-                <h3 class="font-bold text-gray-900 mb-1">Paket Data</h3>
-                <p class="text-sm text-gray-600">Internet Murah</p>
+            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100">
+                <span class="text-4xl mb-4 block">🌐</span>
+                <h4 class="font-bold">Paket Internet</h4>
             </div>
-            <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-6 text-center hover:shadow-lg transition-shadow">
-                <div class="text-4xl mb-3">⚡</div>
-                <h3 class="font-bold text-gray-900 mb-1">Token Listrik</h3>
-                <p class="text-sm text-gray-600">PLN Prabayar</p>
+            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100">
+                <span class="text-4xl mb-4 block">⚡</span>
+                <h4 class="font-bold">Token PLN</h4>
             </div>
-            <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-2xl p-6 text-center hover:shadow-lg transition-shadow">
-                <div class="text-4xl mb-3">🎮</div>
-                <h3 class="font-bold text-gray-900 mb-1">Voucher Game</h3>
-                <p class="text-sm text-gray-600">ML, FF, PUBG</p>
+            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100">
+                <span class="text-4xl mb-4 block">🎮</span>
+                <h4 class="font-bold">Voucher Game</h4>
             </div>
-            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 text-center hover:shadow-lg transition-shadow">
-                <div class="text-4xl mb-3">📺</div>
-                <h3 class="font-bold text-gray-900 mb-1">TV Berlangganan</h3>
-                <p class="text-sm text-gray-600">Netflix, Disney+</p>
+            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100">
+                <span class="text-4xl mb-4 block">💳</span>
+                <h4 class="font-bold">Top Up E-Wallet</h4>
             </div>
-            <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-2xl p-6 text-center hover:shadow-lg transition-shadow">
-                <div class="text-4xl mb-3">💳</div>
-                <h3 class="font-bold text-gray-900 mb-1">E-Money</h3>
-                <p class="text-sm text-gray-600">GoPay, OVO, Dana</p>
+            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100">
+                <span class="text-4xl mb-4 block">📡</span>
+                <h4 class="font-bold">TV Berbayar</h4>
             </div>
-            <div class="bg-gradient-to-br from-pink-50 to-pink-100 rounded-2xl p-6 text-center hover:shadow-lg transition-shadow">
-                <div class="text-4xl mb-3">🧾</div>
-                <h3 class="font-bold text-gray-900 mb-1">PPOB</h3>
-                <p class="text-sm text-gray-600">Tagihan & Pembayaran</p>
+            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100">
+                <span class="text-4xl mb-4 block">💸</span>
+                <h4 class="font-bold">Transfer Bank</h4>
             </div>
-            <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 text-center hover:shadow-lg transition-shadow">
-                <div class="text-4xl mb-3">✨</div>
-                <h3 class="font-bold text-gray-900 mb-1">Dan Lainnya</h3>
-                <p class="text-sm text-gray-600">Terus Bertambah</p>
+            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100">
+                <span class="text-4xl mb-4 block">🧾</span>
+                <h4 class="font-bold">Tagihan BPJS</h4>
             </div>
         </div>
-    </div>
-</section>
-
-<!-- CTA Section -->
-<section class="py-16 md:py-24 bg-gradient-to-br from-purple-600 via-indigo-600 to-purple-800 relative overflow-hidden">
-    <div class="absolute inset-0 opacity-10">
-        <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;1&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
-    </div>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
-        <h2 class="text-3xl md:text-5xl font-bold text-white mb-6">Siap Memulai Bisnis Pulsa Anda?</h2>
-        <p class="text-lg md:text-xl text-purple-100 mb-8 max-w-2xl mx-auto">Download aplikasi sekarang dan dapatkan bonus saldo deposit untuk transaksi pertama Anda!</p>
-        <a href="{{ $settings['hero_button_url'] ?? 'https://play.google.com/store' }}" target="_blank" class="inline-flex items-center bg-white text-purple-600 px-10 py-5 rounded-full font-bold text-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-            <svg class="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 24 24"><path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/></svg>
-            <div class="text-left">
-                <div class="text-xs">Download Gratis di</div>
-                <div class="text-xl font-bold">{{ $settings['hero_button_text'] ?? 'Google Play Store' }}</div>
-            </div>
-        </a>
-        <p class="text-purple-200 mt-6 text-sm">Tersedia untuk Android • Gratis • Tanpa Biaya Tersembunyi</p>
     </div>
 </section>
 
 @if(isset($posts) && $posts->count() > 0)
 <!-- Blog Section -->
-<section class="py-16 md:py-24 bg-gray-50">
+<section id="blog" class="py-24 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Artikel Terbaru</h2>
-            <p class="text-lg text-gray-600">Tips dan informasi seputar bisnis pulsa</p>
+            <h2 class="text-3xl font-bold mb-4">Tips & Berita Bisnis</h2>
+            <p class="text-slate-500">Pelajari cara mengembangkan bisnis konter Anda lebih sukses.</p>
         </div>
-        <div class="grid md:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             @foreach($posts->take(3) as $post)
-            <article class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300">
-                @if($post->featured_image)
-                    <img src="{{ $post->featured_image }}" alt="{{ $post->title }}" class="w-full h-48 object-cover">
-                @else
-                    <div class="w-full h-48 bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center">
-                        <svg class="w-16 h-16 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    </div>
-                @endif
-                <div class="p-6">
-                    @if($post->category)
-                        <span class="inline-block px-3 py-1 bg-purple-100 text-purple-600 text-xs font-semibold rounded-full mb-3">{{ $post->category->name }}</span>
+            <div class="group cursor-pointer">
+                <div class="overflow-hidden rounded-3xl mb-6">
+                    @if($post->featured_image)
+                        <img src="{{ $post->featured_image }}" class="w-full h-56 object-cover group-hover:scale-110 transition duration-500" alt="{{ $post->title }}">
+                    @else
+                        <div class="w-full h-56 bg-gradient-to-br from-brand-400 to-indigo-500 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
                     @endif
-                    <h3 class="text-xl font-bold text-gray-900 mb-3 hover:text-purple-600 transition-colors">
-                        <a href="{{ route('blog.show', $post->slug) }}">{{ $post->title }}</a>
-                    </h3>
-                    <p class="text-gray-600 mb-4">{{ Str::limit($post->excerpt ?: strip_tags($post->content), 100) }}</p>
-                    <div class="flex items-center justify-between text-sm text-gray-500">
-                        <span>{{ $post->published_at->format('M d, Y') }}</span>
-                        <a href="{{ route('blog.show', $post->slug) }}" class="text-purple-600 font-semibold hover:text-purple-700">Baca Selengkapnya →</a>
-                    </div>
                 </div>
-            </article>
+                @if($post->category)
+                    <span class="text-brand-600 text-sm font-bold">{{ $post->category->name }}</span>
+                @endif
+                <h3 class="text-xl font-bold mt-2 group-hover:text-brand-600 transition">
+                    <a href="{{ route('blog.show', $post->slug) }}">{{ $post->title }}</a>
+                </h3>
+                <p class="text-slate-500 mt-3 text-sm">{{ Str::limit($post->excerpt ?: strip_tags($post->content), 100) }}</p>
+            </div>
             @endforeach
         </div>
         <div class="text-center mt-12">
-            <a href="{{ route('blog.index') }}" class="inline-flex items-center px-8 py-3 border-2 border-purple-600 text-purple-600 rounded-full font-semibold hover:bg-purple-600 hover:text-white transition-all duration-300">
+            <a href="{{ route('blog.index') }}" class="inline-flex items-center px-8 py-3 border-2 border-brand-600 text-brand-600 rounded-full font-semibold hover:bg-brand-600 hover:text-white transition-all duration-300">
                 Lihat Semua Artikel
                 <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
             </a>
         </div>
     </div>
 </section>
+@endif
+
+<!-- CTA Section -->
+<section class="py-20 bg-brand-600">
+    <div class="max-w-4xl mx-auto px-4 text-center text-white">
+        <h2 class="text-4xl font-bold mb-6">Siap Memulai Bisnis Server Pulsa?</h2>
+        <p class="text-indigo-100 text-lg mb-10 leading-relaxed">
+            Bergabunglah dengan ribuan mitra lainnya. Pendaftaran gratis, tanpa biaya admin bulanan. Langsung jualan hari ini!
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="{{ $settings['hero_button_url'] ?? '#' }}" class="px-10 py-4 bg-white text-brand-600 font-bold rounded-2xl shadow-xl hover:bg-brand-50 transition active:scale-95">
+                Daftar Akun Sekarang
+            </a>
+            @if(isset($settings['whatsapp_number']) && $settings['whatsapp_number'])
+            <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $settings['whatsapp_number']) }}" target="_blank" class="px-10 py-4 bg-brand-700 text-white font-bold rounded-2xl hover:bg-brand-900 transition border border-brand-500">
+                Tanya Admin WA
+            </a>
+            @endif
+        </div>
+    </div>
+</section>
+
+<!-- Footer Ads -->
+@if(isset($ads['footer']) && $ads['footer']->count() > 0)
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        @foreach($ads['footer'] as $ad)
+            <div class="mb-4">
+                {!! $ad->render() !!}
+            </div>
+        @endforeach
+    </div>
 @endif

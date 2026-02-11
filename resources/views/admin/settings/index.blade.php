@@ -446,9 +446,29 @@
                 </div>
             </div>
 
+            <!-- Hero Badge Text -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Hero Badge Text</label>
+                <input type="text" name="settings[hero_badge_text]" 
+                    value="{{ $getSetting('hero', 'hero_badge_text') }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Tersedia di Android & iOS">
+                <p class="mt-1 text-xs text-gray-500">Text untuk badge di hero section</p>
+            </div>
+
+            <!-- Hero Secondary Button Text -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Hero Secondary Button Text</label>
+                <input type="text" name="settings[hero_button_secondary_text]" 
+                    value="{{ $getSetting('hero', 'hero_button_secondary_text') }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Pelajari Fitur">
+                <p class="mt-1 text-xs text-gray-500">Text untuk tombol sekunder di hero section</p>
+            </div>
+
             <!-- Hero Image -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Hero Image</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Hero Image (Screenshot App)</label>
                 @if($getSetting('hero', 'hero_image'))
                 <div class="mb-3">
                     <img src="{{ asset('storage/' . $getSetting('hero', 'hero_image')) }}" 
@@ -457,63 +477,54 @@
                 @endif
                 <input type="file" name="settings[hero_image]" accept="image/*"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <p class="mt-1 text-xs text-gray-500">Gambar/screenshot aplikasi di hero section (Recommended: 400x800px)</p>
+                <p class="mt-1 text-xs text-gray-500">Screenshot aplikasi di hero section (Ukuran ideal: 350x700px, format portrait)</p>
             </div>
+        </div>
+    </div>
 
-            <div class="border-t border-gray-200 pt-6">
-                <h4 class="text-md font-semibold text-gray-900 mb-4">Statistik Hero Section</h4>
+    <!-- About Page Settings -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <h3 class="text-lg font-semibold text-gray-900">About Page Settings</h3>
+        </div>
+        <div class="p-6 space-y-6">
+            <!-- About Statistics -->
+            <div class="border-b border-gray-200 pb-6">
+                <h4 class="text-md font-semibold text-gray-900 mb-4">Statistik About Page</h4>
                 
                 <!-- Statistik 1 -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Statistik 1 - Angka</label>
-                        <input type="text" name="settings[hero_stat_1_number]" 
-                            value="{{ $getSetting('hero', 'hero_stat_1_number') }}"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="10K+">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Statistik 1 - Label</label>
-                        <input type="text" name="settings[hero_stat_1_label]" 
-                            value="{{ $getSetting('hero', 'hero_stat_1_label') }}"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Pengguna Aktif">
-                    </div>
-                </div>
-
-                <!-- Statistik 2 -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Statistik 2 - Angka</label>
-                        <input type="text" name="settings[hero_stat_2_number]" 
-                            value="{{ $getSetting('hero', 'hero_stat_2_number') }}"
+                        <input type="text" name="settings[about_stat_1_number]" 
+                            value="{{ $getSetting('about', 'about_stat_1_number') }}"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="50K+">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Statistik 2 - Label</label>
-                        <input type="text" name="settings[hero_stat_2_label]" 
-                            value="{{ $getSetting('hero', 'hero_stat_2_label') }}"
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Statistik 1 - Label</label>
+                        <input type="text" name="settings[about_stat_1_label]" 
+                            value="{{ $getSetting('about', 'about_stat_1_label') }}"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Transaksi/Hari">
+                            placeholder="Agen Aktif">
                     </div>
                 </div>
 
-                <!-- Statistik 3 -->
+                <!-- Statistik 2 -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Statistik 3 - Angka</label>
-                        <input type="text" name="settings[hero_stat_3_number]" 
-                            value="{{ $getSetting('hero', 'hero_stat_3_number') }}"
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Statistik 2 - Angka</label>
+                        <input type="text" name="settings[about_stat_2_number]" 
+                            value="{{ $getSetting('about', 'about_stat_2_number') }}"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="4.8★">
+                            placeholder="1M+">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Statistik 3 - Label</label>
-                        <input type="text" name="settings[hero_stat_3_label]" 
-                            value="{{ $getSetting('hero', 'hero_stat_3_label') }}"
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Statistik 2 - Label</label>
+                        <input type="text" name="settings[about_stat_2_label]" 
+                            value="{{ $getSetting('about', 'about_stat_2_label') }}"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Rating Aplikasi">
+                            placeholder="Transaksi/Bulan">
                     </div>
                 </div>
             </div>

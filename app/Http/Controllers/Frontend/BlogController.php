@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Tag;
 use App\Models\Setting;
 use App\Models\Menu;
+use App\Models\Ad;
 use Illuminate\Http\Request;
 
 class BlogController extends Controller
@@ -55,9 +56,17 @@ class BlogController extends Controller
             ->limit(5)
             ->get();
 
+        // Get ads for blog index page
+        $context = ['page' => 'blog_index'];
+        $ads = [
+            'content_top' => Ad::getByPosition('content_top', $context),
+            'between_posts' => Ad::getByPosition('between_posts', $context),
+            'sidebar' => Ad::getByPosition('sidebar', $context),
+        ];
+
         return view('frontend.blog.index', array_merge(
             $this->getCommonData(),
-            compact('posts', 'categories', 'popularPosts')
+            compact('posts', 'categories', 'popularPosts', 'ads')
         ));
     }
 
@@ -106,7 +115,20 @@ class BlogController extends Controller
             $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order');
         }])->first();
 
-        return view('frontend.blog.show', compact('post', 'relatedPosts', 'popularPosts', 'settings', 'headerMenu', 'footerMenu'));
+        // Get ads for blog detail page
+        $context = [
+            'page' => 'blog_detail',
+            'post' => $post->id,
+            'category' => $post->category_id,
+        ];
+        
+        $ads = [
+            'content_top' => Ad::getByPosition('content_top', $context),
+            'content_bottom' => Ad::getByPosition('content_bottom', $context),
+            'sidebar' => Ad::getByPosition('sidebar', $context),
+        ];
+
+        return view('frontend.blog.show', compact('post', 'relatedPosts', 'popularPosts', 'settings', 'headerMenu', 'footerMenu', 'ads'));
     }
 
     public function category(Category $category)
@@ -120,9 +142,22 @@ class BlogController extends Controller
             ->latest('published_at')
             ->paginate(9);
 
+        $categories = Category::active()->withCount('publishedPosts')->get();
+
+        // Get ads for category page
+        $context = [
+            'page' => 'blog_category',
+            'category' => $category->id,
+        ];
+        $ads = [
+            'content_top' => Ad::getByPosition('content_top', $context),
+            'between_posts' => Ad::getByPosition('between_posts', $context),
+            'sidebar' => Ad::getByPosition('sidebar', $context),
+        ];
+
         return view('frontend.blog.category', array_merge(
             $this->getCommonData(),
-            compact('category', 'posts')
+            compact('category', 'posts', 'categories', 'ads')
         ));
     }
 
@@ -137,9 +172,17 @@ class BlogController extends Controller
             ->latest('published_at')
             ->paginate(9);
 
+        // Get ads for tag page
+        $context = ['page' => 'blog_tag'];
+        $ads = [
+            'content_top' => Ad::getByPosition('content_top', $context),
+            'between_posts' => Ad::getByPosition('between_posts', $context),
+            'sidebar' => Ad::getByPosition('sidebar', $context),
+        ];
+
         return view('frontend.blog.tag', array_merge(
             $this->getCommonData(),
-            compact('tag', 'posts')
+            compact('tag', 'posts', 'ads')
         ));
     }
 }

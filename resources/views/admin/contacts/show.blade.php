@@ -158,8 +158,29 @@
                 </div>
                 <div>
                     <label for="message" class="block text-sm font-medium text-gray-700 mb-2">Message <span class="text-red-500">*</span></label>
+                    
+                    <!-- Template Selector -->
+                    <div class="mb-3 flex gap-2">
+                        <select id="template-selector" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">-- Pilih Template --</option>
+                            <option value="terima_kasih">Terima Kasih</option>
+                            <option value="informasi_produk">Informasi Produk</option>
+                            <option value="konfirmasi_pesanan">Konfirmasi Pesanan</option>
+                            <option value="follow_up">Follow Up</option>
+                            <option value="penolakan_sopan">Penolakan Sopan</option>
+                        </select>
+                        <button type="button" onclick="showTemplateModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview & Insert
+                        </button>
+                    </div>
+                    
                     <div id="reply-editor" class="bg-white border border-gray-300 rounded-lg" style="min-height: 300px;"></div>
                     <textarea name="message" id="message" style="display:none;">{{ old('message') }}</textarea>
+                    <p class="mt-2 text-xs text-gray-500">💡 Tip: Pilih template di atas untuk mempercepat balasan Anda</p>
                 </div>
                 <div class="flex gap-3">
                     <button type="submit" class="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
@@ -171,6 +192,56 @@
                 </div>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Template Preview Modal -->
+<div id="template-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4" style="display: none;">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] sm:max-h-[85vh] overflow-hidden flex flex-col">
+        <!-- Modal Header -->
+        <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 flex-shrink-0">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base sm:text-lg font-bold text-gray-900">Preview Template</h3>
+                <button type="button" onclick="closeTemplateModal()" class="text-gray-400 hover:text-gray-600 transition-colors p-1">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal Body - Scrollable -->
+        <div class="px-4 sm:px-6 py-3 sm:py-4 overflow-y-auto flex-1 min-h-0">
+            <div class="mb-3 sm:mb-4 p-2.5 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div class="flex items-start">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <div class="text-xs text-blue-800">
+                        <p class="font-semibold mb-0.5">Template ini adalah starting point</p>
+                        <p class="hidden sm:block text-xs">Setelah di-insert, Anda bisa mengedit sesuai kebutuhan. Bagian yang ditandai dengan <strong>[HURUF KAPITAL]</strong> perlu disesuaikan.</p>
+                        <p class="sm:hidden text-xs">Edit bagian <strong>[HURUF KAPITAL]</strong> setelah insert.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="template-preview" class="prose prose-sm max-w-none bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-200 text-xs sm:text-sm">
+                <!-- Template content will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Modal Footer - Fixed at bottom -->
+        <div class="px-4 sm:px-6 py-2.5 sm:py-3 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row justify-end gap-2 flex-shrink-0">
+            <button type="button" onclick="closeTemplateModal()" class="w-full sm:w-auto px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium order-2 sm:order-1">
+                Batal
+            </button>
+            <button type="button" onclick="insertTemplateFromModal()" class="w-full sm:w-auto px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm order-1 sm:order-2">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Insert Template
+            </button>
+        </div>
     </div>
 </div>
 
@@ -186,12 +257,178 @@
 .ql-container { min-height: 300px; font-size: 16px; }
 .ql-editor { min-height: 300px; }
 .ql-editor img { max-width: 100%; height: auto; }
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+}
+
+/* Modal styles */
+#template-modal {
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+#template-modal > div {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Preview content styling */
+#template-preview {
+    line-height: 1.6;
+}
+
+#template-preview p {
+    margin-bottom: 1em;
+}
+
+#template-preview ul {
+    margin-left: 1.5em;
+    margin-bottom: 1em;
+}
+
+#template-preview li {
+    margin-bottom: 0.5em;
+}
+
+#template-preview strong {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+#template-preview em {
+    font-style: italic;
+    color: #4b5563;
+}
 </style>
 @endpush
 
 @push('scripts')
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 <script>
+// Email templates
+const templates = {
+    terima_kasih: `<p>Halo <strong>{{ $contact->name }}</strong>,</p>
+<p><br></p>
+<p>Terima kasih telah menghubungi kami. Kami sangat menghargai waktu Anda untuk mengirimkan pesan kepada kami.</p>
+<p><br></p>
+<p>[TAMBAHKAN PESAN ANDA DI SINI]</p>
+<p><br></p>
+<p>Jika Anda memiliki pertanyaan lebih lanjut, jangan ragu untuk menghubungi kami kembali.</p>
+<p><br></p>
+<p>Salam hangat,<br>
+<strong>Tim {{ config('app.name') }}</strong></p>`,
+
+    informasi_produk: `<p>Halo <strong>{{ $contact->name }}</strong>,</p>
+<p><br></p>
+<p>Terima kasih atas ketertarikan Anda terhadap produk/layanan kami.</p>
+<p><br></p>
+<p>[JELASKAN INFORMASI PRODUK DI SINI]</p>
+<p><br></p>
+<p><strong>Fitur Utama:</strong></p>
+<ul>
+    <li>Fitur 1</li>
+    <li>Fitur 2</li>
+    <li>Fitur 3</li>
+</ul>
+<p><br></p>
+<p><strong>Harga:</strong> [MASUKKAN HARGA]</p>
+<p><br></p>
+<p>Untuk informasi lebih detail atau pemesanan, silakan hubungi kami di:</p>
+<p>📞 [NOMOR TELEPON]<br>
+📧 [EMAIL]<br>
+💬 [WHATSAPP]</p>
+<p><br></p>
+<p>Salam,<br>
+<strong>Tim {{ config('app.name') }}</strong></p>`,
+
+    konfirmasi_pesanan: `<p>Halo <strong>{{ $contact->name }}</strong>,</p>
+<p><br></p>
+<p>Terima kasih atas pesanan Anda!</p>
+<p><br></p>
+<p><strong>Detail Pesanan:</strong></p>
+<ul>
+    <li>Nomor Pesanan: [NOMOR PESANAN]</li>
+    <li>Tanggal: [TANGGAL]</li>
+    <li>Total: [TOTAL]</li>
+</ul>
+<p><br></p>
+<p>[TAMBAHKAN INFORMASI TAMBAHAN]</p>
+<p><br></p>
+<p>Pesanan Anda sedang diproses dan akan segera kami kirimkan. Anda akan menerima notifikasi pengiriman melalui email.</p>
+<p><br></p>
+<p>Terima kasih atas kepercayaan Anda!</p>
+<p><br></p>
+<p>Hormat kami,<br>
+<strong>Tim {{ config('app.name') }}</strong></p>`,
+
+    follow_up: `<p>Halo <strong>{{ $contact->name }}</strong>,</p>
+<p><br></p>
+<p>Kami ingin menindaklanjuti pesan Anda sebelumnya mengenai: <em>"{{ $contact->subject }}"</em></p>
+<p><br></p>
+<p>[TAMBAHKAN FOLLOW UP ANDA DI SINI]</p>
+<p><br></p>
+<p>Apakah ada yang bisa kami bantu lebih lanjut?</p>
+<p><br></p>
+<p>Kami menunggu kabar dari Anda.</p>
+<p><br></p>
+<p>Salam,<br>
+<strong>Tim {{ config('app.name') }}</strong></p>`,
+
+    penolakan_sopan: `<p>Halo <strong>{{ $contact->name }}</strong>,</p>
+<p><br></p>
+<p>Terima kasih atas pesan Anda. Kami sangat menghargai ketertarikan Anda.</p>
+<p><br></p>
+<p>Namun, saat ini kami [JELASKAN ALASAN PENOLAKAN DENGAN SOPAN].</p>
+<p><br></p>
+<p>[TAMBAHKAN ALTERNATIF ATAU SARAN JIKA ADA]</p>
+<p><br></p>
+<p>Kami mohon maaf atas ketidaknyamanan ini dan berharap dapat bekerja sama dengan Anda di kesempatan lain.</p>
+<p><br></p>
+<p>Terima kasih atas pengertiannya.</p>
+<p><br></p>
+<p>Salam hormat,<br>
+<strong>Tim {{ config('app.name') }}</strong></p>`
+};
+
+// Template names for display
+const templateNames = {
+    terima_kasih: 'Terima Kasih',
+    informasi_produk: 'Informasi Produk',
+    konfirmasi_pesanan: 'Konfirmasi Pesanan',
+    follow_up: 'Follow Up',
+    penolakan_sopan: 'Penolakan Sopan'
+};
+
 var quill = new Quill('#reply-editor', {
     theme: 'snow',
     modules: {
@@ -204,6 +441,86 @@ var quill = new Quill('#reply-editor', {
         ]
     }
 });
+
+// Show template modal
+function showTemplateModal() {
+    const selector = document.getElementById('template-selector');
+    const templateKey = selector.value;
+    
+    if (!templateKey) {
+        alert('Silakan pilih template terlebih dahulu');
+        return;
+    }
+    
+    const templateHtml = templates[templateKey];
+    const modal = document.getElementById('template-modal');
+    const preview = document.getElementById('template-preview');
+    
+    // Set preview content
+    preview.innerHTML = templateHtml;
+    
+    // Show modal
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+// Close template modal
+function closeTemplateModal() {
+    const modal = document.getElementById('template-modal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// Insert template from modal
+function insertTemplateFromModal() {
+    const selector = document.getElementById('template-selector');
+    const templateKey = selector.value;
+    const templateHtml = templates[templateKey];
+    
+    // Insert to editor
+    quill.root.innerHTML = templateHtml;
+    
+    // Close modal
+    closeTemplateModal();
+    
+    // Reset selector
+    selector.value = '';
+    
+    // Focus on editor
+    quill.focus();
+    
+    // Show success message
+    showNotification('✅ Template berhasil di-insert! Silakan edit sesuai kebutuhan.');
+}
+
+// Close modal when clicking outside
+document.getElementById('template-modal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeTemplateModal();
+    }
+});
+
+// Close modal with ESC key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeTemplateModal();
+    }
+});
+
+// Show notification
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+    notification.innerHTML = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateY(-10px)';
+        notification.style.transition = 'all 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
 
 var form = document.getElementById('reply-form');
 form.addEventListener('submit', function(e) {

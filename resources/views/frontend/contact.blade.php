@@ -1,190 +1,183 @@
 @extends('frontend.layouts.frontend')
 
-@section('title', 'Contact Us - ' . ($settings['site_name'] ?? 'Konter Digital'))
-@section('description', 'Get in touch with us. We are here to help you.')
+@section('title', 'Hubungi Kami - ' . ($settings['site_name'] ?? 'Konter Digital'))
+@section('description', 'Butuh bantuan teknis, tanya harga produk, atau sekadar ingin menyapa? Tim kami aktif setiap hari untuk melayani Anda.')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50 py-16">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="text-center mb-16">
-            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Get In Touch</h1>
-            <p class="text-lg text-gray-600 max-w-2xl mx-auto">Have a question or want to work together? We'd love to hear from you.</p>
-        </div>
+<!-- Header Section -->
+<section class="pt-40 pb-20 bg-brand-50/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <span class="px-4 py-2 bg-brand-600/10 text-brand-600 text-xs font-extrabold uppercase tracking-widest rounded-full">Contact Support</span>
+        <h1 class="text-4xl md:text-6xl font-extrabold text-brand-900 mt-6 mb-4">
+            Ada Pertanyaan? Kami <br class="hidden md:block"> Siap Membantu
+        </h1>
+        <p class="text-slate-500 text-lg max-w-2xl mx-auto">
+            Butuh bantuan teknis, tanya harga produk, atau sekadar ingin menyapa? Tim kami aktif setiap hari untuk melayani Anda.
+        </p>
+    </div>
+</section>
 
-        <!-- Success/Error Messages -->
-        @if(session('success'))
-        <div class="mb-8 max-w-4xl mx-auto">
-            <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded-r-lg shadow-sm">
-                <div class="flex items-start">
-                    <svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <div>
-                        <h3 class="text-green-900 font-semibold text-lg mb-1">Success!</h3>
-                        <p class="text-green-700">{{ session('success') }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        @endif
-
-        @if(session('error'))
-        <div class="mb-8 max-w-4xl mx-auto">
-            <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-lg shadow-sm">
-                <div class="flex items-start">
-                    <svg class="w-6 h-6 text-red-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <div>
-                        <h3 class="text-red-900 font-semibold text-lg mb-1">Error!</h3>
-                        <p class="text-red-700">{{ session('error') }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        @endif
-
-        <div class="grid lg:grid-cols-3 gap-8">
-            <!-- Contact Form -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-3xl shadow-xl p-8 md:p-12">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Send us a message</h2>
-                    <form method="POST" action="{{ route('contact.store') }}" class="space-y-6">
-                        @csrf
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">Full Name <span class="text-red-500">*</span></label>
-                                <input type="text" id="name" name="name" value="{{ old('name') }}" required
-                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all @error('name') border-red-500 @enderror"
-                                    placeholder="John Doe">
-                                @error('name')
-                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-                            <div>
-                                <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address <span class="text-red-500">*</span></label>
-                                <input type="email" id="email" name="email" value="{{ old('email') }}" required
-                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all @error('email') border-red-500 @enderror"
-                                    placeholder="john@example.com">
-                                @error('email')
-                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number <span class="text-gray-400">(Optional)</span></label>
-                                <input type="tel" id="phone" name="phone" value="{{ old('phone') }}"
-                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all @error('phone') border-red-500 @enderror"
-                                    placeholder="+62 812 3456 7890">
-                                @error('phone')
-                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-                            <div>
-                                <label for="subject" class="block text-sm font-semibold text-gray-700 mb-2">Subject <span class="text-red-500">*</span></label>
-                                <input type="text" id="subject" name="subject" value="{{ old('subject') }}" required
-                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all @error('subject') border-red-500 @enderror"
-                                    placeholder="How can we help?">
-                                @error('subject')
-                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-                        <div>
-                            <label for="message" class="block text-sm font-semibold text-gray-700 mb-2">Message <span class="text-red-500">*</span></label>
-                            <textarea id="message" name="message" rows="6" required
-                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all @error('message') border-red-500 @enderror"
-                                placeholder="Tell us more about your inquiry...">{{ old('message') }}</textarea>
-                            @error('message')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        <button type="submit" 
-                            class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 px-8 rounded-xl font-semibold hover:from-purple-700 hover:to-indigo-700 focus:ring-4 focus:ring-purple-200 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                            </svg>
-                            Send Message
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Contact Info -->
-            <div class="space-y-6">
-                @if(isset($settings['contact_email']) && $settings['contact_email'])
-                <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0">
-                            <div class="w-14 h-14 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-xl flex items-center justify-center">
-                                <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-lg font-bold text-gray-900 mb-1">Email</h3>
-                            <a href="mailto:{{ $settings['contact_email'] }}" class="text-purple-600 hover:text-purple-700 font-medium">
-                                {{ $settings['contact_email'] }}
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                @endif
-
-                @if(isset($settings['contact_phone']) && $settings['contact_phone'])
-                <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0">
-                            <div class="w-14 h-14 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl flex items-center justify-center">
-                                <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-lg font-bold text-gray-900 mb-1">Phone</h3>
-                            <a href="tel:{{ $settings['contact_phone'] }}" class="text-green-600 hover:text-green-700 font-medium">
-                                {{ $settings['contact_phone'] }}
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                @endif
-
-                @if(isset($settings['contact_address']) && $settings['contact_address'])
-                <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0">
-                            <div class="w-14 h-14 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl flex items-center justify-center">
-                                <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-lg font-bold text-gray-900 mb-1">Address</h3>
-                            <p class="text-gray-600">{{ $settings['contact_address'] }}</p>
-                        </div>
-                    </div>
-                </div>
-                @endif
-
-                <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl p-6 text-white">
-                    <div class="flex items-start">
-                        <svg class="w-6 h-6 mr-3 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <div>
-                            <h4 class="font-bold text-lg mb-2">Quick Response</h4>
-                            <p class="text-purple-100">We typically respond within 24 hours on business days.</p>
-                        </div>
-                    </div>
+<!-- Contact Section -->
+<section class="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Success/Error Messages -->
+    @if(session('success'))
+    <div class="mb-8 max-w-4xl mx-auto">
+        <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded-r-2xl shadow-sm">
+            <div class="flex items-start">
+                <svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div>
+                    <h3 class="text-green-900 font-semibold text-lg mb-1">Berhasil!</h3>
+                    <p class="text-green-700">{{ session('success') }}</p>
                 </div>
             </div>
         </div>
     </div>
-</div>
+    @endif
+
+    @if(session('error'))
+    <div class="mb-8 max-w-4xl mx-auto">
+        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-2xl shadow-sm">
+            <div class="flex items-start">
+                <svg class="w-6 h-6 text-red-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div>
+                    <h3 class="text-red-900 font-semibold text-lg mb-1">Error!</h3>
+                    <p class="text-red-700">{{ session('error') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <!-- Contact Cards -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- WhatsApp Card -->
+            @if(isset($settings['whatsapp_number']) && $settings['whatsapp_number'])
+            <div class="p-8 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm hover:shadow-xl hover:shadow-brand-600/5 transition duration-300">
+                <div class="w-14 h-14 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mb-6">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-brand-900 mb-2">Layanan WhatsApp</h3>
+                <p class="text-slate-500 text-sm mb-6">Respon cepat via Chat mulai 08.00 - 22.00 WIB.</p>
+                <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $settings['whatsapp_number']) }}" 
+                   target="_blank"
+                   class="inline-flex items-center text-green-600 font-bold hover:gap-2 transition-all">
+                    Chat Sekarang 
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                    </svg>
+                </a>
+            </div>
+            @endif
+
+            <!-- Telegram Card -->
+            @if(isset($settings['telegram_url']) && $settings['telegram_url'])
+            <div class="p-8 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm hover:shadow-xl hover:shadow-brand-600/5 transition duration-300">
+                <div class="w-14 h-14 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center mb-6">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.18 1.897-.962 6.502-1.359 8.627-.168.9-.499 1.201-.82 1.23-.698.064-1.226-.462-1.901-.905-1.057-.695-1.653-1.13-2.678-1.805-1.185-.78-.417-1.207.258-1.908.177-.184 3.247-2.977 3.307-3.232.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.329-.912.489-1.301.481-.428-.008-1.252-.241-1.865-.44-.751-.244-1.348-.372-1.296-.786.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635.099-.002.321.023.465.14.12.098.153.23.167.323.014.093.023.233.013.361z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-brand-900 mb-2">Telegram Center</h3>
+                <p class="text-slate-500 text-sm mb-6">Update info gangguan & stok via channel Telegram.</p>
+                <a href="{{ $settings['telegram_url'] }}" 
+                   target="_blank"
+                   class="inline-flex items-center text-sky-600 font-bold hover:gap-2 transition-all">
+                    Gabung Grup 
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                    </svg>
+                </a>
+            </div>
+            @endif
+        </div>
+
+        <!-- Contact Form -->
+        <div class="lg:col-span-2">
+            <div class="bg-white border border-slate-100 p-10 rounded-[3rem] shadow-2xl shadow-brand-900/5">
+                <form method="POST" action="{{ route('contact.store') }}" class="space-y-6">
+                    @csrf
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Nama Lengkap</label>
+                            <input type="text" 
+                                   name="name" 
+                                   value="{{ old('name') }}"
+                                   placeholder="Contoh: Budi Santoso" 
+                                   required
+                                   class="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white transition @error('name') border-red-500 @enderror">
+                            @error('name')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Nomor HP / WhatsApp</label>
+                            <input type="tel" 
+                                   name="phone" 
+                                   value="{{ old('phone') }}"
+                                   placeholder="0812xxxx" 
+                                   class="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white transition @error('phone') border-red-500 @enderror">
+                            @error('phone')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Email</label>
+                        <input type="email" 
+                               name="email" 
+                               value="{{ old('email') }}"
+                               placeholder="email@example.com" 
+                               required
+                               class="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white transition @error('email') border-red-500 @enderror">
+                        @error('email')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Subjek Pesan</label>
+                        <select name="subject" 
+                                required
+                                class="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white transition appearance-none @error('subject') border-red-500 @enderror">
+                            <option value="Tanya Pendaftaran Agen" {{ old('subject') == 'Tanya Pendaftaran Agen' ? 'selected' : '' }}>Tanya Pendaftaran Agen</option>
+                            <option value="Masalah Deposit / Saldo" {{ old('subject') == 'Masalah Deposit / Saldo' ? 'selected' : '' }}>Masalah Deposit / Saldo</option>
+                            <option value="Laporan Transaksi Gagal" {{ old('subject') == 'Laporan Transaksi Gagal' ? 'selected' : '' }}>Laporan Transaksi Gagal</option>
+                            <option value="Kerjasama Bisnis" {{ old('subject') == 'Kerjasama Bisnis' ? 'selected' : '' }}>Kerjasama Bisnis</option>
+                        </select>
+                        @error('subject')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Pesan Anda</label>
+                        <textarea name="message" 
+                                  rows="5" 
+                                  required
+                                  placeholder="Tuliskan pesan Anda secara detail di sini..." 
+                                  class="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white transition @error('message') border-red-500 @enderror">{{ old('message') }}</textarea>
+                        @error('message')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    
+                    <button type="submit" 
+                            class="w-full py-5 bg-brand-600 text-white font-bold rounded-2xl shadow-lg shadow-brand-600/30 hover:bg-brand-700 hover:-translate-y-1 transition duration-300">
+                        Kirim Pesan Sekarang
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection

@@ -8,7 +8,7 @@
     <!-- Header -->
     <div class="flex justify-between items-center">
         <div>
-            <p class="text-gray-600">Manage advertisements (Google AdSense, Adsera, Manual HTML)</p>
+            <p class="text-gray-600">Manage advertisements (Image Banners, Google AdSense, Adsera, Manual HTML)</p>
         </div>
         <a href="{{ route('admin.ads.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium shadow-sm">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -24,6 +24,7 @@
             <div class="min-w-[150px]">
                 <select name="type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option value="">All Types</option>
+                    <option value="image" {{ request('type') == 'image' ? 'selected' : '' }}>Image Banner</option>
                     <option value="adsense" {{ request('type') == 'adsense' ? 'selected' : '' }}>Google AdSense</option>
                     <option value="adsera" {{ request('type') == 'adsera' ? 'selected' : '' }}>Adsera</option>
                     <option value="manual" {{ request('type') == 'manual' ? 'selected' : '' }}>Manual HTML</option>
@@ -37,6 +38,7 @@
                     <option value="sidebar" {{ request('position') == 'sidebar' ? 'selected' : '' }}>Sidebar</option>
                     <option value="content_top" {{ request('position') == 'content_top' ? 'selected' : '' }}>Content Top</option>
                     <option value="content_bottom" {{ request('position') == 'content_bottom' ? 'selected' : '' }}>Content Bottom</option>
+                    <option value="in_content" {{ request('position') == 'in_content' ? 'selected' : '' }}>In Content</option>
                     <option value="between_posts" {{ request('position') == 'between_posts' ? 'selected' : '' }}>Between Posts</option>
                 </select>
             </div>
@@ -62,10 +64,11 @@
                         <h3 class="font-semibold text-gray-900">{{ $ad->name }}</h3>
                         <div class="flex items-center gap-2 mt-1">
                             <span class="px-2 py-0.5 text-xs font-medium rounded-full 
+                                {{ $ad->type === 'image' ? 'bg-green-100 text-green-800' : '' }}
                                 {{ $ad->type === 'adsense' ? 'bg-blue-100 text-blue-800' : '' }}
                                 {{ $ad->type === 'adsera' ? 'bg-purple-100 text-purple-800' : '' }}
                                 {{ $ad->type === 'manual' ? 'bg-gray-100 text-gray-800' : '' }}">
-                                {{ ucfirst($ad->type) }}
+                                {{ $ad->type === 'image' ? 'Image' : ucfirst($ad->type) }}
                             </span>
                             <span class="px-2 py-0.5 text-xs font-medium rounded-full {{ $ad->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                 {{ $ad->is_active ? 'Active' : 'Inactive' }}

@@ -1,374 +1,422 @@
 @extends('frontend.layouts.frontend')
 
 @section('title', $post->title . ' - ' . ($settings['site_name'] ?? 'Konter Digital'))
-@section('description', strip_tags(substr($post->content, 0, 160)))
+@section('description', $post->excerpt ?: strip_tags(substr($post->content, 0, 160)))
 
-@section('content')
-<div class="min-h-screen bg-gray-50">
-    <div class="max-w-7xl mx-auto px-8 py-16">
-        <div class="grid lg:grid-cols-12 gap-8">
-            <!-- Main Content -->
-            <div class="lg:col-span-8">
-                <article class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-                    <div class="p-8 md:p-10">
-                        <!-- Category Badge -->
-                        @if($post->category)
-                        <a href="{{ route('blog.category', $post->category->slug) }}" 
-                           class="inline-flex items-center px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 uppercase tracking-wider mb-5 rounded-full transition">
-                            {{ $post->category->name }}
-                        </a>
-                        @endif
-
-                        <!-- Title -->
-                        <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-5 leading-tight">
-                            {{ $post->title }}
-                        </h1>
-
-                        <!-- Meta Info -->
-                        <div class="flex items-center text-sm text-gray-500 mb-8 pb-6 border-b border-gray-200">
-                            <div class="flex items-center gap-2">
-                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold">
-                                    {{ substr($post->user->name, 0, 1) }}
-                                </div>
-                                <div>
-                                    <p class="font-semibold text-gray-900">{{ $post->user->name }}</p>
-                                    <div class="flex items-center text-xs text-gray-500">
-                                        <time datetime="{{ $post->published_at->toISOString() }}">
-                                            {{ $post->published_at->format('M d, Y') }}
-                                        </time>
-                                        <span class="mx-1.5">•</span>
-                                        <span>{{ number_format($post->views_count) }} views</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Featured Image -->
-                        @if($post->featured_image)
-                        <figure class="mb-8 rounded-xl overflow-hidden shadow-md">
-                            <div class="w-full aspect-[16/9] bg-gray-100">
-                                <img src="{{ $post->featured_image }}" 
-                                     alt="{{ $post->title }}" 
-                                     class="w-full h-full object-cover object-center">
-                            </div>
-                        </figure>
-                        @endif
-
-                        <!-- Article Content -->
-                        <div class="prose prose-lg max-w-none mb-10">
-                            {!! $post->content !!}
-                        </div>
-
-                        <!-- Tags -->
-                        @if($post->tags->count() > 0)
-                        <div class="pt-6 border-t border-gray-200 mb-6">
-                            <h3 class="text-sm font-semibold text-gray-900 mb-3">Tags</h3>
-                            <div class="flex flex-wrap gap-2">
-                                @foreach($post->tags as $tag)
-                                <a href="{{ route('blog.tag', $tag->slug) }}" 
-                                   class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-blue-50 hover:to-indigo-50 hover:text-blue-600 border border-gray-200 hover:border-blue-300 rounded-full transition-all duration-200 shadow-sm hover:shadow">
-                                    <svg class="w-3.5 h-3.5 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
-                                    </svg>
-                                    {{ $tag->name }}
-                                </a>
-                                @endforeach
-                            </div>
-                        </div>
-                        @endif
-
-                        <!-- Social Share -->
-                        <div class="pt-6 border-t border-gray-200">
-                            <h3 class="text-sm font-semibold text-gray-900 mb-4">Share this article</h3>
-                            <div class="flex flex-wrap gap-4">
-                                <!-- Facebook -->
-                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(route('blog.show', $post->slug)) }}" 
-                                   target="_blank" 
-                                   rel="noopener noreferrer"
-                                   title="Share on Facebook"
-                                   class="text-gray-600 hover:text-blue-600 transition-colors duration-200">
-                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                                    </svg>
-                                </a>
-
-                                <!-- Twitter/X -->
-                                <a href="https://twitter.com/intent/tweet?url={{ urlencode(route('blog.show', $post->slug)) }}&text={{ urlencode($post->title) }}" 
-                                   target="_blank" 
-                                   rel="noopener noreferrer"
-                                   title="Share on Twitter"
-                                   class="text-gray-600 hover:text-black transition-colors duration-200">
-                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                                    </svg>
-                                </a>
-
-                                <!-- WhatsApp -->
-                                <a href="https://wa.me/?text={{ urlencode($post->title . ' - ' . route('blog.show', $post->slug)) }}" 
-                                   target="_blank" 
-                                   rel="noopener noreferrer"
-                                   title="Share on WhatsApp"
-                                   class="text-gray-600 hover:text-green-600 transition-colors duration-200">
-                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                                    </svg>
-                                </a>
-
-                                <!-- LinkedIn -->
-                                <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode(route('blog.show', $post->slug)) }}&title={{ urlencode($post->title) }}" 
-                                   target="_blank" 
-                                   rel="noopener noreferrer"
-                                   title="Share on LinkedIn"
-                                   class="text-gray-600 hover:text-blue-700 transition-colors duration-200">
-                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                                    </svg>
-                                </a>
-
-                                <!-- Copy Link -->
-                                <button onclick="copyToClipboard('{{ route('blog.show', $post->slug) }}')" 
-                                        title="Copy Link"
-                                        class="text-gray-600 hover:text-gray-900 transition-colors duration-200">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-            </div>
-
-            <!-- Sidebar - Popular Posts -->
-            <aside class="lg:col-span-4">
-                <div class="lg:sticky lg:top-8">
-                    <div class="bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
-                        <div class="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
-                            <h3 class="text-lg font-bold text-gray-900">Popular Posts</h3>
-                        </div>
-                        <div class="p-6">
-                            <div class="space-y-5">
-                                @forelse($popularPosts as $popular)
-                                <article class="group">
-                                    <a href="{{ route('blog.show', $popular->slug) }}" class="flex gap-4 hover:bg-gray-50 p-2 -m-2 rounded-lg transition">
-                                        <!-- Thumbnail -->
-                                        <div class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-gray-100">
-                                            @if($popular->featured_image)
-                                                <img src="{{ $popular->featured_image }}" 
-                                                     alt="{{ $popular->title }}" 
-                                                     class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-300">
-                                            @else
-                                                <div class="w-full h-full flex items-center justify-center">
-                                                    <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                                    </svg>
-                                                </div>
-                                            @endif
-                                        </div>
-                                        
-                                        <!-- Content -->
-                                        <div class="flex-1 min-w-0">
-                                            <h4 class="font-semibold text-sm text-gray-900 group-hover:text-blue-600 transition mb-1.5 line-clamp-2 leading-snug">
-                                                {{ $popular->title }}
-                                            </h4>
-                                            <div class="flex items-center text-xs text-gray-500">
-                                                <time datetime="{{ $popular->published_at->toISOString() }}">
-                                                    {{ $popular->published_at->format('M d, Y') }}
-                                                </time>
-                                                <span class="mx-1.5">•</span>
-                                                <span>{{ number_format($popular->views_count) }} views</span>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </article>
-                                @if(!$loop->last)
-                                <hr class="border-gray-200">
-                                @endif
-                                @empty
-                                <p class="text-sm text-gray-500 text-center py-4">No popular posts available</p>
-                                @endforelse
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </aside>
-        </div>
-    </div>
-</div>
-
-<script>
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(function() {
-        alert('Link copied to clipboard!');
-    }, function(err) {
-        console.error('Could not copy text: ', err);
-    });
-}
-</script>
-
+@push('styles')
 <style>
-/* Prose Styles */
-.prose {
-    color: #374151;
-    font-size: 1.0625rem;
-    line-height: 1.8;
+.prose h3 { 
+    margin-top: 2.5rem; 
+    margin-bottom: 1rem; 
+    font-size: 1.5rem; 
+    font-weight: 800; 
+    color: #1e1b4b; 
 }
-
-.prose h1,
-.prose h2,
-.prose h3,
-.prose h4,
-.prose h5,
-.prose h6 {
-    color: #111827;
+.prose h2 {
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: #1e1b4b;
+}
+.prose h4 {
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
     font-weight: 700;
-    margin-top: 2em;
-    margin-bottom: 0.75em;
-    line-height: 1.3;
+    color: #1e1b4b;
 }
-
-.prose h1 { font-size: 2rem; }
-.prose h2 { font-size: 1.75rem; }
-.prose h3 { font-size: 1.5rem; }
-.prose h4 { font-size: 1.25rem; }
-.prose h5 { font-size: 1.125rem; }
-.prose h6 { font-size: 1rem; }
-
-.prose p {
-    margin-bottom: 1.5em;
+.prose p { 
+    margin-bottom: 1.5rem; 
+    line-height: 1.8; 
+    color: #475569; 
 }
-
-.prose a {
-    color: #2563eb;
-    text-decoration: underline;
-    font-weight: 500;
-    transition: color 0.2s;
+.prose ul, .prose ol {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
 }
-
-.prose a:hover {
-    color: #1d4ed8;
-}
-
-.prose strong,
-.prose b {
-    font-weight: 600;
-    color: #111827;
-}
-
-.prose em,
-.prose i {
-    font-style: italic;
-}
-
-.prose ul,
-.prose ol {
-    margin-bottom: 1.5em;
-    padding-left: 1.75em;
-}
-
-.prose ul {
-    list-style-type: disc;
-}
-
-.prose ol {
-    list-style-type: decimal;
-}
-
 .prose li {
-    margin-bottom: 0.5em;
+    margin-bottom: 0.5rem;
+    color: #475569;
 }
-
-.prose li > p {
-    margin-bottom: 0.5em;
+.prose a {
+    color: #4f46e5;
+    text-decoration: underline;
 }
-
+.prose a:hover {
+    color: #4338ca;
+}
+.prose strong {
+    font-weight: 700;
+    color: #1e1b4b;
+}
 .prose blockquote {
-    border-left: 4px solid #3b82f6;
-    padding-left: 1.5em;
-    margin: 2em 0;
+    border-left: 4px solid #4f46e5;
+    padding-left: 1.5rem;
+    margin: 2rem 0;
     font-style: italic;
-    color: #4b5563;
-    background: #f9fafb;
-    padding: 1.25em 1.5em;
-    border-radius: 0.375rem;
+    color: #64748b;
+}
+.prose img {
+    border-radius: 1rem;
+    margin: 2rem 0;
 }
 
-.prose code {
-    background: #f3f4f6;
-    padding: 0.2em 0.4em;
-    border-radius: 0.25rem;
-    font-size: 0.875em;
-    color: #dc2626;
-    font-family: 'Courier New', Courier, monospace;
-    font-weight: 500;
-}
-
+/* Pre and Code Blocks */
 .prose pre {
-    background: #1f2937;
-    color: #f9fafb;
-    padding: 1.5em;
-    border-radius: 0.5rem;
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 1.5rem;
+    border-radius: 1rem;
     overflow-x: auto;
-    margin: 2em 0;
-    line-height: 1.6;
+    margin: 2rem 0;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    border: 1px solid #334155;
 }
 
 .prose pre code {
     background: transparent;
     padding: 0;
-    color: #f9fafb;
-    font-weight: 400;
+    color: inherit;
+    font-size: inherit;
 }
 
-.prose img {
-    margin: 2em 0;
-    border-radius: 0.5rem;
-    max-width: 100%;
-    height: auto;
-}
-
-.prose hr {
-    border: none;
-    border-top: 1px solid #e5e7eb;
-    margin: 3em 0;
-}
-
-.prose table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 2em 0;
-    font-size: 0.9375rem;
-}
-
-.prose th,
-.prose td {
-    padding: 0.75em 1em;
-    border: 1px solid #e5e7eb;
-    text-align: left;
-}
-
-.prose th {
-    background: #f9fafb;
-    font-weight: 600;
-    color: #111827;
-}
-
-.prose td {
-    color: #374151;
-}
-
-.prose figure {
-    margin: 2em 0;
-}
-
-.prose figcaption {
-    margin-top: 0.75em;
+.prose code {
+    background: #f1f5f9;
+    color: #e11d48;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.375rem;
+    font-family: 'Courier New', Courier, monospace;
     font-size: 0.875em;
-    color: #6b7280;
+    font-weight: 600;
+}
+
+/* Quill Editor Specific Styles */
+.prose .ql-syntax {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    overflow-x: auto;
+    margin: 2rem 0;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    border: 1px solid #334155;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.prose .ql-align-justify {
+    text-align: justify;
+}
+
+.prose .ql-align-center {
     text-align: center;
 }
 
-/* Line Clamp Utility */
+.prose .ql-align-right {
+    text-align: right;
+}
+
+.prose .ql-align-left {
+    text-align: left;
+}
+
+/* Quill Font Sizes */
+.prose .ql-size-small {
+    font-size: 0.75em;
+}
+
+.prose .ql-size-large {
+    font-size: 1.5em;
+}
+
+.prose .ql-size-huge {
+    font-size: 2.5em;
+}
+
+/* Quill Indent */
+.prose .ql-indent-1 {
+    padding-left: 3em;
+}
+
+.prose .ql-indent-2 {
+    padding-left: 6em;
+}
+
+.prose .ql-indent-3 {
+    padding-left: 9em;
+}
+
+.prose .ql-indent-4 {
+    padding-left: 12em;
+}
+
+.prose .ql-indent-5 {
+    padding-left: 15em;
+}
+
+.prose .ql-indent-6 {
+    padding-left: 18em;
+}
+
+.prose .ql-indent-7 {
+    padding-left: 21em;
+}
+
+.prose .ql-indent-8 {
+    padding-left: 24em;
+}
+
+/* Quill Video */
+.prose .ql-video {
+    width: 100%;
+    height: 400px;
+    border-radius: 1rem;
+    margin: 2rem 0;
+}
+
+/* Tables */
+.prose table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-size: 0.875rem;
+}
+
+.prose table th {
+    background: #f8fafc;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 700;
+    color: #1e1b4b;
+    border: 1px solid #e2e8f0;
+}
+
+.prose table td {
+    padding: 0.75rem 1rem;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+}
+
+.prose table tr:hover {
+    background: #f8fafc;
+}
+
+/* Horizontal Rule */
+.prose hr {
+    border: none;
+    border-top: 2px solid #e2e8f0;
+    margin: 3rem 0;
+}
+</style>
+@endpush
+
+@section('content')
+<main class="pt-32 pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col lg:flex-row gap-12">
+        <!-- Main Content -->
+        <div class="lg:w-2/3">
+            <!-- Breadcrumb -->
+            <nav class="flex text-sm text-slate-400 mb-6 font-medium">
+                <a href="{{ route('blog.index') }}" class="hover:text-brand-600 transition">Blog</a>
+                <span class="mx-2">/</span>
+                @if($post->category)
+                <span class="text-slate-600">{{ $post->category->name }}</span>
+                @else
+                <span class="text-slate-600">Artikel</span>
+                @endif
+            </nav>
+
+            <!-- Title -->
+            <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 leading-tight mb-8">
+                {{ $post->title }}
+            </h1>
+
+            <!-- Author & Meta -->
+            <div class="flex items-center gap-4 mb-8">
+                <img src="https://ui-avatars.com/api/?name={{ urlencode($post->user->name) }}&bg=4f46e5&color=fff" 
+                     class="w-11 h-11 rounded-full border-2 border-brand-50 shadow-sm" 
+                     alt="{{ $post->user->name }}">
+                <div>
+                    <p class="text-sm font-bold text-slate-900">{{ $post->user->name }}</p>
+                    <p class="text-xs text-slate-400">
+                        {{ $post->published_at->format('d M Y') }} • 
+                        {{ ceil(str_word_count(strip_tags($post->content)) / 200) }} Menit Baca
+                    </p>
+                </div>
+            </div>
+
+            <!-- Ad: Content Top -->
+            @if(isset($ads['content_top']) && $ads['content_top']->count() > 0)
+                @foreach($ads['content_top'] as $ad)
+                    <div class="mb-8 rounded-2xl overflow-hidden border border-slate-100 bg-slate-50/50">
+                        {!! $ad->render() !!}
+                    </div>
+                @endforeach
+            @endif
+
+            <!-- Featured Image -->
+            @if($post->featured_image)
+            <div class="relative rounded-[2.5rem] overflow-hidden shadow-2xl mb-12 border border-slate-100">
+                <img src="{{ $post->featured_image }}" 
+                     class="w-full h-auto object-cover" 
+                     alt="{{ $post->title }}">
+            </div>
+            @endif
+
+            <!-- Article Content -->
+            <article class="prose prose-slate max-w-none mb-16">
+                {!! App\Models\Ad::injectIntoContent($post->content, ['page' => 'blog_detail', 'post' => $post->id]) !!}
+            </article>
+
+            <!-- Ad: Content Bottom -->
+            @if(isset($ads['content_bottom']) && $ads['content_bottom']->count() > 0)
+                @foreach($ads['content_bottom'] as $ad)
+                    <div class="mb-8 rounded-2xl overflow-hidden border border-slate-100 bg-slate-50/50">
+                        {!! $ad->render() !!}
+                    </div>
+                @endforeach
+            @endif
+
+            <!-- Tags & Share Section -->
+            <div class="mt-16 pt-10 border-t border-slate-100">
+                <!-- Tags -->
+                @if($post->tags->count() > 0)
+                <div class="flex flex-wrap items-center gap-2 mb-8">
+                    <div class="flex items-center text-slate-400 mr-2">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                        </svg>
+                        <span class="text-xs font-bold uppercase tracking-wider">Topik:</span>
+                    </div>
+                    @foreach($post->tags as $tag)
+                    <a href="{{ route('blog.tag', $tag->slug) }}" 
+                       class="px-4 py-1.5 bg-slate-50 text-slate-600 text-xs font-bold rounded-full hover:bg-brand-600 hover:text-white transition-all">
+                        {{ $tag->name }}
+                    </a>
+                    @endforeach
+                </div>
+                @endif
+
+                <!-- Share Section -->
+                <div class="bg-slate-50 border border-slate-100 p-8 rounded-[2.5rem] text-center md:text-left">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div>
+                            <h4 class="text-slate-900 font-extrabold text-lg">Bagikan Artikel</h4>
+                            <p class="text-slate-500 text-sm">Pilih platform favorit untuk membagikan wawasan ini.</p>
+                        </div>
+                        <div class="flex flex-wrap justify-center md:justify-end gap-3">
+                            <!-- WhatsApp -->
+                            <a href="https://wa.me/?text={{ urlencode($post->title . ' - ' . route('blog.show', $post->slug)) }}" 
+                               target="_blank"
+                               class="w-12 h-12 bg-white border border-slate-200 text-green-500 rounded-2xl flex items-center justify-center hover:bg-green-500 hover:text-white hover:shadow-lg hover:shadow-green-200 transition-all duration-300">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                                </svg>
+                            </a>
+
+                            <!-- Facebook -->
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(route('blog.show', $post->slug)) }}" 
+                               target="_blank"
+                               class="w-12 h-12 bg-white border border-slate-200 text-blue-600 rounded-2xl flex items-center justify-center hover:bg-blue-600 hover:text-white hover:shadow-lg hover:shadow-blue-200 transition-all duration-300">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                </svg>
+                            </a>
+
+                            <!-- Instagram -->
+                            <a href="#" 
+                               class="w-12 h-12 bg-white border border-slate-200 text-pink-600 rounded-2xl flex items-center justify-center hover:bg-gradient-to-tr hover:from-orange-500 hover:via-pink-500 hover:to-purple-600 hover:text-white hover:shadow-lg transition-all duration-300">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12s.014 3.667.072 4.947c.2 4.358 2.618 6.78 6.98 6.981 1.281.058 1.689.072 4.948.072s3.667-.014 4.947-.072c4.358-.2 6.78-2.618 6.98-6.981.058-1.28.072-1.689.072-4.948s-.014-3.667-.072-4.947c-.2-4.358-2.618-6.78-6.98-6.98C15.667.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                                </svg>
+                            </a>
+
+                            <!-- Telegram -->
+                            <a href="https://t.me/share/url?url={{ urlencode(route('blog.show', $post->slug)) }}&text={{ urlencode($post->title) }}" 
+                               target="_blank"
+                               class="w-12 h-12 bg-white border border-slate-200 text-sky-500 rounded-2xl flex items-center justify-center hover:bg-sky-500 hover:text-white hover:shadow-lg hover:shadow-sky-200 transition-all duration-300">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.18 1.897-.962 6.502-1.359 8.627-.168.9-.499 1.201-.82 1.23-.698.064-1.226-.462-1.901-.905-1.057-.695-1.653-1.13-2.678-1.805-1.185-.78-.417-1.207.258-1.908.177-.184 3.247-2.977 3.307-3.232.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.329-.912.489-1.301.481-.428-.008-1.252-.241-1.865-.44-.751-.244-1.348-.372-1.296-.786.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635.099-.002.321.023.465.14.12.098.153.23.167.323.014.093.023.233.013.361z"/>
+                                </svg>
+                            </a>
+
+                            <!-- Twitter/X -->
+                            <a href="https://twitter.com/intent/tweet?url={{ urlencode(route('blog.show', $post->slug)) }}&text={{ urlencode($post->title) }}" 
+                               target="_blank"
+                               class="w-12 h-12 bg-white border border-slate-200 text-slate-900 rounded-2xl flex items-center justify-center hover:bg-slate-900 hover:text-white hover:shadow-lg transition-all duration-300">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar - Popular Posts -->
+        <aside class="lg:w-1/3">
+            <div class="sticky top-28 space-y-10">
+                <!-- Ad: Sidebar -->
+                @if(isset($ads['sidebar']) && $ads['sidebar']->count() > 0)
+                    @foreach($ads['sidebar'] as $ad)
+                        <div class="rounded-2xl overflow-hidden border border-slate-100 bg-slate-50/50">
+                            {!! $ad->render() !!}
+                        </div>
+                    @endforeach
+                @endif
+
+                <div class="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-sm">
+                    <h3 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                        <span class="w-8 h-1 bg-brand-600 rounded-full"></span>
+                        Artikel Populer
+                    </h3>
+                    <div class="space-y-6">
+                        @forelse($popularPosts as $popular)
+                        <a href="{{ route('blog.show', $popular->slug) }}" class="flex gap-4 group">
+                            <div class="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 border border-slate-100 shadow-sm">
+                                @if($popular->featured_image)
+                                <img src="{{ $popular->featured_image }}" 
+                                     class="w-full h-full object-cover group-hover:scale-110 transition duration-500" 
+                                     alt="{{ $popular->title }}">
+                                @else
+                                <div class="w-full h-full bg-gradient-to-br from-brand-400 to-indigo-500 flex items-center justify-center">
+                                    <svg class="w-8 h-8 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                @endif
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-bold text-slate-900 group-hover:text-brand-600 transition leading-snug line-clamp-2">
+                                    {{ $popular->title }}
+                                </h4>
+                                <p class="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-wider">
+                                    @if($popular->category)
+                                        {{ $popular->category->name }}
+                                    @else
+                                        Artikel
+                                    @endif
+                                </p>
+                            </div>
+                        </a>
+                        @empty
+                        <p class="text-sm text-slate-500 text-center py-4">Belum ada artikel populer</p>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</main>
+
+@push('scripts')
+<style>
 .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -376,4 +424,5 @@ function copyToClipboard(text) {
     overflow: hidden;
 }
 </style>
+@endpush
 @endsection
