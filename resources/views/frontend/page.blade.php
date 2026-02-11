@@ -141,27 +141,6 @@
                 {!! $page->content !!}
             </div>
 
-            <!-- Contact Box -->
-            @if(isset($settings['contact_email']) && $settings['contact_email'])
-            <div class="mt-12 p-6 bg-brand-50 rounded-2xl border border-brand-100">
-                <p class="text-sm font-bold text-brand-900 mb-2">Punya pertanyaan lebih lanjut?</p>
-                <p class="text-sm text-slate-600 mb-0">
-                    Silahkan hubungi tim kami melalui email di 
-                    <a href="mailto:{{ $settings['contact_email'] }}" 
-                       class="text-brand-600 font-bold underline">
-                        {{ $settings['contact_email'] }}
-                    </a>
-                    @if(isset($settings['whatsapp_number']) && $settings['whatsapp_number'])
-                    atau WhatsApp di 
-                    <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $settings['whatsapp_number']) }}" 
-                       target="_blank"
-                       class="text-brand-600 font-bold underline">
-                        {{ $settings['whatsapp_number'] }}
-                    </a>
-                    @endif
-                </p>
-            </div>
-            @endif
         </div>
 
         <!-- Ad: Content Bottom -->
@@ -175,16 +154,6 @@
             </div>
         @endif
 
-        <!-- Back to Home -->
-        <div class="text-center mt-12">
-            <a href="{{ route('home') }}" 
-               class="inline-flex items-center text-brand-600 hover:text-brand-700 font-bold transition">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-                Kembali ke Beranda
-            </a>
-        </div>
     </div>
 </main>
 @endsection
