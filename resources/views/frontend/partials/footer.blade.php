@@ -6,7 +6,7 @@
             <div>
                 <div class="flex items-center gap-2 mb-6">
                     @if(!empty($settings['logo']))
-                        <img src="{{ asset('storage/' . $settings['logo']) }}" alt="{{ $settings['site_name'] ?? 'Logo' }}" class="h-8 w-auto brightness-0 invert">
+                        <img src="{{ asset('storage/' . $settings['logo']) }}" alt="{{ $settings['site_name'] ?? 'Logo' }}" class="h-8 w-auto">
                     @else
                         <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white font-bold">
                             {{ substr($settings['site_name'] ?? 'K', 0, 1) }}
