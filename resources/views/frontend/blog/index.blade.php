@@ -15,6 +15,17 @@
 
 <!-- Main Content -->
 <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-white">
+    <!-- Content Top Ads -->
+    @if(isset($ads['content_top']) && $ads['content_top']->count() > 0)
+        <div class="mb-12">
+            @foreach($ads['content_top'] as $ad)
+                <div class="mb-4">
+                    {!! $ad->render() !!}
+                </div>
+            @endforeach
+        </div>
+    @endif
+
     <!-- Category Filter -->
     @if(isset($categories) && $categories->count() > 0)
     <div class="flex flex-wrap items-center justify-center gap-3 mb-16">
@@ -32,7 +43,7 @@
     <!-- Blog Grid -->
     @if($posts->count() > 0)
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-        @foreach($posts as $post)
+        @foreach($posts as $index => $post)
         <article class="group bg-white rounded-[2.5rem] overflow-hidden shadow-sm border border-slate-100 hover:shadow-2xl transition-all duration-500 flex flex-col">
             <!-- Featured Image -->
             <div class="relative overflow-hidden h-64">
@@ -77,6 +88,17 @@
                 </a>
             </div>
         </article>
+
+        <!-- Between Posts Ads (after every 3rd post) -->
+        @if(($index + 1) % 3 == 0 && isset($ads['between_posts']) && $ads['between_posts']->count() > 0)
+            <div class="col-span-1 md:col-span-2 lg:col-span-3">
+                @foreach($ads['between_posts'] as $ad)
+                    <div class="mb-4">
+                        {!! $ad->render() !!}
+                    </div>
+                @endforeach
+            </div>
+        @endif
         @endforeach
     </div>
 

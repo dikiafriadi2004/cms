@@ -20,10 +20,21 @@
             @endif
         </div>
 
+        <!-- Content Top Ads -->
+        @if(isset($ads['content_top']) && $ads['content_top']->count() > 0)
+            <div class="mb-12">
+                @foreach($ads['content_top'] as $ad)
+                    <div class="mb-4">
+                        {!! $ad->render() !!}
+                    </div>
+                @endforeach
+            </div>
+        @endif
+
         @if($posts->count() > 0)
             <!-- Posts Grid -->
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-                @foreach($posts as $post)
+                @foreach($posts as $index => $post)
                     <article class="group bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-gray-200 overflow-hidden">
                         <a href="{{ route('blog.show', $post->slug) }}" class="block">
                             <!-- Image -->
@@ -71,6 +82,17 @@
                             </div>
                         </a>
                     </article>
+
+                    <!-- Between Posts Ads (after every 3rd post) -->
+                    @if(($index + 1) % 3 == 0 && isset($ads['between_posts']) && $ads['between_posts']->count() > 0)
+                        <div class="col-span-1 md:col-span-2 lg:col-span-3">
+                            @foreach($ads['between_posts'] as $ad)
+                                <div class="mb-4">
+                                    {!! $ad->render() !!}
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 @endforeach
             </div>
 
