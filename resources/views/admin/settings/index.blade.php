@@ -124,6 +124,7 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
             <h3 class="text-lg font-semibold text-gray-900">SEO Settings</h3>
+            <p class="text-sm text-gray-600 mt-1">Optimize your website for search engines</p>
         </div>
         <div class="p-6 space-y-6">
             <!-- Meta Title -->
@@ -133,6 +134,7 @@
                     value="{{ $getSetting('seo', 'meta_title') }}"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Your Site - Tagline">
+                <p class="mt-1 text-xs text-gray-500">Digunakan sebagai default title untuk homepage</p>
             </div>
 
             <!-- Meta Description -->
@@ -141,6 +143,7 @@
                 <textarea name="settings[meta_description]" rows="3"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Default description for your website">{{ $getSetting('seo', 'meta_description') }}</textarea>
+                <p class="mt-1 text-xs text-gray-500">Optimal: 120-160 karakter. Digunakan untuk homepage dan halaman tanpa deskripsi khusus</p>
             </div>
 
             <!-- Meta Keywords -->
@@ -150,6 +153,67 @@
                     value="{{ $getSetting('seo', 'meta_keywords') }}"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="keyword1, keyword2, keyword3">
+                <p class="mt-1 text-xs text-gray-500">Pisahkan dengan koma. Contoh: pulsa, konter digital, ppob</p>
+            </div>
+
+            <!-- Twitter Username -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Twitter Username</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-500">@</span>
+                    <input type="text" name="settings[twitter_username]" 
+                        value="{{ $getSetting('seo', 'twitter_username') }}"
+                        class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="yourusername">
+                </div>
+                <p class="mt-1 text-xs text-gray-500">Username Twitter/X untuk Twitter Card meta tag</p>
+            </div>
+
+            <!-- Open Graph Default Image -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Default Open Graph Image (Fallback)</label>
+                @if($getSetting('seo', 'og_image'))
+                <div class="mb-3">
+                    <img src="{{ asset('storage/' . $getSetting('seo', 'og_image')) }}" 
+                        alt="OG Image" class="h-32 object-cover rounded-lg border border-gray-200">
+                </div>
+                @endif
+                <input type="file" name="og_image" accept="image/*"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <p class="mt-1 text-xs text-gray-500">
+                    <strong>Rekomendasi:</strong> 1200x630px. 
+                    <br>
+                    <strong>Fungsi:</strong> Gambar cadangan untuk halaman tanpa featured image (homepage, halaman statis tanpa gambar).
+                    <br>
+                    <strong>Prioritas:</strong> Artikel/Halaman dengan featured image akan menggunakan gambar tersebut, bukan gambar ini.
+                </p>
+            </div>
+
+            <!-- Sitemap & Robots -->
+            <div class="border-t border-gray-200 pt-6">
+                <h4 class="text-md font-semibold text-gray-900 mb-4">SEO Tools</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <a href="{{ route('sitemap') }}" target="_blank" 
+                        class="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition">
+                        <div>
+                            <p class="text-sm font-semibold text-green-900">Sitemap.xml</p>
+                            <p class="text-xs text-green-700">View sitemap</p>
+                        </div>
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                    </a>
+                    <a href="{{ route('robots') }}" target="_blank" 
+                        class="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition">
+                        <div>
+                            <p class="text-sm font-semibold text-blue-900">Robots.txt</p>
+                            <p class="text-xs text-blue-700">View robots file</p>
+                        </div>
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                    </a>
+                </div>
             </div>
         </div>
     </div>

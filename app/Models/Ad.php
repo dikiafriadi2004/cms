@@ -18,6 +18,8 @@ class Ad extends Model
         'link',
         'open_new_tab',
         'is_active',
+        'start_date',
+        'end_date',
         'display_rules',
         'sort_order',
         'in_content_paragraph',
@@ -30,11 +32,79 @@ class Ad extends Model
         'is_active' => 'boolean',
         'open_new_tab' => 'boolean',
         'display_rules' => 'array',
+        'start_date' => 'date',
+        'end_date' => 'date',
     ];
 
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('start_date')
+                  ->orWhere('start_date', '<=', now()->toDateString());
+            })
+            ->where(function ($q) {
+                $q->whereNull('end_date')
+                  ->orWhere('end_date', '>=', now()->toDateString());
+            });
+    }
+
+    /**
+     * Check if ad is expired
+     */
+    public function isExpired(): bool
+    {
+        if (!$this->end_date) {
+            return false;
+        }
+        
+        return $this->end_date->isPast();
+    }
+
+    /**
+     * Check if ad is scheduled (not started yet)
+     */
+    public function isScheduled(): bool
+    {
+        if (!$this->start_date) {
+            return false;
+        }
+        
+        return $this->start_date->isFuture();
+    }
+
+    /**
+     * Get status label
+     */
+    public function getStatusAttribute(): string
+    {
+        if (!$this->is_active) {
+            return 'inactive';
+        }
+        
+        if ($this->isExpired()) {
+            return 'expired';
+        }
+        
+        if ($this->isScheduled()) {
+            return 'scheduled';
+        }
+        
+        return 'active';
+    }
+
+    /**
+     * Get status color for badge
+     */
+    public function getStatusColorAttribute(): string
+    {
+        return match($this->status) {
+            'active' => 'green',
+            'scheduled' => 'blue',
+            'expired' => 'red',
+            'inactive' => 'gray',
+            default => 'gray',
+        };
     }
 
     public function scopeByPosition($query, $position)

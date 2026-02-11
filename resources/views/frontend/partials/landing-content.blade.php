@@ -1,10 +1,12 @@
 <!-- Header Ads -->
 @if(isset($ads['header']) && $ads['header']->count() > 0)
-    @foreach($ads['header'] as $ad)
-        <div class="w-full">
-            {!! $ad->render() !!}
-        </div>
-    @endforeach
+    <div class="pt-20 space-y-4">
+        @foreach($ads['header'] as $ad)
+            <div class="w-full">
+                {!! $ad->render() !!}
+            </div>
+        @endforeach
+    </div>
 @endif
 
 <!-- Hero Section -->
@@ -251,9 +253,9 @@
 
 <!-- Footer Ads -->
 @if(isset($ads['footer']) && $ads['footer']->count() > 0)
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         @foreach($ads['footer'] as $ad)
-            <div class="mb-4">
+            <div>
                 {!! $ad->render() !!}
             </div>
         @endforeach

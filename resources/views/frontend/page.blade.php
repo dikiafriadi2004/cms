@@ -112,11 +112,13 @@
 
         <!-- Ad: Content Top -->
         @if(isset($ads['content_top']) && $ads['content_top']->count() > 0)
-            @foreach($ads['content_top'] as $ad)
-                <div class="mb-8 rounded-2xl overflow-hidden border border-slate-100 bg-slate-50/50">
-                    {!! $ad->render() !!}
-                </div>
-            @endforeach
+            <div class="space-y-6">
+                @foreach($ads['content_top'] as $ad)
+                    <div class="mb-8 rounded-2xl overflow-hidden border border-slate-100 bg-slate-50/50">
+                        {!! $ad->render() !!}
+                    </div>
+                @endforeach
+            </div>
         @endif
 
         <!-- Page Content -->
@@ -164,11 +166,13 @@
 
         <!-- Ad: Content Bottom -->
         @if(isset($ads['content_bottom']) && $ads['content_bottom']->count() > 0)
-            @foreach($ads['content_bottom'] as $ad)
-                <div class="mt-8 rounded-2xl overflow-hidden border border-slate-100 bg-slate-50/50">
-                    {!! $ad->render() !!}
-                </div>
-            @endforeach
+            <div class="space-y-6">
+                @foreach($ads['content_bottom'] as $ad)
+                    <div class="mt-8 rounded-2xl overflow-hidden border border-slate-100 bg-slate-50/50">
+                        {!! $ad->render() !!}
+                    </div>
+                @endforeach
+            </div>
         @endif
 
         <!-- Back to Home -->

@@ -62,7 +62,7 @@
                 <div class="flex items-start justify-between">
                     <div class="flex-1">
                         <h3 class="font-semibold text-gray-900">{{ $ad->name }}</h3>
-                        <div class="flex items-center gap-2 mt-1">
+                        <div class="flex items-center gap-2 mt-1 flex-wrap">
                             <span class="px-2 py-0.5 text-xs font-medium rounded-full 
                                 {{ $ad->type === 'image' ? 'bg-green-100 text-green-800' : '' }}
                                 {{ $ad->type === 'adsense' ? 'bg-blue-100 text-blue-800' : '' }}
@@ -70,8 +70,12 @@
                                 {{ $ad->type === 'manual' ? 'bg-gray-100 text-gray-800' : '' }}">
                                 {{ $ad->type === 'image' ? 'Image' : ucfirst($ad->type) }}
                             </span>
-                            <span class="px-2 py-0.5 text-xs font-medium rounded-full {{ $ad->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                {{ $ad->is_active ? 'Active' : 'Inactive' }}
+                            <span class="px-2 py-0.5 text-xs font-medium rounded-full 
+                                {{ $ad->status_color === 'green' ? 'bg-green-100 text-green-800' : '' }}
+                                {{ $ad->status_color === 'blue' ? 'bg-blue-100 text-blue-800' : '' }}
+                                {{ $ad->status_color === 'red' ? 'bg-red-100 text-red-800' : '' }}
+                                {{ $ad->status_color === 'gray' ? 'bg-gray-100 text-gray-800' : '' }}">
+                                {{ ucfirst($ad->status) }}
                             </span>
                         </div>
                     </div>
@@ -99,6 +103,29 @@
                     <span class="ml-1 font-medium text-gray-900">{{ $ad->sort_order }}</span>
                 </div>
 
+                <!-- Date Range -->
+                @if($ad->start_date || $ad->end_date)
+                <div class="flex items-start text-sm">
+                    <svg class="w-4 h-4 text-gray-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <div class="flex-1">
+                        @if($ad->start_date)
+                        <div class="text-gray-600">
+                            <span class="text-xs">Start:</span>
+                            <span class="ml-1 font-medium text-gray-900">{{ $ad->start_date->format('d M Y') }}</span>
+                        </div>
+                        @endif
+                        @if($ad->end_date)
+                        <div class="text-gray-600">
+                            <span class="text-xs">End:</span>
+                            <span class="ml-1 font-medium {{ $ad->isExpired() ? 'text-red-600' : 'text-gray-900' }}">{{ $ad->end_date->format('d M Y') }}</span>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+                @endif
+
                 <!-- Code Preview -->
                 <div class="mt-3 p-3 bg-gray-50 rounded-lg">
                     <p class="text-xs text-gray-500 mb-1">Code Preview:</p>
@@ -107,15 +134,32 @@
             </div>
 
             <!-- Footer Actions -->
-            <div class="px-4 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-end gap-2">
-                <a href="{{ route('admin.ads.edit', $ad) }}" 
-                    class="px-3 py-1.5 text-sm text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded transition-colors font-medium">
-                    Edit
-                </a>
-                <button onclick="deleteAd({{ $ad->id }}, '{{ route('admin.ads.destroy', $ad) }}')" 
-                    class="px-3 py-1.5 text-sm text-red-600 hover:text-red-900 hover:bg-red-50 rounded transition-colors font-medium">
-                    Delete
-                </button>
+            <div class="px-4 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between gap-2">
+                <!-- Toggle Status -->
+                <div class="flex items-center gap-2">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" 
+                            class="sr-only peer toggle-status" 
+                            data-ad-id="{{ $ad->id }}"
+                            {{ $ad->is_active ? 'checked' : '' }}>
+                        <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                    </label>
+                    <span class="text-xs font-semibold status-label-{{ $ad->id }} {{ $ad->is_active ? 'text-green-600' : 'text-gray-500' }}">
+                        {{ $ad->is_active ? 'Active' : 'Inactive' }}
+                    </span>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('admin.ads.edit', $ad) }}" 
+                        class="px-3 py-1.5 text-sm text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded transition-colors font-medium">
+                        Edit
+                    </a>
+                    <button onclick="deleteAd({{ $ad->id }}, '{{ route('admin.ads.destroy', $ad) }}')" 
+                        class="px-3 py-1.5 text-sm text-red-600 hover:text-red-900 hover:bg-red-50 rounded transition-colors font-medium">
+                        Delete
+                    </button>
+                </div>
             </div>
         </div>
         @empty
@@ -173,6 +217,70 @@ async function deleteAd(adId, deleteUrl) {
         window.showToast('error', 'Delete failed. Please try again.');
     }
 }
+
+// Toggle Status
+document.querySelectorAll('.toggle-status').forEach(toggle => {
+    toggle.addEventListener('change', async function() {
+        const adId = this.dataset.adId;
+        const isChecked = this.checked;
+        
+        try {
+            const response = await fetch(`/admin/ads/${adId}/toggle-status`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Update status label
+                const statusLabel = document.querySelector(`.status-label-${adId}`);
+                if (statusLabel) {
+                    statusLabel.textContent = data.is_active ? 'Active' : 'Inactive';
+                    // Update label color
+                    statusLabel.className = `text-xs font-semibold status-label-${adId} ${data.is_active ? 'text-green-600' : 'text-gray-500'}`;
+                }
+                
+                // Update status badge in header
+                const card = this.closest('.bg-white');
+                const statusBadges = card.querySelectorAll('.px-2.py-0\\.5.text-xs');
+                statusBadges.forEach(badge => {
+                    const text = badge.textContent.trim().toLowerCase();
+                    if (['active', 'inactive', 'expired', 'scheduled'].includes(text)) {
+                        badge.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+                        
+                        // Update badge color
+                        badge.className = 'px-2 py-0.5 text-xs font-medium rounded-full';
+                        if (data.status_color === 'green') {
+                            badge.classList.add('bg-green-100', 'text-green-800');
+                        } else if (data.status_color === 'blue') {
+                            badge.classList.add('bg-blue-100', 'text-blue-800');
+                        } else if (data.status_color === 'red') {
+                            badge.classList.add('bg-red-100', 'text-red-800');
+                        } else {
+                            badge.classList.add('bg-gray-100', 'text-gray-800');
+                        }
+                    }
+                });
+                
+                window.showToast('success', data.message);
+            } else {
+                // Revert toggle if failed
+                this.checked = !isChecked;
+                window.showToast('error', data.message || 'Failed to update status');
+            }
+        } catch (error) {
+            console.error('Toggle error:', error);
+            // Revert toggle if failed
+            this.checked = !isChecked;
+            window.showToast('error', 'Failed to update status. Please try again.');
+        }
+    });
+});
 </script>
 @endpush
 @endsection

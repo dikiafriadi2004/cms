@@ -91,6 +91,41 @@
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
+
+                <!-- Active Status -->
+                <div class="flex items-center">
+                    <input type="checkbox" name="is_active" id="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}
+                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="is_active" class="ml-2 text-sm font-medium text-gray-700">
+                        Active (Tampilkan iklan ini)
+                    </label>
+                </div>
+
+                <!-- Start Date -->
+                <div>
+                    <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">
+                        Start Date (Optional)
+                    </label>
+                    <input type="date" name="start_date" id="start_date" value="{{ old('start_date') }}"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('start_date') border-red-500 @enderror">
+                    <p class="mt-1 text-xs text-gray-500">Iklan akan mulai ditampilkan dari tanggal ini. Kosongkan untuk langsung aktif.</p>
+                    @error('start_date')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- End Date -->
+                <div>
+                    <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">
+                        End Date (Optional)
+                    </label>
+                    <input type="date" name="end_date" id="end_date" value="{{ old('end_date') }}"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('end_date') border-red-500 @enderror">
+                    <p class="mt-1 text-xs text-gray-500">Iklan akan otomatis berhenti ditampilkan setelah tanggal ini. Kosongkan untuk tidak ada batas waktu.</p>
+                    @error('end_date')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
         </div>
 
@@ -237,17 +272,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Status -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Status</h3>
-            
-            <label class="flex items-center">
-                <input type="checkbox" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}
-                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                <span class="ml-2 text-sm text-gray-700">Active (Ad will be displayed on the website)</span>
-            </label>
         </div>
 
         <!-- Actions -->

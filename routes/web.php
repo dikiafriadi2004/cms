@@ -16,9 +16,14 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\BlogController;
 use App\Http\Controllers\Frontend\ContactController;
+use App\Http\Controllers\SitemapController;
 
 // Auth Routes - HARUS DI ATAS
 require __DIR__.'/auth.php';
+
+// SEO Routes
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 // Frontend Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -166,6 +171,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::post('ads', [AdController::class, 'store'])->name('ads.store')->middleware('permission:ads.create');
     Route::get('ads/{ad}/edit', [AdController::class, 'edit'])->name('ads.edit')->middleware('permission:ads.edit');
     Route::put('ads/{ad}', [AdController::class, 'update'])->name('ads.update')->middleware('permission:ads.edit');
+    Route::post('ads/{ad}/toggle-status', [AdController::class, 'toggleStatus'])->name('ads.toggle-status')->middleware('permission:ads.edit');
     Route::delete('ads/{ad}', [AdController::class, 'destroy'])->name('ads.destroy')->middleware('permission:ads.delete');
     
     // Contacts

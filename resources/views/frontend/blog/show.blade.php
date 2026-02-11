@@ -2,6 +2,93 @@
 
 @section('title', $post->title . ' - ' . ($settings['site_name'] ?? 'Konter Digital'))
 @section('description', $post->excerpt ?: strip_tags(substr($post->content, 0, 160)))
+@section('keywords', $post->tags->pluck('name')->implode(', '))
+@section('canonical', route('blog.show', $post->slug))
+
+@section('og_type', 'article')
+@section('og_title', $post->title)
+@section('og_description', $post->excerpt ?: strip_tags(substr($post->content, 0, 160)))
+@section('og_image', $post->featured_image ?: (isset($settings['og_image']) ? asset('storage/' . $settings['og_image']) : asset('storage/' . ($settings['logo'] ?? 'default-og-image.jpg'))))
+
+@section('twitter_title', $post->title)
+@section('twitter_description', $post->excerpt ?: strip_tags(substr($post->content, 0, 160)))
+@section('twitter_image', $post->featured_image ?: (isset($settings['og_image']) ? asset('storage/' . $settings['og_image']) : asset('storage/' . ($settings['logo'] ?? 'default-og-image.jpg'))))
+
+@push('structured-data')
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "{{ $post->title }}",
+    "description": "{{ $post->excerpt ?: strip_tags(substr($post->content, 0, 160)) }}",
+    "image": "{{ $post->featured_image ?: asset('storage/' . ($settings['logo'] ?? '')) }}",
+    "author": {
+        "@type": "Person",
+        "name": "{{ $post->user->name }}"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "{{ $settings['site_name'] ?? 'Konter Digital' }}",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "{{ asset('storage/' . ($settings['logo'] ?? '')) }}"
+        }
+    },
+    "datePublished": "{{ $post->published_at->toIso8601String() }}",
+    "dateModified": "{{ $post->updated_at->toIso8601String() }}",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "{{ route('blog.show', $post->slug) }}"
+    },
+    "articleSection": "{{ $post->category->name ?? 'Blog' }}",
+    "keywords": "{{ $post->tags->pluck('name')->implode(', ') }}",
+    "wordCount": {{ str_word_count(strip_tags($post->content)) }},
+    "timeRequired": "PT{{ ceil(str_word_count(strip_tags($post->content)) / 200) }}M"
+}
+</script>
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "{{ url('/') }}"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Blog",
+            "item": "{{ route('blog.index') }}"
+        },
+        @if($post->category)
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "{{ $post->category->name }}",
+            "item": "{{ route('blog.category', $post->category->slug) }}"
+        },
+        {
+            "@type": "ListItem",
+            "position": 4,
+            "name": "{{ $post->title }}",
+            "item": "{{ route('blog.show', $post->slug) }}"
+        }
+        @else
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "{{ $post->title }}",
+            "item": "{{ route('blog.show', $post->slug) }}"
+        }
+        @endif
+    ]
+}
+</script>
+@endpush
 
 @push('styles')
 <style>
@@ -252,11 +339,13 @@
 
             <!-- Ad: Content Top -->
             @if(isset($ads['content_top']) && $ads['content_top']->count() > 0)
-                @foreach($ads['content_top'] as $ad)
-                    <div class="mb-8 rounded-2xl overflow-hidden border border-slate-100 bg-slate-50/50">
-                        {!! $ad->render() !!}
-                    </div>
-                @endforeach
+                <div class="space-y-6">
+                    @foreach($ads['content_top'] as $ad)
+                        <div class="mb-8 rounded-2xl overflow-hidden border border-slate-100 bg-slate-50/50">
+                            {!! $ad->render() !!}
+                        </div>
+                    @endforeach
+                </div>
             @endif
 
             <!-- Featured Image -->
@@ -275,11 +364,13 @@
 
             <!-- Ad: Content Bottom -->
             @if(isset($ads['content_bottom']) && $ads['content_bottom']->count() > 0)
-                @foreach($ads['content_bottom'] as $ad)
-                    <div class="mb-8 rounded-2xl overflow-hidden border border-slate-100 bg-slate-50/50">
-                        {!! $ad->render() !!}
-                    </div>
-                @endforeach
+                <div class="space-y-6">
+                    @foreach($ads['content_bottom'] as $ad)
+                        <div class="mb-8 rounded-2xl overflow-hidden border border-slate-100 bg-slate-50/50">
+                            {!! $ad->render() !!}
+                        </div>
+                    @endforeach
+                </div>
             @endif
 
             <!-- Tags & Share Section -->
@@ -364,11 +455,13 @@
             <div class="sticky top-28 space-y-10">
                 <!-- Ad: Sidebar -->
                 @if(isset($ads['sidebar']) && $ads['sidebar']->count() > 0)
-                    @foreach($ads['sidebar'] as $ad)
-                        <div class="rounded-2xl overflow-hidden border border-slate-100 bg-slate-50/50">
-                            {!! $ad->render() !!}
-                        </div>
-                    @endforeach
+                    <div class="space-y-6">
+                        @foreach($ads['sidebar'] as $ad)
+                            <div class="rounded-2xl overflow-hidden border border-slate-100 bg-slate-50/50">
+                                {!! $ad->render() !!}
+                            </div>
+                        @endforeach
+                    </div>
                 @endif
 
                 <div class="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-sm">

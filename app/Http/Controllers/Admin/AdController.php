@@ -41,6 +41,8 @@ class AdController extends Controller
             'link' => 'nullable|url|max:500',
             'open_new_tab' => 'boolean',
             'is_active' => 'boolean',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
             'display_rules' => 'nullable|array',
             'sort_order' => 'integer|min:0',
             'in_content_paragraph' => 'nullable|integer|min:1',
@@ -188,6 +190,8 @@ class AdController extends Controller
             'link' => 'nullable|url|max:500',
             'open_new_tab' => 'boolean',
             'is_active' => 'boolean',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
             'display_rules' => 'nullable|array',
             'sort_order' => 'integer|min:0',
             'in_content_paragraph' => 'nullable|integer|min:1',
@@ -227,6 +231,26 @@ class AdController extends Controller
 
         return redirect()->route('admin.ads.index')
             ->with('success', 'Ad berhasil diupdate!');
+    }
+
+    public function toggleStatus(Ad $ad)
+    {
+        $ad->update([
+            'is_active' => !$ad->is_active
+        ]);
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'is_active' => $ad->is_active,
+                'status' => $ad->status,
+                'status_color' => $ad->status_color,
+                'message' => 'Status iklan berhasil diubah!'
+            ]);
+        }
+
+        return redirect()->route('admin.ads.index')
+            ->with('success', 'Status iklan berhasil diubah!');
     }
 
     public function destroy(Ad $ad)

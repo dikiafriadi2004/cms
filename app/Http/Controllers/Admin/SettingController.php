@@ -27,7 +27,37 @@ class SettingController extends Controller
     {
         $validated = $request->validate([
             'settings' => 'required|array',
+            'logo' => 'nullable|image|max:2048',
+            'favicon' => 'nullable|image|max:1024',
+            'hero_image' => 'nullable|image|max:5120',
+            'og_image' => 'nullable|image|max:2048',
         ]);
+
+        // Handle separate file uploads (logo, favicon, hero_image, og_image)
+        $fileUploads = ['logo', 'favicon', 'hero_image', 'og_image'];
+        foreach ($fileUploads as $fileKey) {
+            if ($request->hasFile($fileKey)) {
+                $file = $request->file($fileKey);
+                $path = $file->store('settings', 'public');
+                
+                // Delete old file if exists
+                $oldSetting = Setting::where('key', $fileKey)->first();
+                if ($oldSetting && $oldSetting->value) {
+                    Storage::disk('public')->delete($oldSetting->value);
+                }
+                
+                // Update or create setting
+                Setting::updateOrCreate(
+                    ['key' => $fileKey],
+                    [
+                        'value' => $path,
+                        'group' => $fileKey === 'og_image' ? 'seo' : ($fileKey === 'hero_image' ? 'hero' : 'branding'),
+                        'type' => 'file',
+                        'label' => ucfirst(str_replace('_', ' ', $fileKey)),
+                    ]
+                );
+            }
+        }
 
         foreach ($request->settings as $key => $value) {
             $setting = Setting::where('key', $key)->first();

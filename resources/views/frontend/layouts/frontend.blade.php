@@ -4,11 +4,41 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    
+    <!-- Primary Meta Tags -->
     <title>@yield('title', $settings['site_name'] ?? 'Konter Digital CMS')</title>
+    <meta name="title" content="@yield('title', $settings['site_name'] ?? 'Konter Digital CMS')">
     <meta name="description" content="@yield('description', $settings['site_description'] ?? '')">
+    <meta name="keywords" content="@yield('keywords', $settings['meta_keywords'] ?? '')">
+    <meta name="author" content="{{ $settings['site_name'] ?? 'Konter Digital' }}">
+    <meta name="robots" content="@yield('robots', 'index, follow')">
+    <link rel="canonical" href="@yield('canonical', url()->current())">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="@yield('og_title', $settings['site_name'] ?? 'Konter Digital CMS')">
+    <meta property="og:description" content="@yield('og_description', $settings['site_description'] ?? '')">
+    <meta property="og:image" content="@yield('og_image', isset($settings['og_image']) ? asset('storage/' . $settings['og_image']) : asset('storage/' . ($settings['logo'] ?? 'default-og-image.jpg')))">
+    <meta property="og:site_name" content="{{ $settings['site_name'] ?? 'Konter Digital' }}">
+    <meta property="og:locale" content="{{ str_replace('_', '-', app()->getLocale()) }}">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ url()->current() }}">
+    <meta property="twitter:title" content="@yield('twitter_title', $settings['site_name'] ?? 'Konter Digital CMS')">
+    <meta property="twitter:description" content="@yield('twitter_description', $settings['site_description'] ?? '')">
+    <meta property="twitter:image" content="@yield('twitter_image', isset($settings['og_image']) ? asset('storage/' . $settings['og_image']) : asset('storage/' . ($settings['logo'] ?? 'default-og-image.jpg')))">
+    @if(isset($settings['twitter_username']) && $settings['twitter_username'])
+    <meta property="twitter:site" content="{{ $settings['twitter_username'] }}">
+    @endif
+    
     @if(!empty($settings['favicon']))
         <link rel="icon" type="image/png" href="{{ asset('storage/' . $settings['favicon']) }}">
     @endif
+    
+    <!-- Structured Data -->
+    @stack('structured-data')
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
