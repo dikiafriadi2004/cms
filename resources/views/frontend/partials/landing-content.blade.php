@@ -67,11 +67,11 @@
                     @if(isset($settings['hero_image']) && $settings['hero_image'])
                         <img src="{{ asset('storage/' . $settings['hero_image']) }}" 
                              alt="App Screenshot" 
-                             class="max-w-[280px] md:max-w-[350px] h-auto rounded-[2.5rem] border-[8px] border-slate-900 shadow-2xl">
+                             class="max-w-[280px] md:max-w-[350px] h-auto rounded-[2.5rem] shadow-2xl">
                     @else
                         <img src="https://via.placeholder.com/350x700/4f46e5/ffffff?text=App+Screenshot" 
                              alt="App Screenshot" 
-                             class="max-w-[280px] md:max-w-[350px] h-auto rounded-[2.5rem] border-[8px] border-slate-900 shadow-2xl">
+                             class="max-w-[280px] md:max-w-[350px] h-auto rounded-[2.5rem] shadow-2xl">
                     @endif
                     
                     <!-- Floating Card 1 - Transaction Success -->
