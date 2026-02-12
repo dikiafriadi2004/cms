@@ -28,7 +28,7 @@ class ContactAutoReply extends Mailable
     {
         $this->contact = $contact;
         $this->siteName = Setting::get('site_name', config('app.name'));
-        $this->logo = Setting::get('site_logo') ? asset('storage/' . Setting::get('site_logo')) : null;
+        $this->logo = Setting::get('logo');
         $this->contactEmail = Setting::get('contact_email');
         $this->contactPhone = Setting::get('contact_phone');
         $this->contactAddress = Setting::get('contact_address');
@@ -46,8 +46,25 @@ class ContactAutoReply extends Mailable
 
     public function content(): Content
     {
+        // Check if using real domain (not ngrok or localhost)
+        $isRealDomain = !str_contains(config('app.url'), 'ngrok') && 
+                        !str_contains(config('app.url'), 'localhost') &&
+                        !str_contains(config('app.url'), '127.0.0.1');
+        
         return new Content(
             view: 'emails.contact-auto-reply',
+            with: [
+                'contact' => $this->contact,
+                'siteName' => $this->siteName,
+                'logo' => $this->logo,
+                'hasLogo' => $isRealDomain && !empty($this->logo),
+                'contactEmail' => $this->contactEmail,
+                'contactPhone' => $this->contactPhone,
+                'contactAddress' => $this->contactAddress,
+                'socialFacebook' => $this->socialFacebook,
+                'socialInstagram' => $this->socialInstagram,
+                'socialTwitter' => $this->socialTwitter,
+            ]
         );
     }
 

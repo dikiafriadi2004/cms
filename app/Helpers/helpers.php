@@ -5,9 +5,10 @@ if (!function_exists('storage_url')) {
      * Generate storage URL, handling paths that already include /storage/
      * 
      * @param string|null $path
+     * @param bool $absolute Force absolute URL (useful for emails)
      * @return string
      */
-    function storage_url($path)
+    function storage_url($path, $absolute = true)
     {
         if (empty($path)) {
             return '';
@@ -16,7 +17,11 @@ if (!function_exists('storage_url')) {
         // Remove leading /storage/ if it exists
         $path = preg_replace('#^/?storage/#', '', $path);
         
-        // Use asset helper with storage prefix
+        // Use url() for absolute URLs (better for emails) or asset() for relative
+        if ($absolute) {
+            return url('storage/' . $path);
+        }
+        
         return asset('storage/' . $path);
     }
 }

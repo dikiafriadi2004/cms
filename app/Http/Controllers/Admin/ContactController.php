@@ -114,10 +114,34 @@ class ContactController extends Controller
         ]);
 
         try {
+            // Get settings for email
+            $siteName = \App\Models\Setting::get('site_name', config('app.name'));
+            $logo = \App\Models\Setting::get('logo');
+            $contactEmail = \App\Models\Setting::get('contact_email');
+            $contactPhone = \App\Models\Setting::get('contact_phone');
+            $contactAddress = \App\Models\Setting::get('contact_address');
+            $socialFacebook = \App\Models\Setting::get('social_facebook');
+            $socialInstagram = \App\Models\Setting::get('social_instagram');
+            $socialTwitter = \App\Models\Setting::get('social_twitter');
+
+            // Check if using real domain (not ngrok or localhost)
+            $isRealDomain = !str_contains(config('app.url'), 'ngrok') && 
+                            !str_contains(config('app.url'), 'localhost') &&
+                            !str_contains(config('app.url'), '127.0.0.1');
+
             // Send email
             \Mail::send('emails.contact-reply', [
                 'contact' => $contact,
-                'replyMessage' => $validated['message']
+                'replyMessage' => $validated['message'],
+                'siteName' => $siteName,
+                'logo' => $logo,
+                'hasLogo' => $isRealDomain && !empty($logo),
+                'contactEmail' => $contactEmail,
+                'contactPhone' => $contactPhone,
+                'contactAddress' => $contactAddress,
+                'socialFacebook' => $socialFacebook,
+                'socialInstagram' => $socialInstagram,
+                'socialTwitter' => $socialTwitter,
             ], function ($message) use ($contact, $validated) {
                 $message->to($contact->email, $contact->name)
                         ->subject($validated['subject']);

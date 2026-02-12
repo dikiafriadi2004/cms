@@ -15,13 +15,8 @@
                     <!-- Header with Logo -->
                     <tr>
                         <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 50px 40px; text-align: center;">
-                            @php
-                                $siteName = \App\Models\Setting::get('site_name', config('app.name'));
-                                $logo = \App\Models\Setting::get('site_logo');
-                            @endphp
-                            
-                            @if($logo)
-                            <img src="{{ storage_url($logo) }}" alt="{{ $siteName }}" style="max-width: 180px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto;">
+                            @if($hasLogo ?? false)
+                            <img src="{{ $logo }}" alt="{{ $siteName }}" style="max-width: 180px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto;">
                             @else
                             <div style="background-color: #ffffff; width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; display: inline-flex; align-items: center; justify-content: center;">
                                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -87,11 +82,6 @@
                                 Jika Anda memiliki pertanyaan lebih lanjut, jangan ragu untuk menghubungi kami kembali.
                             </p>
                             
-                            @php
-                                $contactEmail = \App\Models\Setting::get('contact_email');
-                                $contactPhone = \App\Models\Setting::get('contact_phone');
-                            @endphp
-                            
                             <!-- Contact Info -->
                             @if($contactEmail || $contactPhone)
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 20px 0;">
@@ -151,13 +141,6 @@
                     <!-- Footer -->
                     <tr>
                         <td style="background-color: #f9fafb; padding: 40px; text-align: center; border-top: 1px solid #e5e7eb;">
-                            @php
-                                $contactAddress = \App\Models\Setting::get('contact_address');
-                                $socialFacebook = \App\Models\Setting::get('social_facebook');
-                                $socialInstagram = \App\Models\Setting::get('social_instagram');
-                                $socialTwitter = \App\Models\Setting::get('social_twitter');
-                            @endphp
-                            
                             <p style="margin: 0 0 12px 0; font-weight: 600; color: #374151; font-size: 16px;">
                                 {{ $siteName }}
                             </p>

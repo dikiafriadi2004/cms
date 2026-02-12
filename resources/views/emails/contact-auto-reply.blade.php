@@ -15,7 +15,7 @@
                     <!-- Header with Logo -->
                     <tr>
                         <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 50px 40px; text-align: center;">
-                            @if($logo)
+                            @if($hasLogo ?? false)
                             <img src="{{ $logo }}" alt="{{ $siteName }}" style="max-width: 180px; height: auto; margin-bottom: 20px;">
                             @else
                             <div style="background-color: #ffffff; width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">

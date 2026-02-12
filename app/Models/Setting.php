@@ -37,7 +37,7 @@ class Setting extends Model
             return match ($setting->type) {
                 'boolean' => (bool) $setting->value,
                 'json' => json_decode($setting->value, true),
-                'file' => $setting->value ? asset('storage/' . $setting->value) : $default,
+                'file' => $setting->value ? url('storage/' . $setting->value) : $default,
                 default => $setting->value ?: $default,
             };
         });
