@@ -21,7 +21,7 @@
                             @endphp
                             
                             @if($logo)
-                            <img src="{{ asset('storage/' . $logo) }}" alt="{{ $siteName }}" style="max-width: 180px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto;">
+                            <img src="{{ storage_url($logo) }}" alt="{{ $siteName }}" style="max-width: 180px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto;">
                             @else
                             <div style="background-color: #ffffff; width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; display: inline-flex; align-items: center; justify-content: center;">
                                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

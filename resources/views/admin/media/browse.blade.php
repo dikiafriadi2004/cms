@@ -6,12 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Select Media</title>
     
-    @php
-        $favicon = \App\Models\Setting::where('key', 'favicon')->value('value');
-    @endphp
-    @if($favicon)
-        <link rel="icon" type="image/png" href="{{ asset('storage/' . $favicon) }}">
-    @endif
+    <link rel="icon" type="image/png" href="{{ favicon_url() }}">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>

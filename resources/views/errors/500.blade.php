@@ -5,14 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>500 - Server Error</title>
     
-    @php
-        $favicon = \App\Models\Setting::where('key', 'favicon')->value('value');
-        $siteName = \App\Models\Setting::where('key', 'site_name')->value('value') ?? config('app.name', 'Konter Digital CMS');
-        $contactEmail = \App\Models\Setting::where('key', 'contact_email')->value('value');
-    @endphp
-    @if($favicon)
-        <link rel="icon" type="image/png" href="{{ asset('storage/' . $favicon) }}">
-    @endif
+    <link rel="icon" type="image/png" href="{{ favicon_url() }}">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -71,6 +64,9 @@
             </button>
         </div>
 
+        @php
+            $contactEmail = \App\Models\Setting::where('key', 'contact_email')->value('value');
+        @endphp
         @if($contactEmail)
         <div class="mt-12 pt-12 border-t border-slate-100">
             <p class="text-slate-400 text-sm">

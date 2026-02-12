@@ -9,11 +9,19 @@ use App\Models\User;
 use App\Models\Category;
 use App\Models\Tag;
 use App\Models\MediaFile;
+use App\Services\GoogleAnalyticsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
+    protected $analyticsService;
+
+    public function __construct(GoogleAnalyticsService $analyticsService)
+    {
+        $this->analyticsService = $analyticsService;
+    }
+
     public function index()
     {
         $stats = [
@@ -64,11 +72,25 @@ class DashboardController extends Controller
             ->orderBy('month', 'desc')
             ->get();
 
+        // Google Analytics Data
+        $analyticsData = null;
+        $analyticsConfigured = $this->analyticsService->isConfigured();
+        
+        if ($analyticsConfigured) {
+            try {
+                $analyticsData = $this->analyticsService->getDashboardSummary();
+            } catch (\Exception $e) {
+                \Log::error('Failed to fetch Google Analytics data: ' . $e->getMessage());
+            }
+        }
+
         return view('admin.dashboard', compact(
             'stats',
             'recentPosts',
             'popularPosts',
-            'monthlyStats'
+            'monthlyStats',
+            'analyticsData',
+            'analyticsConfigured'
         ));
     }
 }

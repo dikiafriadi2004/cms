@@ -6,12 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Login - {{ config('app.name', 'Konter Digital CMS') }}</title>
     
-    @php
-        $favicon = \App\Models\Setting::where('key', 'favicon')->value('value');
-    @endphp
-    @if($favicon)
-        <link rel="icon" type="image/png" href="{{ asset('storage/' . $favicon) }}">
-    @endif
+    <link rel="icon" type="image/png" href="{{ favicon_url() }}">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -110,13 +105,10 @@
                     @enderror
                 </div>
 
-                <div class="flex items-center justify-between">
+                <div class="flex items-center">
                     <div class="flex items-center">
                         <input id="remember-me" name="remember" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-600 border-slate-300 rounded">
                         <label for="remember-me" class="ml-2 block text-sm text-slate-600">Keep me signed in</label>
-                    </div>
-                    <div class="text-sm">
-                        <a href="{{ route('password.request') }}" class="font-medium text-primary-600 hover:text-primary-500">Forgot password?</a>
                     </div>
                 </div>
 

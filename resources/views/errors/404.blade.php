@@ -5,14 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>404 - Halaman Tidak Ditemukan</title>
     
-    @php
-        $favicon = \App\Models\Setting::where('key', 'favicon')->value('value');
-        $siteName = \App\Models\Setting::where('key', 'site_name')->value('value') ?? config('app.name', 'Konter Digital CMS');
-        $contactEmail = \App\Models\Setting::where('key', 'contact_email')->value('value');
-    @endphp
-    @if($favicon)
-        <link rel="icon" type="image/png" href="{{ asset('storage/' . $favicon) }}">
-    @endif
+    <link rel="icon" type="image/png" href="{{ favicon_url() }}">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -66,21 +59,17 @@
             <a href="{{ route('home') }}" class="w-full sm:w-auto px-8 py-3.5 bg-brand-500 text-white font-semibold rounded-xl shadow-lg shadow-brand-500/25 hover:bg-brand-600 transition-all duration-200 active:scale-95">
                 Kembali ke Beranda
             </a>
-            @if($contactEmail)
             <a href="{{ route('contact.show') }}" class="w-full sm:w-auto px-8 py-3.5 bg-white text-slate-700 font-semibold rounded-xl border border-slate-200 hover:bg-slate-50 transition-all duration-200">
                 Hubungi Support
             </a>
-            @endif
         </div>
 
         <div class="mt-12 pt-12 border-t border-slate-100">
             <p class="text-slate-400 text-sm">
                 Mungkin kamu mencari: 
                 <a href="{{ route('blog.index') }}" class="text-brand-500 hover:underline mx-2">Blog</a> • 
-                <a href="{{ route('about') }}" class="text-brand-500 hover:underline mx-2">Tentang Kami</a>
-                @if($contactEmail)
-                 • <a href="{{ route('contact.show') }}" class="text-brand-500 hover:underline mx-2">Kontak</a>
-                @endif
+                <a href="{{ route('about') }}" class="text-brand-500 hover:underline mx-2">Tentang Kami</a> • 
+                <a href="{{ route('contact.show') }}" class="text-brand-500 hover:underline mx-2">Kontak</a>
             </p>
         </div>
     </div>

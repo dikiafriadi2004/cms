@@ -28,16 +28,6 @@ Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 // Frontend Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Test route
-Route::get('/test-blog/{post}', function(App\Models\Post $post) {
-    return response()->json([
-        'title' => $post->title,
-        'slug' => $post->slug,
-        'status' => $post->status,
-        'published_at' => $post->published_at,
-    ]);
-});
-
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{post:slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/category/{category}', [BlogController::class, 'category'])->name('blog.category');
@@ -162,6 +152,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
     });
     Route::post('settings', [SettingController::class, 'update'])->name('settings.update')->middleware('permission:settings.edit');
+    Route::post('settings/delete-analytics-credentials', [SettingController::class, 'deleteAnalyticsCredentials'])->name('settings.delete-analytics-credentials')->middleware('permission:settings.edit');
+    Route::get('settings/test-analytics', [SettingController::class, 'testAnalyticsCredentials'])->name('settings.test-analytics')->middleware('permission:settings.view');
     
     // Ads
     Route::get('ads/create', [AdController::class, 'create'])->name('ads.create')->middleware('permission:ads.create');

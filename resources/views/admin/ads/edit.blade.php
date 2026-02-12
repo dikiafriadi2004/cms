@@ -140,7 +140,7 @@
                 <div id="currentImagePreview" class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Current Image</label>
                     <div class="relative inline-block">
-                        <img src="{{ asset('storage/' . $ad->image) }}" alt="{{ $ad->name }}" class="max-w-md rounded-lg border border-gray-300">
+                        <img src="{{ storage_url($ad->image) }}" alt="{{ $ad->name }}" class="max-w-md rounded-lg border border-gray-300">
                         <label class="flex items-center mt-2">
                             <input type="checkbox" name="remove_image" value="1" id="removeImageCheckbox"
                                 class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">

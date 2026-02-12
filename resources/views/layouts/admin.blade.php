@@ -7,12 +7,9 @@
 
     <title>@yield('title', 'Dashboard') - {{ config('app.name', 'Konter Digital CMS') }}</title>
 
-    @php
-        $favicon = \App\Models\Setting::where('key', 'favicon')->value('value');
-    @endphp
-    @if($favicon)
-        <link rel="icon" type="image/png" href="{{ asset('storage/' . $favicon) }}">
-    @endif
+    <link rel="icon" type="image/png" href="{{ favicon_url() }}">
+    <link rel="shortcut icon" type="image/png" href="{{ favicon_url() }}">
+    <link rel="apple-touch-icon" href="{{ favicon_url() }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">

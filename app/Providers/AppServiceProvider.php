@@ -24,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Force HTTPS for URL generation when behind proxy (ngrok, cloudflare, etc)
+        if (config('app.env') !== 'local' || request()->header('X-Forwarded-Proto') === 'https') {
+            \URL::forceScheme('https');
+        }
+        
         // Configure mail from database settings
         try {
             MailConfigService::configure();

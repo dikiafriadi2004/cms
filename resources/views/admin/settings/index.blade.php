@@ -95,7 +95,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">Logo</label>
                 @if($getSetting('branding', 'logo'))
                 <div class="mb-3">
-                    <img src="{{ asset('storage/' . $getSetting('branding', 'logo')) }}" 
+                    <img src="{{ storage_url($getSetting('branding', 'logo')) }}" 
                         alt="Logo" class="h-16 object-contain">
                 </div>
                 @endif
@@ -109,7 +109,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">Favicon</label>
                 @if($getSetting('branding', 'favicon'))
                 <div class="mb-3">
-                    <img src="{{ asset('storage/' . $getSetting('branding', 'favicon')) }}" 
+                    <img src="{{ storage_url($getSetting('branding', 'favicon')) }}" 
                         alt="Favicon" class="h-8 w-8 object-contain">
                 </div>
                 @endif
@@ -174,7 +174,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">Default Open Graph Image (Fallback)</label>
                 @if($getSetting('seo', 'og_image'))
                 <div class="mb-3">
-                    <img src="{{ asset('storage/' . $getSetting('seo', 'og_image')) }}" 
+                    <img src="{{ storage_url($getSetting('seo', 'og_image')) }}" 
                         alt="OG Image" class="h-32 object-cover rounded-lg border border-gray-200">
                 </div>
                 @endif
@@ -249,6 +249,160 @@
                     value="{{ $getSetting('analytics', 'facebook_pixel_id') }}"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="XXXXXXXXXXXXXXX">
+            </div>
+        </div>
+    </div>
+
+    <!-- Google Analytics API Configuration -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-purple-50">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">Google Analytics API (Dashboard Integration)</h3>
+                    <p class="text-sm text-gray-600 mt-1">Configure GA4 API to display analytics data in admin dashboard</p>
+                </div>
+                @php
+                    $credentialsExists = !empty($getSetting('analytics', 'ga_credentials_json'));
+                    $propertyId = $getSetting('analytics', 'ga_property_id');
+                @endphp
+                @if($credentialsExists && $propertyId)
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Configured
+                    </span>
+                @else
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                        Not Configured
+                    </span>
+                @endif
+            </div>
+        </div>
+        <div class="p-6 space-y-6">
+            <!-- Info Box -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-blue-600 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                    <div class="flex-1">
+                        <h4 class="text-sm font-semibold text-blue-900 mb-1">Tentang Integrasi Google Analytics API</h4>
+                        <p class="text-sm text-blue-800 mb-2">
+                            Integrasi ini memungkinkan Anda melihat data Google Analytics langsung di dashboard admin tanpa perlu membuka Google Analytics.
+                        </p>
+                        <p class="text-xs text-blue-700">
+                            <strong>Fitur:</strong> Pengunjung real-time, tampilan halaman, halaman teratas, sumber traffic, breakdown perangkat, dan lainnya.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Property ID -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Google Analytics Property ID
+                    <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="ga_property_id" 
+                    value="{{ $getSetting('analytics', 'ga_property_id') }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono"
+                    placeholder="123456789">
+                <p class="mt-2 text-xs text-gray-600">
+                    <strong>Cara mencari:</strong> Google Analytics → Admin → Property Settings → Property ID (angka saja, bukan G-XXXXXXXXXX)
+                </p>
+            </div>
+
+            <!-- Service Account Credentials JSON -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Service Account Credentials (JSON)
+                    <span class="text-red-500">*</span>
+                </label>
+                
+                @if($credentialsExists)
+                    <div class="mb-3 p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <div>
+                                    <p class="text-sm font-semibold text-green-900">Credentials sudah dikonfigurasi</p>
+                                    <p class="text-xs text-green-700">JSON credentials tersimpan di database</p>
+                                </div>
+                            </div>
+                            <button type="button" 
+                                onclick="if(confirm('Apakah Anda yakin ingin menghapus credentials saat ini?')) { document.getElementById('ga_credentials_json').value = ''; }"
+                                class="text-sm text-red-600 hover:text-red-800 font-medium">
+                                Hapus
+                            </button>
+                        </div>
+                    </div>
+                @endif
+
+                <textarea name="ga_credentials_json" id="ga_credentials_json" rows="12"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-xs"
+                    placeholder='Paste JSON service account Anda di sini, contoh:
+{
+  "type": "service_account",
+  "project_id": "your-project-id",
+  "private_key_id": "...",
+  "private_key": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n",
+  "client_email": "your-service-account@your-project.iam.gserviceaccount.com",
+  "client_id": "...",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  ...
+}'>{{ $credentialsExists ? $getSetting('analytics', 'ga_credentials_json') : '' }}</textarea>
+                
+                <div class="mt-2 space-y-1">
+                    <p class="text-xs text-gray-600">
+                        <strong>Format:</strong> Paste seluruh isi JSON dari Google Cloud Console
+                    </p>
+                    <p class="text-xs text-gray-600">
+                        <strong>Field wajib:</strong> type, project_id, private_key, client_email
+                    </p>
+                    <p class="text-xs text-gray-600">
+                        <strong>Penyimpanan:</strong> Disimpan dengan aman di database (field ga_credentials_json)
+                    </p>
+                </div>
+            </div>
+
+            <!-- Setup Instructions -->
+            <div class="border-t border-gray-200 pt-6">
+                <h4 class="text-sm font-semibold text-gray-900 mb-3">📚 Panduan Setup</h4>
+                <div class="bg-gray-50 rounded-lg p-4 space-y-2 text-sm text-gray-700">
+                    <p><strong>Langkah 1:</strong> Buat Service Account di Google Cloud Console</p>
+                    <p><strong>Langkah 2:</strong> Aktifkan "Google Analytics Data API"</p>
+                    <p><strong>Langkah 3:</strong> Download file JSON credentials</p>
+                    <p><strong>Langkah 4:</strong> Buka file JSON, copy semua isinya, dan paste ke textarea di atas</p>
+                    <p><strong>Langkah 5:</strong> Masukkan Property ID</p>
+                    <p><strong>Langkah 6:</strong> Tambahkan email service account ke GA4 property (role Viewer)</p>
+                    <p><strong>Langkah 7:</strong> Simpan pengaturan dan cek dashboard</p>
+                </div>
+                
+                <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <p class="text-xs text-blue-800">
+                        <strong>💡 Tips:</strong> Credentials disimpan langsung di database (field <code class="bg-blue-100 px-1 rounded">ga_credentials_json</code> dan <code class="bg-blue-100 px-1 rounded">ga_property_id</code>). Tidak perlu upload file, cukup paste isi JSON.
+                    </p>
+                </div>
+
+                <!-- Test Connection Button -->
+                @if($credentialsExists && $propertyId)
+                <div class="mt-4">
+                    <button type="button" onclick="testAnalyticsConnection()" class="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span id="testButtonText">Test Koneksi Google Analytics</span>
+                    </button>
+                    <div id="testResult" class="mt-3 hidden"></div>
+                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -535,7 +689,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">Hero Image (Screenshot App)</label>
                 @if($getSetting('hero', 'hero_image'))
                 <div class="mb-3">
-                    <img src="{{ asset('storage/' . $getSetting('hero', 'hero_image')) }}" 
+                    <img src="{{ storage_url($getSetting('hero', 'hero_image')) }}" 
                         alt="Hero Image" class="h-32 object-contain rounded-lg border border-gray-200">
                 </div>
                 @endif
@@ -633,4 +787,124 @@
         </a>
     </div>
 </form>
+
+@push('scripts')
+<script>
+function testAnalyticsConnection() {
+    const button = document.querySelector('button[onclick="testAnalyticsConnection()"]');
+    const buttonText = document.getElementById('testButtonText');
+    const resultDiv = document.getElementById('testResult');
+    
+    // Disable button and show loading
+    button.disabled = true;
+    buttonText.textContent = 'Testing...';
+    button.classList.add('opacity-75', 'cursor-not-allowed');
+    resultDiv.classList.add('hidden');
+    
+    // Make API call
+    fetch('{{ route("admin.settings.test-analytics") }}', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Re-enable button
+        button.disabled = false;
+        buttonText.textContent = 'Test Koneksi Google Analytics';
+        button.classList.remove('opacity-75', 'cursor-not-allowed');
+        
+        // Show result
+        resultDiv.classList.remove('hidden');
+        
+        if (data.success) {
+            resultDiv.innerHTML = `
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-green-600 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-semibold text-green-900 mb-2">✅ ${data.message}</h4>
+                            <div class="text-xs text-green-800 space-y-1">
+                                <p><strong>Property ID:</strong> ${data.data.property_id}</p>
+                                <p><strong>Service Account:</strong> ${data.data.service_account}</p>
+                                <p><strong>Visitors (7 hari):</strong> ${data.data.visitors_7_days.toLocaleString()}</p>
+                                <p><strong>Page Views (7 hari):</strong> ${data.data.page_views_7_days.toLocaleString()}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Show success toast
+            if (typeof window.showToast === 'function') {
+                window.showToast('success', 'Google Analytics berhasil terhubung!');
+            }
+        } else {
+            let suggestionsHtml = '';
+            if (data.suggestions && data.suggestions.length > 0) {
+                suggestionsHtml = '<div class="mt-2 text-xs"><strong>Saran:</strong><ul class="list-disc ml-4 mt-1">';
+                data.suggestions.forEach(suggestion => {
+                    suggestionsHtml += `<li>${suggestion}</li>`;
+                });
+                suggestionsHtml += '</ul></div>';
+            }
+            
+            resultDiv.innerHTML = `
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-red-600 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-semibold text-red-900 mb-1">❌ ${data.message}</h4>
+                            ${data.property_id ? `<p class="text-xs text-red-800 mt-1"><strong>Property ID:</strong> ${data.property_id}</p>` : ''}
+                            ${suggestionsHtml}
+                            <div class="mt-3">
+                                <a href="/check-property-id.php" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 underline">
+                                    📖 Buka Panduan Troubleshooting
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Show error toast
+            if (typeof window.showToast === 'function') {
+                window.showToast('error', 'Koneksi gagal. Cek detail di bawah.');
+            }
+        }
+    })
+    .catch(error => {
+        // Re-enable button
+        button.disabled = false;
+        buttonText.textContent = 'Test Koneksi Google Analytics';
+        button.classList.remove('opacity-75', 'cursor-not-allowed');
+        
+        // Show error
+        resultDiv.classList.remove('hidden');
+        resultDiv.innerHTML = `
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-red-600 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <div class="flex-1">
+                        <h4 class="text-sm font-semibold text-red-900">Network Error</h4>
+                        <p class="text-xs text-red-800 mt-1">${error.message}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        console.error('Test error:', error);
+    });
+}
+</script>
+@endpush
+
 @endsection

@@ -6,12 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Verify Email - {{ config('app.name', 'Konter Digital CMS') }}</title>
     
-    @php
-        $favicon = \App\Models\Setting::where('key', 'favicon')->value('value');
-    @endphp
-    @if($favicon)
-        <link rel="icon" type="image/png" href="{{ asset('storage/' . $favicon) }}">
-    @endif
+    <link rel="icon" type="image/png" href="{{ favicon_url() }}">
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>

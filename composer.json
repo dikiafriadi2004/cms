@@ -17,6 +17,7 @@
         "laravel/tinker": "^2.10.1",
         "league/commonmark": "^2.5",
         "meilisearch/meilisearch-php": "^1.10",
+        "spatie/laravel-analytics": "^5.6",
         "spatie/laravel-feed": "^4.4",
         "spatie/laravel-medialibrary": "^11.9",
         "spatie/laravel-permission": "^6.9",
@@ -39,7 +40,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/Helpers/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

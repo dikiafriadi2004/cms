@@ -67,7 +67,7 @@
                 
                 <div class="relative z-10 drop-shadow-[0_35px_35px_rgba(79,70,229,0.2)]">
                     @if(isset($settings['hero_image']) && $settings['hero_image'])
-                        <img src="{{ asset('storage/' . $settings['hero_image']) }}" 
+                        <img src="{{ storage_url($settings['hero_image']) }}" 
                              alt="App Screenshot" 
                              class="max-w-[280px] md:max-w-[350px] h-auto rounded-[2.5rem] shadow-2xl">
                     @else

@@ -190,7 +190,7 @@
 </div>
 
 <!-- Google Analytics Widget -->
-@if(!empty($settings['google_analytics_id']))
+@if($analyticsConfigured && $analyticsData)
 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
     <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
         <h3 class="text-lg font-semibold text-gray-900">Google Analytics</h3>
@@ -198,38 +198,158 @@
             Active
         </span>
     </div>
-    <div class="p-6">
-        <div class="flex items-center justify-between mb-4">
+    
+    <!-- Today & 7 Days Stats -->
+    <div class="p-6 border-b border-gray-200">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="text-center">
+                <p class="text-3xl font-bold text-blue-600">{{ number_format($analyticsData['today']['visitors']) }}</p>
+                <p class="text-xs text-gray-500 mt-1">Visitors Today</p>
+            </div>
+            <div class="text-center">
+                <p class="text-3xl font-bold text-green-600">{{ number_format($analyticsData['today']['pageViews']) }}</p>
+                <p class="text-xs text-gray-500 mt-1">Page Views Today</p>
+            </div>
+            <div class="text-center">
+                <p class="text-3xl font-bold text-purple-600">{{ number_format($analyticsData['last7Days']['visitors']) }}</p>
+                <p class="text-xs text-gray-500 mt-1">Visitors (7 Days)</p>
+            </div>
+            <div class="text-center">
+                <p class="text-3xl font-bold text-orange-600">{{ number_format($analyticsData['last7Days']['pageViews']) }}</p>
+                <p class="text-xs text-gray-500 mt-1">Page Views (7 Days)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 30 Days Stats -->
+    <div class="p-6 border-b border-gray-200">
+        <h4 class="text-sm font-semibold text-gray-700 mb-4">Last 30 Days</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-                <p class="text-sm text-gray-600 mb-1">Tracking ID</p>
-                <p class="text-lg font-semibold text-gray-900">{{ $settings['google_analytics_id'] }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ number_format($analyticsData['last30Days']['visitors']) }}</p>
+                <p class="text-xs text-gray-500 mt-1">Total Visitors</p>
             </div>
-            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                </svg>
+            <div>
+                <p class="text-2xl font-bold text-gray-900">{{ number_format($analyticsData['last30Days']['pageViews']) }}</p>
+                <p class="text-xs text-gray-500 mt-1">Total Page Views</p>
             </div>
-        </div>
-        <div class="grid grid-cols-3 gap-4 pt-4 border-t border-gray-200">
-            <div class="text-center">
-                <p class="text-2xl font-bold text-gray-900">{{ $stats['posts']['total'] }}</p>
-                <p class="text-xs text-gray-500 mt-1">Total Posts</p>
+            <div>
+                <p class="text-2xl font-bold text-gray-900">{{ number_format($analyticsData['last30Days']['bounceRate'], 2) }}%</p>
+                <p class="text-xs text-gray-500 mt-1">Bounce Rate</p>
             </div>
-            <div class="text-center">
-                <p class="text-2xl font-bold text-gray-900">{{ $stats['pages']['total'] }}</p>
-                <p class="text-xs text-gray-500 mt-1">Total Pages</p>
-            </div>
-            <div class="text-center">
-                <p class="text-2xl font-bold text-gray-900">{{ $stats['users']['total'] }}</p>
-                <p class="text-xs text-gray-500 mt-1">Total Users</p>
+            <div>
+                <p class="text-2xl font-bold text-gray-900">{{ gmdate('i:s', $analyticsData['last30Days']['avgSessionDuration']) }}</p>
+                <p class="text-xs text-gray-500 mt-1">Avg. Session</p>
             </div>
         </div>
-        <div class="mt-4 pt-4 border-t border-gray-200">
-            <a href="https://analytics.google.com" target="_blank" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
-                View Analytics Dashboard
-                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                </svg>
+    </div>
+
+    <!-- Top Pages & Traffic Sources -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 border-b border-gray-200">
+        <!-- Top Pages -->
+        <div>
+            <h4 class="text-sm font-semibold text-gray-700 mb-3">Top Pages (7 Days)</h4>
+            @if($analyticsData['topPages']->count() > 0)
+                <div class="space-y-2">
+                    @foreach($analyticsData['topPages'] as $page)
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600 truncate flex-1">{{ Str::limit($page['pageTitle'] ?? 'Unknown', 30) }}</span>
+                        <span class="font-semibold text-gray-900 ml-2">{{ number_format($page['screenPageViews']) }}</span>
+                    </div>
+                    @endforeach
+                </div>
+            @else
+                <p class="text-sm text-gray-500">No data available</p>
+            @endif
+        </div>
+
+        <!-- Traffic Sources -->
+        <div>
+            <h4 class="text-sm font-semibold text-gray-700 mb-3">Traffic Sources (7 Days)</h4>
+            @if($analyticsData['trafficSources']->count() > 0)
+                <div class="space-y-2">
+                    @foreach($analyticsData['trafficSources'] as $source)
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">{{ $source['sessionSource'] ?? 'Direct' }} / {{ $source['sessionMedium'] ?? 'none' }}</span>
+                        <span class="font-semibold text-gray-900">{{ number_format($source['sessions']) }}</span>
+                    </div>
+                    @endforeach
+                </div>
+            @else
+                <p class="text-sm text-gray-500">No data available</p>
+            @endif
+        </div>
+    </div>
+
+    <!-- User Types & Devices -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+        <!-- User Types -->
+        <div>
+            <h4 class="text-sm font-semibold text-gray-700 mb-3">User Types</h4>
+            @if($analyticsData['userTypes']->count() > 0)
+                <div class="space-y-2">
+                    @foreach($analyticsData['userTypes'] as $type)
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">{{ $type['newVsReturning'] }}</span>
+                        <span class="font-semibold text-gray-900">{{ number_format($type['totalUsers']) }}</span>
+                    </div>
+                    @endforeach
+                </div>
+            @else
+                <p class="text-sm text-gray-500">No data available</p>
+            @endif
+        </div>
+
+        <!-- Devices -->
+        <div>
+            <h4 class="text-sm font-semibold text-gray-700 mb-3">Devices</h4>
+            @if($analyticsData['devices']->count() > 0)
+                <div class="space-y-2">
+                    @foreach($analyticsData['devices'] as $device)
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">{{ ucfirst($device['deviceCategory']) }}</span>
+                        <span class="font-semibold text-gray-900">{{ number_format($device['sessions']) }}</span>
+                    </div>
+                    @endforeach
+                </div>
+            @else
+                <p class="text-sm text-gray-500">No data available</p>
+            @endif
+        </div>
+    </div>
+
+    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+        <a href="https://analytics.google.com" target="_blank" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
+            View Full Analytics Dashboard
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+            </svg>
+        </a>
+    </div>
+</div>
+@elseif($analyticsConfigured && !$analyticsData)
+<div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-6">
+    <div class="flex items-start">
+        <svg class="w-6 h-6 text-yellow-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <div>
+            <h3 class="text-sm font-semibold text-yellow-800 mb-1">Google Analytics Configuration Error</h3>
+            <p class="text-sm text-yellow-700">Unable to fetch analytics data. Please check your configuration.</p>
+        </div>
+    </div>
+</div>
+@else
+<div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
+    <div class="flex items-start">
+        <svg class="w-6 h-6 text-blue-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <div>
+            <h3 class="text-sm font-semibold text-blue-800 mb-1">Google Analytics Not Configured</h3>
+            <p class="text-sm text-blue-700 mb-3">Configure Google Analytics to see visitor statistics and insights.</p>
+            <a href="{{ route('admin.settings.index') }}" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
+                Configure Now →
             </a>
         </div>
     </div>

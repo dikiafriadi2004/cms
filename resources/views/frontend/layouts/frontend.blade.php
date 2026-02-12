@@ -19,7 +19,7 @@
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:title" content="@yield('og_title', $settings['site_name'] ?? 'Konter Digital CMS')">
     <meta property="og:description" content="@yield('og_description', $settings['site_description'] ?? '')">
-    <meta property="og:image" content="@yield('og_image', isset($settings['og_image']) ? asset('storage/' . $settings['og_image']) : asset('storage/' . ($settings['logo'] ?? 'default-og-image.jpg')))">
+    <meta property="og:image" content="@yield('og_image', isset($settings['og_image']) ? storage_url($settings['og_image']) : storage_url(($settings['logo'] ?? 'default-og-image.jpg')))">
     <meta property="og:site_name" content="{{ $settings['site_name'] ?? 'Konter Digital' }}">
     <meta property="og:locale" content="{{ str_replace('_', '-', app()->getLocale()) }}">
     
@@ -28,13 +28,17 @@
     <meta property="twitter:url" content="{{ url()->current() }}">
     <meta property="twitter:title" content="@yield('twitter_title', $settings['site_name'] ?? 'Konter Digital CMS')">
     <meta property="twitter:description" content="@yield('twitter_description', $settings['site_description'] ?? '')">
-    <meta property="twitter:image" content="@yield('twitter_image', isset($settings['og_image']) ? asset('storage/' . $settings['og_image']) : asset('storage/' . ($settings['logo'] ?? 'default-og-image.jpg')))">
+    <meta property="twitter:image" content="@yield('twitter_image', isset($settings['og_image']) ? storage_url($settings['og_image']) : storage_url(($settings['logo'] ?? 'default-og-image.jpg')))">
     @if(isset($settings['twitter_username']) && $settings['twitter_username'])
     <meta property="twitter:site" content="{{ $settings['twitter_username'] }}">
     @endif
     
-    @if(!empty($settings['favicon']))
-        <link rel="icon" type="image/png" href="{{ asset('storage/' . $settings['favicon']) }}">
+    <link rel="icon" type="image/png" href="{{ favicon_url() }}">
+    <link rel="shortcut icon" type="image/png" href="{{ favicon_url() }}">
+    <link rel="apple-touch-icon" href="{{ favicon_url() }}">
+    
+    @if(isset($settings['google_site_verification']) && $settings['google_site_verification'])
+    <meta name="google-site-verification" content="{{ $settings['google_site_verification'] }}" />
     @endif
     
     <!-- Structured Data -->
@@ -63,8 +67,17 @@
     </script>
     
     @if(isset($settings['google_analytics_id']) && $settings['google_analytics_id'])
+    <!-- Google Analytics (GA4) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ $settings['google_analytics_id'] }}"></script>
-    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{{ $settings['google_analytics_id'] }}');</script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ $settings['google_analytics_id'] }}', {
+            'send_page_view': true,
+            'cookie_flags': 'SameSite=None;Secure'
+        });
+    </script>
     @endif
     
     @stack('styles')

@@ -40,7 +40,7 @@
             <div class="lg:w-1/2 relative">
                 <div class="absolute -top-10 -right-10 w-64 h-64 bg-brand-200/50 rounded-full blur-3xl opacity-50"></div>
                 @if(isset($settings['about_image']) && $settings['about_image'])
-                    <img src="{{ asset('storage/' . $settings['about_image']) }}" 
+                    <img src="{{ storage_url($settings['about_image']) }}" 
                          class="relative rounded-[3rem] shadow-2xl border-8 border-white" 
                          alt="Team Work">
                 @else
