@@ -11,36 +11,44 @@ CMS modern dan profesional untuk membuat landing page dan blog dengan fitur leng
 - **Menu Builder** - Visual menu builder dengan nested support
 
 ### User & Permissions
-- **Role-Based Access Control** - Admin, Editor, Author roles
-- **Granular Permissions** - Fine-grained permission system
+- **Role-Based Access Control** - Super Admin, Admin, Editor, Author roles
+- **Granular Permissions** - Fine-grained permission system dengan ownership control
 - **User Management** - User profiles dan activity tracking
 
 ### SEO & Analytics
 - **SEO Optimization** - Meta tags, Open Graph, Twitter Cards
-- **Google Analytics 4 Integration** - Real-time analytics dashboard in admin panel
+- **Google Analytics 4 Integration** - Real-time analytics dashboard
 - **Analytics Dashboard** - Visitors, page views, traffic sources, device breakdown
-- **Tracking Integration** - Google Analytics, Tag Manager, Facebook Pixel
 - **Sitemap Generation** - Auto-generate XML sitemap
+- **Robots.txt** - Dynamic robots.txt generation
+
+### Ads Management
+- **Multiple Ad Types** - AdSense, Adsera, Manual HTML, Image ads
+- **Strategic Positions** - Header, Footer, Sidebar, Content Top/Bottom, Between Posts, In-Content
+- **Display Rules** - Filter by page, post, category
+- **Scheduling** - Start date & end date
+- **In-Content Injection** - Auto-inject ads at specific paragraphs
 
 ### Frontend
-- **Modern Design** - Tailwind CSS dengan gradient purple-indigo theme
+- **Modern Design** - Tailwind CSS dengan gradient theme
 - **Responsive** - Mobile-first design
-- **Professional Landing Page** - Hero, Features, Products, Pricing, Testimonials
+- **Professional Landing Page** - Hero, Features, Products, Pricing, Testimonials, Statistics
 - **Blog Templates** - Index, single post, category, tag pages
-- **Contact Form** - With email notifications
+- **Contact Form** - With auto-reply and admin notifications
 
-### Settings
-- **General Settings** - Site name, logo, favicon, contact info
-- **Email Configuration** - SMTP settings via admin panel
-- **Social Media** - Facebook, Instagram, Twitter, WhatsApp links
-- **Ads Management** - Google AdSense, Adsera, custom ads
+### Email System
+- **SMTP Configuration** - Configure via admin panel (stored in database)
+- **Auto-Reply** - Automatic reply to contact form submissions
+- **Admin Notifications** - Email notifications for new contacts
+- **Reply System** - Reply to contacts directly from admin panel
+- **Logo in Emails** - Automatic logo display (works on real domains, not ngrok)
 
 ## 📋 Requirements
 
 - PHP >= 8.2
 - Composer
 - Node.js & NPM
-- MySQL/SQLite
+- MySQL >= 5.7 or SQLite
 
 ## 🔧 Installation
 
@@ -60,16 +68,39 @@ php artisan key:generate
 
 Edit `.env`:
 ```env
+APP_NAME="Konter Digital"
 APP_URL=http://localhost:8000
-DB_CONNECTION=sqlite
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=cms
+DB_USERNAME=root
+DB_PASSWORD=
+
+# Or use SQLite
+# DB_CONNECTION=sqlite
 ```
 
-### 3. Database Setup
+### 3. Database Setup (Automatic with Seeders!)
 ```bash
+# For MySQL
+php artisan migrate:fresh --seed
+
+# For SQLite
 touch database/database.sqlite
-php artisan migrate
-php artisan db:seed
+php artisan migrate:fresh --seed
 ```
+
+Seeder akan otomatis membuat:
+- ✅ Roles & Permissions (Super Admin, Admin, Editor, Author)
+- ✅ Admin user (email: admin@example.com, password: password)
+- ✅ Settings default (site name, contact info, SEO, dll)
+- ✅ 5 Categories
+- ✅ 10 Tags
+- ✅ 20 Sample posts dengan konten lengkap
+- ✅ Header & Footer menus
+- ✅ Sample ads
 
 ### 4. Storage & Assets
 ```bash
@@ -87,8 +118,8 @@ Akses: `http://localhost:8000`
 ## 👤 Default Login
 
 **Admin Account:**
-- Email: `admin@konterdigital.com`
-- Password: `password123`
+- Email: `admin@example.com`
+- Password: `password`
 
 **⚠️ Ganti password setelah login pertama!**
 
@@ -101,7 +132,9 @@ cms/
 │   │   ├── Admin/          # Admin panel controllers
 │   │   └── Frontend/       # Frontend controllers
 │   ├── Models/             # Eloquent models
-│   └── Providers/          # Service providers
+│   ├── Mail/               # Email templates (Mailable classes)
+│   ├── Services/           # Services (GoogleAnalytics, MailConfig)
+│   └── Helpers/            # Helper functions
 ├── database/
 │   ├── migrations/         # Database migrations
 │   └── seeders/            # Database seeders
@@ -111,6 +144,7 @@ cms/
 │   └── views/
 │       ├── admin/          # Admin views
 │       ├── frontend/       # Frontend views
+│       ├── emails/         # Email templates
 │       └── layouts/        # Layout templates
 ├── routes/
 │   ├── web.php             # Web routes
@@ -122,42 +156,114 @@ cms/
 ## 🎨 Frontend Pages
 
 ### Public Pages
-- **Home** - Landing page dengan hero, features, products, pricing
-- **Blog** - Blog index dengan search dan pagination
-- **Single Post** - Post detail dengan related posts
-- **Category** - Posts by category
-- **Tag** - Posts by tag
-- **Contact** - Contact form dengan auto-reply email
-- **Pages** - Custom pages (Privacy, Terms, About, dll)
+- **Home** (`/`) - Landing page dengan hero, features, products, pricing, testimonials
+- **About** (`/about`) - About page dengan statistics
+- **Blog** (`/blog`) - Blog index dengan search dan pagination
+- **Single Post** (`/blog/{slug}`) - Post detail dengan related posts dan ads
+- **Category** (`/category/{slug}`) - Posts by category
+- **Tag** (`/tag/{slug}`) - Posts by tag
+- **Contact** (`/contact`) - Contact form dengan auto-reply email
+- **Custom Pages** (`/{slug}`) - Dynamic pages
 
-### Admin Panel
-- Dashboard dengan statistics dan Google Analytics widget
-- Posts, Pages, Categories, Tags management
-- Media library
-- Menu builder
-- User & role management
-- Settings configuration
-- Ads management
-- Contact messages
-- Real-time analytics data from Google Analytics 4
+### Admin Panel (`/admin`)
+- **Dashboard** - Statistics dan Google Analytics widget
+- **Posts** - Create, edit, delete posts dengan categories & tags
+- **Pages** - Manage custom pages
+- **Categories** - Blog categories management
+- **Tags** - Blog tags management
+- **Media** - File manager dengan upload
+- **Menus** - Visual menu builder
+- **Ads** - Ads management (AdSense, Adsera, Manual, Image)
+- **Contacts** - View dan reply contact messages
+- **Users** - User management
+- **Roles** - Role & permission management
+- **Settings** - Site settings, email config, Google Analytics
 
-## 🔐 Security Features
+## 📊 Google Analytics Integration
+
+### Setup Google Analytics 4
+
+1. **Create Service Account** di Google Cloud Console
+2. **Enable** Google Analytics Data API
+3. **Download** JSON credentials file
+4. **Login** ke Admin Panel > Settings
+5. **Paste** JSON content ke textarea
+6. **Enter** Property ID (angka saja, contoh: 123456789)
+7. **Add** service account email ke GA4 property (Viewer role)
+8. **Test** koneksi dengan tombol "Test Koneksi"
+
+**Dashboard akan menampilkan:**
+- Total visitors (7 hari terakhir)
+- Page views
+- Top 5 pages
+- Traffic sources
+- Device breakdown
+- New vs Returning visitors
+
+**Note:** Credentials disimpan di database (field `ga_credentials_json` dan `ga_property_id`).
+
+## 📧 Email Configuration
+
+### Setup Email via Admin Panel
+
+1. Login ke Admin Panel
+2. Settings > Email Configuration
+3. Pilih Mail Driver (SMTP recommended)
+4. Isi konfigurasi:
+   - **SMTP (Gmail)**:
+     - Host: `smtp.gmail.com`
+     - Port: `587`
+     - Username: `your-email@gmail.com`
+     - Password: `your-app-password` (bukan password biasa!)
+     - Encryption: `tls`
+   - **SMTP (Other)**:
+     - Sesuaikan dengan provider Anda
+5. Save settings
+
+**Email Features:**
+- ✅ Auto-reply ke pengirim contact form
+- ✅ Notification ke admin untuk contact baru
+- ✅ Reply system dari admin panel
+- ✅ Logo otomatis di email (untuk domain real)
+
+**Note:** Logo tidak akan muncul di email saat menggunakan ngrok (limitasi ngrok). Logo akan muncul normal di production dengan domain real.
+
+## 🎯 Ads Management
+
+### Posisi Ads yang Tersedia
+
+1. **header** - Di bagian atas halaman (setelah navbar)
+2. **footer** - Di bagian bawah halaman (sebelum footer)
+3. **sidebar** - Di sidebar kanan (blog pages)
+4. **content_top** - Di atas konten utama
+5. **content_bottom** - Di bawah konten utama
+6. **between_posts** - Di antara posts (setiap 3 post)
+7. **in_content** - Di dalam artikel (berdasarkan paragraph number)
+
+### Tipe Ads
+
+- **AdSense** - Google AdSense code
+- **Adsera** - Adsera code
+- **Manual** - Custom HTML/JavaScript
+- **Image** - Upload gambar dengan link
+
+### Display Rules
+
+Filter ads berdasarkan:
+- Pages (home, blog_index, blog_detail, dll)
+- Specific posts
+- Categories
+
+## � Security Features
 
 - CSRF Protection
 - XSS Protection
 - SQL Injection prevention
-- Role-based access control
+- Role-based access control (Spatie Permission)
 - Password hashing (bcrypt)
 - Secure file upload validation
 - Rate limiting
-
-## ⚡ Performance
-
-- Query optimization dengan eager loading
-- View caching
-- Asset minification (Vite)
-- Image optimization
-- Database indexing
+- Trust proxies untuk ngrok/reverse proxy
 
 ## 🛠️ Maintenance Commands
 
@@ -169,16 +275,11 @@ php artisan route:clear
 php artisan view:clear
 ```
 
-### Google Analytics
+### Refresh Permissions
 ```bash
-# Test analytics configuration
-php artisan analytics:test
-
-# Clear analytics cache
-php artisan cache:clear
+php artisan permission:cache-reset
+php artisan permission:refresh
 ```
-
-**Note**: Google Analytics credentials disimpan di database (field `ga_credentials_json` dan `ga_property_id`), bukan sebagai file. Configure via Admin Panel > Settings > Google Analytics API.
 
 ### Update Dependencies
 ```bash
@@ -189,6 +290,9 @@ npm run build
 
 ### Backup Database
 ```bash
+# MySQL
+mysqldump -u root -p cms > backup-$(date +%Y%m%d).sql
+
 # SQLite
 cp database/database.sqlite database/backup-$(date +%Y%m%d).sqlite
 ```
@@ -199,180 +303,104 @@ cp database/database.sqlite database/backup-$(date +%Y%m%d).sqlite
 ```bash
 php artisan storage:link
 php artisan config:clear
+php artisan cache:clear
 php artisan view:clear
-# Hard refresh browser: Ctrl + Shift + R
 ```
 
-**Jika favicon tidak muncul di ngrok atau domain lain:**
+Pastikan `APP_URL` di `.env` sudah benar:
+```env
+APP_URL=https://your-domain.com
+```
 
-1. **Jalankan troubleshooting script:**
-   ```bash
-   php check-favicon.php
-   ```
-   Script ini akan mengecek semua konfigurasi favicon dan memberikan rekomendasi.
-
-2. **Pastikan APP_URL sudah benar di .env:**
-   ```env
-   APP_URL=https://your-domain.ngrok-free.dev
-   ```
-
-3. **Clear semua cache:**
-   ```bash
-   php artisan config:clear
-   php artisan cache:clear
-   php artisan view:clear
-   ```
-
-4. **Test favicon URL:**
-   ```bash
-   php artisan tinker --execute="echo favicon_url();"
-   ```
-   URL harus menggunakan domain yang benar, bukan localhost.
-
-5. **Clear browser cache:**
-   - Chrome/Edge: Ctrl + Shift + Delete
-   - Firefox: Ctrl + Shift + Delete
-   - Safari: Cmd + Option + E
-   - Atau gunakan Incognito/Private mode
-
-6. **Test direct access:**
-   Buka URL favicon langsung di browser:
-   ```
-   https://your-domain.ngrok-free.dev/storage/settings/[filename].png
-   ```
-
-**Catatan:** Favicon menggunakan cache busting parameter (`?v=timestamp`) untuk memaksa browser mengambil versi terbaru.
+Hard refresh browser: `Ctrl + Shift + R`
 
 ### Permission errors
 ```bash
 chmod -R 775 storage bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
 ```
 
 ### View tidak update
 ```bash
 php artisan view:clear
-# Hapus compiled views
-rm -rf storage/framework/views/*.php
 ```
 
-## 📝 Configuration
+### Email tidak terkirim
+1. Cek konfigurasi email di Settings
+2. Pastikan menggunakan App Password (bukan password biasa) untuk Gmail
+3. Test dengan:
+   ```bash
+   php artisan tinker
+   Mail::raw('Test email', function($msg) {
+       $msg->to('test@example.com')->subject('Test');
+   });
+   ```
 
-### Email Setup (Gmail)
-1. Login ke admin panel
-2. Settings > Email Configuration
-3. Isi:
-   - Mail Driver: `smtp`
-   - Mail Host: `smtp.gmail.com`
-   - Mail Port: `587`
-   - Mail Username: `your-email@gmail.com`
-   - Mail Password: `your-app-password`
-   - Mail Encryption: `tls`
+### Google Analytics tidak muncul
+1. Pastikan credentials JSON valid
+2. Pastikan Property ID benar (angka saja)
+3. Pastikan service account sudah ditambahkan ke GA4 property
+4. Test dengan tombol "Test Koneksi" di Settings
+5. Clear cache: `php artisan cache:clear`
 
-### Logo & Favicon
-1. Login ke admin panel
-2. Settings > General
-3. Upload logo dan favicon
-4. Save changes
-
-### Menu Setup
-1. Admin > Menus
-2. Create menu (Header/Footer)
-3. Add menu items (Pages, Posts, Categories, Custom links)
-4. Drag & drop untuk reorder
-5. Save
+## 📝 Helper Functions
 
 ### Storage URL Helper
-CMS ini menggunakan helper `storage_url()` untuk menangani path storage dengan benar:
-
 ```php
-// Otomatis handle path yang sudah include /storage/ atau belum
-storage_url('media/image.jpg')        // → /storage/media/image.jpg
-storage_url('/storage/media/image.jpg') // → /storage/media/image.jpg
-storage_url('settings/logo.png')      // → /storage/settings/logo.png
+storage_url($path)  // Generate URL untuk file di storage/app/public
 ```
 
-Helper ini mencegah double path seperti `/storage//storage/...` dan memastikan URL selalu menggunakan `APP_URL` dari `.env`.
+Contoh:
+```php
+storage_url('media/image.jpg')        // → https://domain.com/storage/media/image.jpg
+storage_url('/storage/media/image.jpg') // → https://domain.com/storage/media/image.jpg
+```
 
-## 🎯 Key Features Implemented
+### Favicon URL Helper
+```php
+favicon_url()  // Generate favicon URL dengan cache busting
+```
 
-✅ Modern landing page dengan Tailwind CSS
-✅ Blog system dengan categories dan tags
-✅ SEO optimization
-✅ **Google Analytics 4 integration dengan dashboard widget**
-✅ Role & permission system
-✅ Media library dengan file manager
-✅ Menu builder dengan drag & drop
-✅ Contact form dengan email notifications
-✅ Settings management via admin panel
-✅ Responsive design
-✅ Professional admin panel
+## 🚀 Production Deployment
 
-## 📊 Google Analytics Integration
+### 1. Update Environment
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://your-domain.com
 
-CMS ini sudah terintegrasi dengan Google Analytics 4 (GA4) untuk menampilkan data analytics langsung di dashboard admin.
+DB_CONNECTION=mysql
+DB_HOST=your-db-host
+DB_DATABASE=your-db-name
+DB_USERNAME=your-db-user
+DB_PASSWORD=your-db-password
+```
 
-### Features
-- ✅ Real-time visitor statistics
-- ✅ Page views tracking
-- ✅ Top pages analytics
-- ✅ Traffic sources breakdown
-- ✅ Device categories (Desktop/Mobile/Tablet)
-- ✅ New vs Returning visitors
-- ✅ Bounce rate & session duration
-
-### Quick Setup
-Untuk mengaktifkan Google Analytics di dashboard:
-
-1. **Login ke Admin Panel**:
-   - Navigate to Settings > Google Analytics API
-
-2. **Get Service Account Credentials**:
-   - Create Service Account di Google Cloud Console
-   - Enable Google Analytics Data API
-   - Download JSON credentials file
-
-3. **Configure via Admin Panel**:
-   - Open JSON file with text editor
-   - Copy ALL JSON content
-   - Paste into "Service Account Credentials (JSON)" textarea
-   - Enter Property ID (angka saja, bukan G-XXXXXXXXXX)
-   - Save settings
-
-4. **Add Service Account to GA4**:
-   - Copy service account email from JSON (`client_email`)
-   - Add to GA4 property with Viewer role
-
-5. **Check Dashboard**:
-   - Navigate to Admin Dashboard
-   - Analytics widget should display data
-
-**Note**: Credentials disimpan di database (field `ga_credentials_json` dan `ga_property_id`), tidak perlu upload file atau edit .env.
-
-### Documentation
-Dokumentasi lengkap tersedia:
-- **[Database Setup Guide](GOOGLE_ANALYTICS_SETUP_DATABASE.md)** - Setup menggunakan database storage (recommended)
-- **[Setup Guide (ID)](GOOGLE_ANALYTICS_SETUP.md)** - Panduan lengkap Bahasa Indonesia
-- **[Integration Guide (EN)](docs/GOOGLE_ANALYTICS_INTEGRATION.md)** - English documentation
-- **[Features List](ANALYTICS_FEATURES.md)** - Daftar fitur analytics
-- **[FAQ](FAQ_ANALYTICS.md)** - Pertanyaan umum
-
-### Testing
+### 2. Optimize
 ```bash
-# Test Google Analytics configuration
-php artisan analytics:test
+composer install --optimize-autoloader --no-dev
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+npm run build
 ```
 
-Command ini akan:
-- ✅ Validasi konfigurasi
-- ✅ Cek credentials file
-- ✅ Test koneksi API
-- ✅ Tampilkan sample data
+### 3. Set Permissions
+```bash
+chmod -R 755 storage bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
+```
+
+### 4. Setup Cron (Optional)
+```bash
+* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
+```
 
 ## 📞 Support
 
-Untuk bantuan dan support, hubungi:
-- Email: support@konterdigital.com
-- Website: https://konterdigital.com
+Untuk bantuan dan support:
+- Email: admin@example.com
+- Documentation: Lihat file README ini
 
 ## 📝 License
 

@@ -18,10 +18,13 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RolePermissionSeeder::class,
             AdminUserSeeder::class,
+            SettingSeeder::class,
             CategorySeeder::class,
             TagSeeder::class,
-            SettingSeeder::class,
+            PostSeeder::class,
+            MenuSeeder::class,
             AdSeeder::class,
+            // ImageAdSeeder::class, // Uncomment jika ingin seed image ads (perlu upload gambar dulu)
         ]);
     }
 }
