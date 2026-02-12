@@ -17,7 +17,7 @@ class AdminUserSeeder extends Seeder
         $admin = User::create([
             'name' => 'Administrator',
             'email' => 'admin@konterdigital.com',
-            'password' => Hash::make('admin123'),
+            'password' => Hash::make('password'),
             'is_active' => true,
             'bio' => 'System Administrator - Full Access',
             'email_verified_at' => now(),
@@ -28,7 +28,7 @@ class AdminUserSeeder extends Seeder
 
         $this->command->info('✅ Admin account created successfully!');
         $this->command->info('📧 Email: admin@konterdigital.com');
-        $this->command->info('🔑 Password: admin123');
+        $this->command->info('🔑 Password: password');
         $this->command->warn('⚠️  Please change the password after first login!');
     }
 }
