@@ -18,6 +18,11 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
+    <!-- Alpine.js x-cloak style -->
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+    
     @stack('styles')
     
     <!-- Alpine.js - Load AFTER custom scripts -->
