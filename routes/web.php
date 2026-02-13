@@ -17,6 +17,7 @@ use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\BlogController;
 use App\Http\Controllers\Frontend\ContactController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\Admin\AdAnalyticsController;
 
 // Auth Routes - HARUS DI ATAS
 require __DIR__.'/auth.php';
@@ -24,6 +25,10 @@ require __DIR__.'/auth.php';
 // SEO Routes
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
+
+// Ads Tracking API (Public - No Auth Required)
+Route::post('/api/ads/track-impression', [AdAnalyticsController::class, 'trackImpression'])->name('api.ads.track-impression');
+Route::post('/api/ads/track-click', [AdAnalyticsController::class, 'trackClick'])->name('api.ads.track-click');
 
 // Frontend Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -165,6 +170,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::put('ads/{ad}', [AdController::class, 'update'])->name('ads.update')->middleware('permission:ads.edit');
     Route::post('ads/{ad}/toggle-status', [AdController::class, 'toggleStatus'])->name('ads.toggle-status')->middleware('permission:ads.edit');
     Route::delete('ads/{ad}', [AdController::class, 'destroy'])->name('ads.destroy')->middleware('permission:ads.delete');
+    
+    // Ads Analytics
+    Route::middleware('permission:ads.view')->group(function () {
+        Route::get('ads/analytics', [\App\Http\Controllers\Admin\AdAnalyticsController::class, 'index'])->name('ads.analytics.index');
+        Route::get('ads/{ad}/analytics', [\App\Http\Controllers\Admin\AdAnalyticsController::class, 'show'])->name('ads.analytics.show');
+    });
     
     // Contacts
     Route::middleware('permission:contacts.view')->group(function () {

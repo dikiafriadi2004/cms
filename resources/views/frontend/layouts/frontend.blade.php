@@ -80,6 +80,9 @@
     </script>
     @endif
     
+    <!-- Animations CSS & JS (No Vite) -->
+    <link rel="stylesheet" href="{{ asset('css/animations.css') }}">
+    
     @stack('styles')
 </head>
 <body class="bg-white text-slate-900 antialiased">
@@ -97,6 +100,10 @@
         document.getElementById('mobile-menu').classList.toggle('hidden');
     });
     </script>
+    
+    <!-- Animations JS (No Vite) -->
+    <script src="{{ asset('js/landing-animations.js') }}"></script>
+    <script src="{{ asset('js/ad-tracker.js') }}"></script>
     
     @stack('scripts')
 </body>

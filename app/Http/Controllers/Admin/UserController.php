@@ -88,8 +88,18 @@ class UserController extends Controller
             unset($validated['password']);
         }
 
+        // Prevent users from modifying their own roles and status
+        if ($user->id === auth()->id()) {
+            unset($validated['roles']);
+            unset($validated['is_active']);
+        }
+
         $user->update($validated);
-        $user->syncRoles($request->roles);
+        
+        // Only sync roles if not editing own account
+        if ($user->id !== auth()->id()) {
+            $user->syncRoles($request->roles);
+        }
 
         return redirect()->route('admin.users.index')
             ->with('success', 'User berhasil diupdate!');

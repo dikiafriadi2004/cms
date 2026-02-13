@@ -17,6 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
         
+        // Exclude tracking API from CSRF verification
+        $middleware->validateCsrfTokens(except: [
+            '/api/ads/track-impression',
+            '/api/ads/track-click',
+        ]);
+        
         // Trust all proxies (for ngrok and other reverse proxies)
         $middleware->trustProxies(at: '*', headers: \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR | 
             \Illuminate\Http\Request::HEADER_X_FORWARDED_HOST | 

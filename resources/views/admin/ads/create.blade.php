@@ -91,7 +91,66 @@
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
+            </div>
+        </div>
 
+        <!-- Ad Rotation Settings -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Ad Rotation Settings</h3>
+            <p class="text-sm text-gray-600 mb-4">Group multiple ads to rotate in the same position</p>
+            
+            <div class="space-y-4">
+                <!-- Rotation Group -->
+                <div>
+                    <label for="rotation_group" class="block text-sm font-medium text-gray-700 mb-1">
+                        Rotation Group (Optional)
+                    </label>
+                    <input type="text" name="rotation_group" id="rotation_group" value="{{ old('rotation_group') }}"
+                        placeholder="e.g., sidebar-group-1"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('rotation_group') border-red-500 @enderror">
+                    <p class="mt-1 text-xs text-gray-500">Ads with same group name will rotate. Leave empty for no rotation.</p>
+                    @error('rotation_group')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Rotation Mode -->
+                <div>
+                    <label for="rotation_mode" class="block text-sm font-medium text-gray-700 mb-1">
+                        Rotation Mode
+                    </label>
+                    <select name="rotation_mode" id="rotation_mode"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('rotation_mode') border-red-500 @enderror">
+                        <option value="random" {{ old('rotation_mode', 'random') == 'random' ? 'selected' : '' }}>Random - Show random ad from group</option>
+                        <option value="weighted" {{ old('rotation_mode') == 'weighted' ? 'selected' : '' }}>Weighted - Based on weight value</option>
+                        <option value="sequential" {{ old('rotation_mode') == 'sequential' ? 'selected' : '' }}>Sequential - Rotate evenly based on impressions</option>
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500">How ads in the same group should rotate</p>
+                    @error('rotation_mode')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Rotation Weight -->
+                <div id="rotationWeightField">
+                    <label for="rotation_weight" class="block text-sm font-medium text-gray-700 mb-1">
+                        Rotation Weight
+                    </label>
+                    <input type="number" name="rotation_weight" id="rotation_weight" value="{{ old('rotation_weight', 1) }}" min="1" max="100"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('rotation_weight') border-red-500 @enderror">
+                    <p class="mt-1 text-xs text-gray-500">Higher weight = more likely to show (only for weighted mode)</p>
+                    @error('rotation_weight')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+        </div>
+
+        <!-- Basic Information Continue -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Schedule & Status</h3>
+            
+            <div class="space-y-4">
                 <!-- Active Status -->
                 <div class="flex items-center">
                     <input type="checkbox" name="is_active" id="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}
@@ -300,6 +359,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const inContentParagraphInput = document.getElementById('in_content_paragraph');
     const sizePresetSelect = document.getElementById('size_preset');
     const customSizeFields = document.getElementById('customSizeFields');
+    const rotationModeSelect = document.getElementById('rotation_mode');
+    const rotationWeightField = document.getElementById('rotationWeightField');
 
     function toggleSections() {
         const selectedType = typeSelect.value;
@@ -339,6 +400,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function toggleRotationWeightField() {
+        const selectedMode = rotationModeSelect.value;
+        
+        if (selectedMode === 'weighted') {
+            rotationWeightField.style.display = 'block';
+        } else {
+            rotationWeightField.style.display = 'none';
+        }
+    }
+
+    // Initial state
+    toggleRotationWeightField();
+    
+    // Event listener
+    rotationModeSelect.addEventListener('change', toggleRotationWeightField);
     typeSelect.addEventListener('change', toggleSections);
     positionSelect.addEventListener('change', toggleInContentField);
     sizePresetSelect.addEventListener('change', toggleCustomSizeFields);

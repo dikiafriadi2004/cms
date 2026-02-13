@@ -260,8 +260,6 @@ async function deletePost(postId, deleteUrl) {
     if (!confirmed) return;
 
     try {
-        console.log('Deleting post with URL:', deleteUrl); // Debug
-        
         const response = await fetch(deleteUrl, {
             method: 'DELETE',
             headers: {
@@ -270,8 +268,6 @@ async function deletePost(postId, deleteUrl) {
                 'Accept': 'application/json'
             }
         });
-
-        console.log('Response status:', response.status); // Debug
 
         if (!response.ok) {
             throw new Error(`Server error: ${response.status}`);

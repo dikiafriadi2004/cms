@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Ad extends Model
 {
@@ -13,6 +14,9 @@ class Ad extends Model
         'name',
         'type',
         'position',
+        'rotation_group',
+        'rotation_weight',
+        'rotation_mode',
         'code',
         'image',
         'link',
@@ -35,6 +39,14 @@ class Ad extends Model
         'start_date' => 'date',
         'end_date' => 'date',
     ];
+
+    /**
+     * Get analytics for this ad
+     */
+    public function analytics(): HasMany
+    {
+        return $this->hasMany(AdAnalytic::class);
+    }
 
     public function scopeActive($query)
     {
@@ -158,20 +170,115 @@ class Ad extends Model
 
     public static function getByPosition(string $position, array $context = [])
     {
-        return static::active()
+        $ads = static::active()
             ->byPosition($position)
             ->orderBy('sort_order')
             ->get()
             ->filter(function ($ad) use ($context) {
                 return $ad->shouldDisplay($context);
             });
+
+        // Group ads by rotation_group
+        $grouped = $ads->groupBy('rotation_group');
+        
+        $result = collect();
+        
+        foreach ($grouped as $group => $groupAds) {
+            if ($group && $groupAds->count() > 1) {
+                // This is a rotation group - select one ad based on rotation mode
+                $selected = static::selectAdFromGroup($groupAds);
+                if ($selected) {
+                    $result->push($selected);
+                }
+            } else {
+                // Not a rotation group - add all ads
+                $result = $result->merge($groupAds);
+            }
+        }
+        
+        return $result;
     }
 
     /**
-     * Render the ad HTML
+     * Select one ad from rotation group based on rotation mode
+     */
+    protected static function selectAdFromGroup($ads)
+    {
+        if ($ads->isEmpty()) {
+            return null;
+        }
+
+        $mode = $ads->first()->rotation_mode ?? 'random';
+
+        switch ($mode) {
+            case 'weighted':
+                return static::selectWeightedAd($ads);
+            
+            case 'sequential':
+                return static::selectSequentialAd($ads);
+            
+            case 'random':
+            default:
+                return $ads->random();
+        }
+    }
+
+    /**
+     * Select ad based on weight
+     */
+    protected static function selectWeightedAd($ads)
+    {
+        $totalWeight = $ads->sum('rotation_weight');
+        $random = rand(1, $totalWeight);
+        
+        $currentWeight = 0;
+        foreach ($ads as $ad) {
+            $currentWeight += $ad->rotation_weight;
+            if ($random <= $currentWeight) {
+                return $ad;
+            }
+        }
+        
+        return $ads->first();
+    }
+
+    /**
+     * Select ad sequentially based on impressions
+     */
+    protected static function selectSequentialAd($ads)
+    {
+        // Get ad with least impressions today
+        $adIds = $ads->pluck('id');
+        
+        $impressions = \App\Models\AdAnalytic::whereIn('ad_id', $adIds)
+            ->impressions()
+            ->whereDate('event_date', today())
+            ->selectRaw('ad_id, COUNT(*) as count')
+            ->groupBy('ad_id')
+            ->pluck('count', 'ad_id');
+        
+        // Find ad with minimum impressions
+        $minImpressions = PHP_INT_MAX;
+        $selectedAd = $ads->first();
+        
+        foreach ($ads as $ad) {
+            $count = $impressions[$ad->id] ?? 0;
+            if ($count < $minImpressions) {
+                $minImpressions = $count;
+                $selectedAd = $ad;
+            }
+        }
+        
+        return $selectedAd;
+    }
+
+    /**
+     * Render the ad HTML with tracking
      */
     public function render(): string
     {
+        $trackingAttr = sprintf('data-ad-id="%d"', $this->id);
+        
         // If it's an image ad with link
         if ($this->image && $this->link) {
             $target = $this->open_new_tab ? '_blank' : '_self';
@@ -187,7 +294,8 @@ class Ad extends Model
             }
             
             return sprintf(
-                '<a href="%s" target="%s" rel="%s" class="block"><img src="%s" alt="%s" class="rounded-lg" style="%swidth: 100%%; height: auto; display: block; margin: 0 auto;"></a>',
+                '<div %s><a href="%s" target="%s" rel="%s" class="block"><img src="%s" alt="%s" class="rounded-lg" style="%swidth: 100%%; height: auto; display: block; margin: 0 auto;"></a></div>',
+                $trackingAttr,
                 e($this->link),
                 $target,
                 $rel,
@@ -209,15 +317,16 @@ class Ad extends Model
             }
             
             return sprintf(
-                '<img src="%s" alt="%s" class="rounded-lg" style="%swidth: 100%%; height: auto; display: block; margin: 0 auto;">',
+                '<div %s><img src="%s" alt="%s" class="rounded-lg" style="%swidth: 100%%; height: auto; display: block; margin: 0 auto;"></div>',
+                $trackingAttr,
                 asset('storage/' . $this->image),
                 e($this->name),
                 $maxWidthStyle
             );
         }
         
-        // Otherwise return the code (HTML/JavaScript)
-        return $this->code;
+        // Otherwise return the code (HTML/JavaScript) wrapped with tracking
+        return sprintf('<div %s>%s</div>', $trackingAttr, $this->code);
     }
 
     /**

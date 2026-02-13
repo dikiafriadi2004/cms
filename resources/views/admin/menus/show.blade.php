@@ -220,7 +220,6 @@ function menuBuilder() {
                 handle: '.cursor-move',
                 ghostClass: 'opacity-50',
                 onEnd: (evt) => {
-                    console.log('Item moved from', evt.oldIndex, 'to', evt.newIndex);
                     // Auto-save after reorder
                     this.saveMenu();
                 }

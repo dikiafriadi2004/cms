@@ -601,8 +601,6 @@ window.setFeaturedImage = function(url, name) {
     $('#featured-image-img').attr('src', url);
     $('#featured-image-preview').removeClass('hidden');
     updateSEOScore();
-    
-    console.log('Featured image set:', url);
 };
 
 function removeFeaturedImage() {

@@ -75,15 +75,23 @@
         </div>
 
         <!-- Roles & Permissions -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Roles & Permissions</h3>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 {{ $user->id === auth()->id() ? 'opacity-60' : '' }}">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Roles & Permissions</h3>
+                @if($user->id === auth()->id())
+                <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">
+                    Cannot edit your own roles
+                </span>
+                @endif
+            </div>
             
             <div class="space-y-3">
                 @foreach($roles as $role)
-                <label class="flex items-start p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                <label class="flex items-start p-4 border border-gray-200 rounded-lg {{ $user->id === auth()->id() ? 'cursor-not-allowed bg-gray-50' : 'hover:bg-gray-50 cursor-pointer' }} transition-colors">
                     <input type="checkbox" name="roles[]" value="{{ $role->name }}" 
                         {{ in_array($role->name, old('roles', $user->roles->pluck('name')->toArray())) ? 'checked' : '' }}
-                        class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        {{ $user->id === auth()->id() ? 'disabled' : '' }}
+                        class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded {{ $user->id === auth()->id() ? 'cursor-not-allowed' : '' }}">
                     <div class="ml-3 flex-1">
                         <div class="flex items-center gap-2">
                             <span class="font-medium text-gray-900">{{ ucfirst($role->name) }}</span>
@@ -109,17 +117,39 @@
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
+            
+            @if($user->id === auth()->id())
+            <p class="mt-3 text-sm text-gray-600 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                <strong>⚠️ Security Notice:</strong> You cannot modify your own roles to prevent accidental loss of admin access.
+            </p>
+            @endif
         </div>
 
         <!-- Status -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Account Status</h3>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 {{ $user->id === auth()->id() ? 'opacity-60' : '' }}">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Account Status</h3>
+                @if($user->id === auth()->id())
+                <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">
+                    Cannot deactivate your own account
+                </span>
+                @endif
+            </div>
             
-            <label class="flex items-center">
-                <input type="checkbox" name="is_active" value="1" {{ old('is_active', $user->is_active) ? 'checked' : '' }}
-                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+            <label class="flex items-center {{ $user->id === auth()->id() ? 'cursor-not-allowed' : '' }}">
+                <input type="hidden" name="is_active" value="{{ $user->id === auth()->id() ? '1' : '0' }}">
+                <input type="checkbox" name="is_active" value="1" 
+                    {{ old('is_active', $user->is_active) ? 'checked' : '' }}
+                    {{ $user->id === auth()->id() ? 'disabled' : '' }}
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded {{ $user->id === auth()->id() ? 'cursor-not-allowed' : '' }}">
                 <span class="ml-2 text-sm text-gray-700">Active (User can login and access the system)</span>
             </label>
+            
+            @if($user->id === auth()->id())
+            <p class="mt-3 text-sm text-gray-600 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                <strong>⚠️ Security Notice:</strong> You cannot deactivate your own account to prevent accidental lockout.
+            </p>
+            @endif
         </div>
 
         <!-- Actions -->

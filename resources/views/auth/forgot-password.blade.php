@@ -8,7 +8,7 @@
     
     <link rel="icon" type="image/png" href="{{ favicon_url() }}">
     
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="h-full">
     <div class="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">

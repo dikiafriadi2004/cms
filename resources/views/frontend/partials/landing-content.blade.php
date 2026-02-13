@@ -11,21 +11,24 @@
 
 <!-- Hero Section -->
 <section class="relative pt-44 pb-32 overflow-hidden bg-white">
-    <div class="absolute top-0 right-0 w-1/3 h-full bg-brand-50/50 rounded-l-[5rem] -z-10 hidden lg:block"></div>
-    <div class="absolute top-20 left-10 w-64 h-64 bg-brand-600/5 rounded-full blur-3xl -z-10"></div>
+    <!-- Animated Background Elements -->
+    <div class="particles"></div>
+    <div class="absolute top-0 right-0 w-1/3 h-full bg-brand-50/50 rounded-l-[5rem] -z-10 hidden lg:block parallax animate-fade-in-right" data-speed="0.3"></div>
+    <div class="absolute top-20 left-10 w-64 h-64 bg-brand-600/5 rounded-full blur-3xl -z-10 animate-pulse-glow"></div>
+    <div class="absolute bottom-20 right-20 w-48 h-48 bg-indigo-400/10 rounded-full blur-2xl -z-10 animate-float"></div>
     
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col lg:flex-row items-center gap-16">
             <!-- Left Content -->
             <div class="lg:w-1/2 space-y-8 text-center lg:text-left">
-                <div class="inline-flex items-center gap-2 px-4 py-2 bg-brand-50 text-brand-600 rounded-full">
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-brand-50 text-brand-600 rounded-full animate-bounce-in">
                     <span class="w-2 h-2 bg-brand-600 rounded-full animate-pulse"></span>
                     <span class="text-xs font-bold uppercase tracking-wider">
                         {{ $settings['hero_badge_text'] ?? 'Tersedia di Android & iOS' }}
                     </span>
                 </div>
                 
-                <h1 class="text-5xl md:text-7xl font-extrabold text-brand-900 leading-[1.1]">
+                <h1 class="text-5xl md:text-7xl font-extrabold text-brand-900 leading-[1.1] text-reveal delay-200">
                     @php
                         $heroTitle = $settings['hero_title'] ?? 'Kelola Bisnis Digital dalam Satu Genggaman';
                         // Split by line breaks
@@ -41,20 +44,20 @@
                     @endforeach
                 </h1>
                 
-                <p class="text-slate-500 text-lg md:text-xl leading-relaxed max-w-xl mx-auto lg:mx-0">
+                <p class="text-slate-500 text-lg md:text-xl leading-relaxed max-w-xl mx-auto lg:mx-0 animate-fade-in-up delay-400">
                     {{ $settings['hero_subtitle'] ?? 'Aplikasi Konter Digital dirancang khusus untuk memudahkan Anda bertransaksi pulsa, paket data, hingga PPOB dengan interface yang sangat user-friendly.' }}
                 </p>
                 
-                <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 animate-slide-up-fade delay-600">
                     <a href="{{ $settings['hero_button_url'] ?? '#' }}" 
-                       class="group px-8 py-5 bg-brand-900 text-white font-bold rounded-2xl hover:bg-brand-800 transition shadow-xl shadow-brand-900/20 flex items-center gap-3">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                       class="group px-8 py-5 bg-brand-900 text-white font-bold rounded-2xl hover:bg-brand-800 transition shadow-xl shadow-brand-900/20 flex items-center gap-3 hover-lift animate-glow-pulse">
+                        <svg class="w-6 h-6 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M3 20.5V3.5C3 2.9 3.4 2.5 4 2.5C4.2 2.5 4.4 2.6 4.6 2.7L19.3 11.2C19.7 11.4 19.9 11.7 19.9 12.1C19.9 12.5 19.7 12.8 19.3 13L4.6 21.5C4.4 21.6 4.2 21.7 4 21.7C3.4 21.7 3 21.3 3 20.7V20.5Z"/>
                         </svg>
                         {{ $settings['hero_button_text'] ?? 'Download Play Store' }}
                     </a>
                     <a href="#layanan" 
-                       class="px-8 py-5 bg-white text-slate-700 font-bold rounded-2xl border border-slate-200 hover:bg-slate-50 transition">
+                       class="px-8 py-5 bg-white text-slate-700 font-bold rounded-2xl border border-slate-200 hover:bg-slate-50 transition animate-button-pop delay-700">
                         {{ $settings['hero_button_secondary_text'] ?? 'Pelajari Fitur' }}
                     </a>
                 </div>
@@ -62,10 +65,10 @@
             
             <!-- Right Content - App Screenshot -->
             <div class="lg:w-1/2 relative flex justify-center items-center">
-                <div class="absolute w-[80%] h-[80%] bg-brand-600 rounded-[3rem] rotate-6 opacity-10"></div>
-                <div class="absolute w-[80%] h-[80%] border-2 border-brand-600/20 rounded-[3rem] -rotate-3"></div>
+                <div class="absolute w-[80%] h-[80%] bg-brand-600 rounded-[3rem] rotate-6 opacity-10 animate-rotate"></div>
+                <div class="absolute w-[80%] h-[80%] border-2 border-brand-600/20 rounded-[3rem] -rotate-3 animate-pulse"></div>
                 
-                <div class="relative z-10 drop-shadow-[0_35px_35px_rgba(79,70,229,0.2)]">
+                <div class="relative z-10 drop-shadow-[0_35px_35px_rgba(79,70,229,0.2)] animate-image-zoom delay-300">
                     @if(isset($settings['hero_image']) && $settings['hero_image'])
                         <img src="{{ storage_url($settings['hero_image']) }}" 
                              alt="App Screenshot" 
@@ -77,7 +80,7 @@
                     @endif
                     
                     <!-- Floating Card 1 - Transaction Success -->
-                    <div class="absolute -left-10 top-1/4 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 animate-bounce transition-all duration-1000 hidden md:block">
+                    <div class="floating-card absolute -left-10 top-1/4 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 animate-bounce-slow hidden md:block hover-lift delay-500">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,7 +95,7 @@
                     </div>
                     
                     <!-- Floating Card 2 - Daily Profit -->
-                    <div class="absolute -right-10 bottom-1/4 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 animate-pulse hidden md:block">
+                    <div class="floating-card absolute -right-10 bottom-1/4 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 animate-pulse hidden md:block hover-lift delay-700">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center font-bold">
                                 Rp
@@ -110,12 +113,12 @@
 </section>
 
 <!-- Features Section -->
-<section id="fitur" class="py-24 bg-white">
+<section id="fitur" class="py-24 bg-white reveal">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-3xl font-bold mb-16">Fitur Unggulan Kami</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div class="space-y-4">
-                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
+        <h2 class="text-3xl font-bold mb-16 animate-fade-in-scale">Fitur Unggulan Kami</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12 stagger-container">
+            <div class="space-y-4 stagger-item hover-lift card-entrance">
+                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 hover-scale animate-bounce-in delay-200">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                     </svg>
@@ -123,8 +126,8 @@
                 <h3 class="text-xl font-bold text-slate-900">Kecepatan Transaksi</h3>
                 <p class="text-slate-500">Sistem terotomasi penuh yang memproses transaksi Anda kurang dari 5 detik.</p>
             </div>
-            <div class="space-y-4">
-                <div class="w-16 h-16 bg-green-100 text-green-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
+            <div class="space-y-4 stagger-item hover-lift card-entrance">
+                <div class="w-16 h-16 bg-green-100 text-green-600 rounded-3xl flex items-center justify-center mx-auto mb-6 hover-scale animate-bounce-in delay-400">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                     </svg>
@@ -132,8 +135,8 @@
                 <h3 class="text-xl font-bold text-slate-900">Keamanan Terjamin</h3>
                 <p class="text-slate-500">Enkripsi data berlapis dan fitur PIN ganda untuk melindungi saldo Anda.</p>
             </div>
-            <div class="space-y-4">
-                <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
+            <div class="space-y-4 stagger-item hover-lift card-entrance">
+                <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-6 hover-scale animate-bounce-in delay-600">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
@@ -146,45 +149,45 @@
 </section>
 
 <!-- Products Section -->
-<section id="produk" class="py-24 bg-slate-50">
+<section id="produk" class="py-24 bg-slate-50 reveal">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-4 text-center md:text-left">
-            <div>
+            <div class="animate-fade-in-left">
                 <h2 class="text-3xl font-bold mb-4">Layanan Produk Digital</h2>
                 <p class="text-slate-500">Produk terlengkap untuk menunjang kebutuhan konter Anda.</p>
             </div>
         </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100">
-                <span class="text-4xl mb-4 block">📱</span>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 stagger-container">
+            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100 stagger-item hover-lift tilt-card card-entrance">
+                <span class="text-4xl mb-4 block animate-bounce-in delay-100">📱</span>
                 <h4 class="font-bold">Pulsa All Operator</h4>
             </div>
-            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100">
-                <span class="text-4xl mb-4 block">🌐</span>
+            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100 stagger-item hover-lift tilt-card card-entrance">
+                <span class="text-4xl mb-4 block animate-bounce-in delay-200">🌐</span>
                 <h4 class="font-bold">Paket Internet</h4>
             </div>
-            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100">
-                <span class="text-4xl mb-4 block">⚡</span>
+            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100 stagger-item hover-lift tilt-card card-entrance">
+                <span class="text-4xl mb-4 block animate-bounce-in delay-300">⚡</span>
                 <h4 class="font-bold">Token PLN</h4>
             </div>
-            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100">
-                <span class="text-4xl mb-4 block">🎮</span>
+            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100 stagger-item hover-lift tilt-card card-entrance">
+                <span class="text-4xl mb-4 block animate-bounce-in delay-400">🎮</span>
                 <h4 class="font-bold">Voucher Game</h4>
             </div>
-            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100">
-                <span class="text-4xl mb-4 block">💳</span>
+            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100 stagger-item hover-lift tilt-card card-entrance">
+                <span class="text-4xl mb-4 block animate-bounce-in delay-500">💳</span>
                 <h4 class="font-bold">Top Up E-Wallet</h4>
             </div>
-            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100">
-                <span class="text-4xl mb-4 block">📡</span>
+            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100 stagger-item hover-lift tilt-card card-entrance">
+                <span class="text-4xl mb-4 block animate-bounce-in delay-600">📡</span>
                 <h4 class="font-bold">TV Berbayar</h4>
             </div>
-            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100">
-                <span class="text-4xl mb-4 block">💸</span>
+            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100 stagger-item hover-lift tilt-card card-entrance">
+                <span class="text-4xl mb-4 block animate-bounce-in delay-700">💸</span>
                 <h4 class="font-bold">Transfer Bank</h4>
             </div>
-            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100">
-                <span class="text-4xl mb-4 block">🧾</span>
+            <div class="bg-white p-6 rounded-3xl text-center shadow-sm border border-slate-100 stagger-item hover-lift tilt-card card-entrance">
+                <span class="text-4xl mb-4 block animate-bounce-in delay-800">🧾</span>
                 <h4 class="font-bold">Tagihan BPJS</h4>
             </div>
         </div>
@@ -193,16 +196,16 @@
 
 @if(isset($posts) && $posts->count() > 0)
 <!-- Blog Section -->
-<section id="blog" class="py-24 bg-white">
+<section id="blog" class="py-24 bg-white reveal">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
+        <div class="text-center mb-16 animate-fade-in-scale">
             <h2 class="text-3xl font-bold mb-4">Tips & Berita Bisnis</h2>
             <p class="text-slate-500">Pelajari cara mengembangkan bisnis konter Anda lebih sukses.</p>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 stagger-container">
             @foreach($posts->take(3) as $post)
-            <div class="group cursor-pointer">
-                <div class="overflow-hidden rounded-3xl mb-6">
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden group cursor-pointer stagger-item card-entrance hover-lift transition-all duration-300">
+                <div class="overflow-hidden">
                     @if($post->featured_image)
                         <img src="{{ $post->featured_image }}" class="w-full h-56 object-cover group-hover:scale-110 transition duration-500" alt="{{ $post->title }}">
                     @else
@@ -211,18 +214,26 @@
                         </div>
                     @endif
                 </div>
-                @if($post->category)
-                    <span class="text-brand-600 text-sm font-bold">{{ $post->category->name }}</span>
-                @endif
-                <h3 class="text-xl font-bold mt-2 group-hover:text-brand-600 transition">
-                    <a href="{{ route('blog.show', $post->slug) }}">{{ $post->title }}</a>
-                </h3>
-                <p class="text-slate-500 mt-3 text-sm">{{ Str::limit($post->excerpt ?: strip_tags($post->content), 100) }}</p>
+                <div class="p-6">
+                    @if($post->category)
+                        <span class="inline-block px-3 py-1 bg-brand-50 text-brand-600 text-xs font-bold rounded-full mb-3">{{ $post->category->name }}</span>
+                    @endif
+                    <h3 class="text-xl font-bold text-slate-900 group-hover:text-brand-600 transition line-clamp-2">
+                        <a href="{{ route('blog.show', $post->slug) }}">{{ $post->title }}</a>
+                    </h3>
+                    <p class="text-slate-500 mt-3 text-sm line-clamp-3">{{ Str::limit($post->excerpt ?: strip_tags($post->content), 100) }}</p>
+                    <div class="mt-4 flex items-center text-xs text-slate-400">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        {{ $post->published_at ? $post->published_at->format('d M Y') : $post->created_at->format('d M Y') }}
+                    </div>
+                </div>
             </div>
             @endforeach
         </div>
         <div class="text-center mt-12">
-            <a href="{{ route('blog.index') }}" class="inline-flex items-center px-8 py-3 border-2 border-brand-600 text-brand-600 rounded-full font-semibold hover:bg-brand-600 hover:text-white transition-all duration-300">
+            <a href="{{ route('blog.index') }}" class="inline-flex items-center px-8 py-3 border-2 border-brand-600 text-brand-600 rounded-full font-semibold hover:bg-brand-600 hover:text-white transition-all duration-300 animate-button-pop delay-500">
                 Lihat Semua Artikel
                 <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
             </a>
@@ -232,18 +243,18 @@
 @endif
 
 <!-- CTA Section -->
-<section class="py-20 bg-brand-600">
+<section class="py-20 bg-brand-600 reveal">
     <div class="max-w-4xl mx-auto px-4 text-center text-white">
-        <h2 class="text-4xl font-bold mb-6">Siap Memulai Bisnis Server Pulsa?</h2>
-        <p class="text-indigo-100 text-lg mb-10 leading-relaxed">
+        <h2 class="text-4xl font-bold mb-6 animate-fade-in-scale">Siap Memulai Bisnis Server Pulsa?</h2>
+        <p class="text-indigo-100 text-lg mb-10 leading-relaxed animate-fade-in-up delay-200">
             Bergabunglah dengan ribuan mitra lainnya. Pendaftaran gratis, tanpa biaya admin bulanan. Langsung jualan hari ini!
         </p>
         <div class="flex flex-col sm:flex-row justify-center gap-4">
-            <a href="{{ $settings['hero_button_url'] ?? '#' }}" class="px-10 py-4 bg-white text-brand-600 font-bold rounded-2xl shadow-xl hover:bg-brand-50 transition active:scale-95">
+            <a href="{{ $settings['hero_button_url'] ?? '#' }}" class="px-10 py-4 bg-white text-brand-600 font-bold rounded-2xl shadow-xl hover:bg-brand-50 transition active:scale-95 animate-button-pop delay-400">
                 Daftar Akun Sekarang
             </a>
             @if(isset($settings['whatsapp_number']) && $settings['whatsapp_number'])
-            <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $settings['whatsapp_number']) }}" target="_blank" class="px-10 py-4 bg-brand-700 text-white font-bold rounded-2xl hover:bg-brand-900 transition border border-brand-500">
+            <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $settings['whatsapp_number']) }}" target="_blank" class="px-10 py-4 bg-brand-700 text-white font-bold rounded-2xl hover:bg-brand-900 transition border border-brand-500 animate-button-pop delay-600">
                 Tanya Admin WA
             </a>
             @endif

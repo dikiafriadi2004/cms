@@ -1,273 +1,248 @@
-# Konter Digital CMS
+# Laravel CMS with Advanced Ads Management
 
-CMS modern dan profesional untuk membuat landing page dan blog dengan fitur lengkap, dibangun dengan Laravel 11 dan Tailwind CSS.
+A modern, feature-rich Content Management System built with Laravel 12, designed specifically for businesses and publishers who want to monetize their content through strategic ad placements.
 
-## 🚀 Fitur Utama
+## 🎯 Key Features
 
 ### Content Management
-- **Blog System** - Post management dengan categories dan tags
-- **Pages** - Custom pages dengan SEO optimization
-- **Media Library** - File manager dengan drag & drop upload
-- **Menu Builder** - Visual menu builder dengan nested support
+- **Posts & Pages** - Full CRUD with rich text editor and SEO optimization
+- **Categories & Tags** - Organize content efficiently
+- **Media Library** - Upload, organize, and manage files with drag-and-drop
+- **Menu Builder** - Create dynamic navigation menus with drag-and-drop reordering
 
-### User & Permissions
-- **Role-Based Access Control** - Super Admin, Admin, Editor, Author roles
-- **Granular Permissions** - Fine-grained permission system dengan ownership control
-- **User Management** - User profiles dan activity tracking
+### Ad Management System
+- **Multiple Ad Positions** - Header, sidebar, footer, in-content, and more
+- **Ad Analytics** - Track impressions and clicks in real-time
+- **Ad Scheduling** - Set start and end dates for campaigns
+- **Performance Tracking** - Monitor CTR and engagement metrics
 
-### SEO & Analytics
-- **SEO Optimization** - Meta tags, Open Graph, Twitter Cards
-- **Google Analytics 4 Integration** - Real-time analytics dashboard
-- **Analytics Dashboard** - Visitors, page views, traffic sources, device breakdown
-- **Sitemap Generation** - Auto-generate XML sitemap
-- **Robots.txt** - Dynamic robots.txt generation
+### User Management
+- **Role-Based Access Control** - Admin, Editor, and Author roles
+- **Granular Permissions** - 50+ permissions for fine-grained control
+- **User Profiles** - Customizable user information and bio
+- **Secure Authentication** - Built with Laravel Breeze
 
-### Ads Management
-- **Multiple Ad Types** - AdSense, Adsera, Manual HTML, Image ads
-- **Strategic Positions** - Header, Footer, Sidebar, Content Top/Bottom, Between Posts, In-Content
-- **Display Rules** - Filter by page, post, category
-- **Scheduling** - Start date & end date
-- **In-Content Injection** - Auto-inject ads at specific paragraphs
+### SEO & Marketing
+- **SEO Optimization** - Meta titles, descriptions, and keywords
+- **XML Sitemap** - Auto-generated sitemap for search engines
+- **Robots.txt** - Customizable robots.txt configuration
+- **Social Media Integration** - Open Graph and Twitter Card support
 
-### Frontend
-- **Modern Design** - Tailwind CSS dengan gradient theme
-- **Responsive** - Mobile-first design
-- **Professional Landing Page** - Hero, Features, Products, Pricing, Testimonials, Statistics
-- **Blog Templates** - Index, single post, category, tag pages
-- **Contact Form** - With auto-reply and admin notifications
-
-### Email System
-- **SMTP Configuration** - Configure via admin panel (stored in database)
-- **Auto-Reply** - Automatic reply to contact form submissions
-- **Admin Notifications** - Email notifications for new contacts
-- **Reply System** - Reply to contacts directly from admin panel
-- **Logo in Emails** - Automatic logo display (works on real domains, not ngrok)
+### Additional Features
+- **Contact Form** - With email notifications and admin management
+- **Responsive Design** - Mobile-friendly interface
+- **Dark Mode Ready** - Modern UI with Tailwind CSS
+- **Google Analytics** - Integration ready
 
 ## 📋 Requirements
 
 - PHP >= 8.2
+- MySQL >= 8.0 or PostgreSQL >= 13
 - Composer
-- Node.js & NPM
-- MySQL >= 5.7 or SQLite
+- Web Server (Apache/Nginx)
+- SSL Certificate (recommended for production)
 
-## 🔧 Installation
+## 🚀 Installation
 
-### 1. Clone & Install
+### 1. Clone the Repository
 ```bash
-git clone <repository-url>
+git clone <your-repository-url>
 cd cms
-composer install
-npm install
 ```
 
-### 2. Environment Setup
+### 2. Install Dependencies
+```bash
+composer install
+```
+
+### 3. Environment Configuration
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-Edit `.env`:
-```env
-APP_NAME="Konter Digital"
-APP_URL=http://localhost:8000
+Edit `.env` file and configure:
+- Database credentials
+- Mail server settings
+- Application URL
+- Other environment-specific settings
 
+### 4. Database Setup
+```bash
+# Run migrations
+php artisan migrate
+
+# Seed initial data (optional but recommended)
+php artisan db:seed
+```
+
+### 5. Storage Setup
+```bash
+php artisan storage:link
+```
+
+### 6. Set Permissions
+```bash
+# Linux/Mac
+chmod -R 775 storage bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
+
+# Windows - Run as Administrator
+icacls storage /grant Users:F /T
+icacls bootstrap\cache /grant Users:F /T
+```
+
+### 7. Cache Configuration (Production)
+```bash
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+## 🔐 First Login
+
+After running the seeders, you can login with the default admin account:
+
+**Note:** The default credentials are created during seeding. Please change the password immediately after first login for security.
+
+Navigate to `/admin` to access the admin panel.
+
+## ⚙️ Configuration
+
+### Mail Configuration
+Configure your mail settings in `.env`:
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=your-smtp-host
+MAIL_PORT=587
+MAIL_USERNAME=your-username
+MAIL_PASSWORD=your-password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=noreply@yourdomain.com
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+### Database Configuration
+```env
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=cms
-DB_USERNAME=root
-DB_PASSWORD=
-
-# Or use SQLite
-# DB_CONNECTION=sqlite
+DB_DATABASE=your_database_name
+DB_USERNAME=your_database_user
+DB_PASSWORD=your_database_password
 ```
 
-### 3. Database Setup (Automatic with Seeders!)
-```bash
-# For MySQL
-php artisan migrate:fresh --seed
+### Google Analytics (Optional)
+1. Create a service account in Google Cloud Console
+2. Download the JSON credentials file
+3. Upload via Admin Settings panel
+4. Configure property ID
 
-# For SQLite
-touch database/database.sqlite
-php artisan migrate:fresh --seed
-```
-
-Seeder akan otomatis membuat:
-- ✅ Roles & Permissions (Super Admin, Admin, Editor, Author)
-- ✅ Admin user (email: admin@example.com, password: password)
-- ✅ Settings default (site name, contact info, SEO, dll)
-- ✅ 5 Categories
-- ✅ 10 Tags
-- ✅ 20 Sample posts dengan konten lengkap
-- ✅ Header & Footer menus
-- ✅ Sample ads
-
-### 4. Storage & Assets
-```bash
-php artisan storage:link
-npm run build
-```
-
-### 5. Run Application
-```bash
-php artisan serve
-```
-
-Akses: `http://localhost:8000`
-
-## 👤 Default Login
-
-**Admin Account:**
-- Email: `admin@example.com`
-- Password: `password`
-
-**⚠️ Ganti password setelah login pertama!**
-
-## 📁 Struktur Project
+## 📁 Project Structure
 
 ```
 cms/
 ├── app/
-│   ├── Http/Controllers/
-│   │   ├── Admin/          # Admin panel controllers
-│   │   └── Frontend/       # Frontend controllers
-│   ├── Models/             # Eloquent models
-│   ├── Mail/               # Email templates (Mailable classes)
-│   ├── Services/           # Services (GoogleAnalytics, MailConfig)
-│   └── Helpers/            # Helper functions
+│   ├── Http/Controllers/     # Application controllers
+│   ├── Models/               # Eloquent models
+│   ├── Services/             # Business logic services
+│   └── View/Components/      # Blade components
+├── config/                   # Configuration files
 ├── database/
-│   ├── migrations/         # Database migrations
-│   └── seeders/            # Database seeders
+│   ├── migrations/           # Database migrations
+│   └── seeders/              # Database seeders
+├── public/                   # Public assets
 ├── resources/
-│   ├── css/                # Tailwind CSS
-│   ├── js/                 # JavaScript
-│   └── views/
-│       ├── admin/          # Admin views
-│       ├── frontend/       # Frontend views
-│       ├── emails/         # Email templates
-│       └── layouts/        # Layout templates
-├── routes/
-│   ├── web.php             # Web routes
-│   └── auth.php            # Auth routes
-└── public/
-    └── storage/            # Public storage (symlink)
+│   ├── views/                # Blade templates
+│   ├── css/                  # Stylesheets
+│   └── js/                   # JavaScript files
+└── routes/                   # Application routes
 ```
 
-## 🎨 Frontend Pages
+## 🎨 Customization
 
-### Public Pages
-- **Home** (`/`) - Landing page dengan hero, features, products, pricing, testimonials
-- **About** (`/about`) - About page dengan statistics
-- **Blog** (`/blog`) - Blog index dengan search dan pagination
-- **Single Post** (`/blog/{slug}`) - Post detail dengan related posts dan ads
-- **Category** (`/category/{slug}`) - Posts by category
-- **Tag** (`/tag/{slug}`) - Posts by tag
-- **Contact** (`/contact`) - Contact form dengan auto-reply email
-- **Custom Pages** (`/{slug}`) - Dynamic pages
+### Changing Site Settings
+1. Login to admin panel
+2. Navigate to Settings
+3. Update site name, logo, contact info, etc.
 
-### Admin Panel (`/admin`)
-- **Dashboard** - Statistics dan Google Analytics widget
-- **Posts** - Create, edit, delete posts dengan categories & tags
-- **Pages** - Manage custom pages
-- **Categories** - Blog categories management
-- **Tags** - Blog tags management
-- **Media** - File manager dengan upload
-- **Menus** - Visual menu builder
-- **Ads** - Ads management (AdSense, Adsera, Manual, Image)
-- **Contacts** - View dan reply contact messages
-- **Users** - User management
-- **Roles** - Role & permission management
-- **Settings** - Site settings, email config, Google Analytics
+### Creating Custom Pages
+1. Go to Admin > Pages
+2. Click "Create New Page"
+3. Add content and configure SEO
+4. Publish when ready
 
-## 📊 Google Analytics Integration
+### Managing Ads
+1. Go to Admin > Ads
+2. Create new ad with position and content
+3. Set schedule (optional)
+4. Monitor performance in Analytics
 
-### Setup Google Analytics 4
+## 🔒 Security Best Practices
 
-1. **Create Service Account** di Google Cloud Console
-2. **Enable** Google Analytics Data API
-3. **Download** JSON credentials file
-4. **Login** ke Admin Panel > Settings
-5. **Paste** JSON content ke textarea
-6. **Enter** Property ID (angka saja, contoh: 123456789)
-7. **Add** service account email ke GA4 property (Viewer role)
-8. **Test** koneksi dengan tombol "Test Koneksi"
+1. **Change Default Credentials** - Immediately after installation
+2. **Use HTTPS** - Always use SSL in production
+3. **Keep Updated** - Regularly update dependencies
+4. **Backup Regularly** - Implement automated backup strategy
+5. **Environment Variables** - Never commit `.env` file
+6. **File Permissions** - Set appropriate permissions on storage
+7. **Database Security** - Use strong passwords and restrict access
 
-**Dashboard akan menampilkan:**
-- Total visitors (7 hari terakhir)
-- Page views
-- Top 5 pages
-- Traffic sources
-- Device breakdown
-- New vs Returning visitors
+## 🚀 Deployment
 
-**Note:** Credentials disimpan di database (field `ga_credentials_json` dan `ga_property_id`).
+### Production Checklist
+- [ ] Set `APP_ENV=production` in `.env`
+- [ ] Set `APP_DEBUG=false` in `.env`
+- [ ] Configure production database
+- [ ] Configure production mail server
+- [ ] Set up SSL certificate
+- [ ] Run `composer install --optimize-autoloader --no-dev`
+- [ ] Run `php artisan config:cache`
+- [ ] Run `php artisan route:cache`
+- [ ] Run `php artisan view:cache`
+- [ ] Set proper file permissions
+- [ ] Change default admin password
+- [ ] Configure backup strategy
 
-## 📧 Email Configuration
+### Web Server Configuration
 
-### Setup Email via Admin Panel
+#### Nginx Example
+```nginx
+server {
+    listen 80;
+    server_name yourdomain.com;
+    root /path/to/cms/public;
 
-1. Login ke Admin Panel
-2. Settings > Email Configuration
-3. Pilih Mail Driver (SMTP recommended)
-4. Isi konfigurasi:
-   - **SMTP (Gmail)**:
-     - Host: `smtp.gmail.com`
-     - Port: `587`
-     - Username: `your-email@gmail.com`
-     - Password: `your-app-password` (bukan password biasa!)
-     - Encryption: `tls`
-   - **SMTP (Other)**:
-     - Sesuaikan dengan provider Anda
-5. Save settings
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options "nosniff";
 
-**Email Features:**
-- ✅ Auto-reply ke pengirim contact form
-- ✅ Notification ke admin untuk contact baru
-- ✅ Reply system dari admin panel
-- ✅ Logo otomatis di email (untuk domain real)
+    index index.php;
+    charset utf-8;
 
-**Note:** Logo tidak akan muncul di email saat menggunakan ngrok (limitasi ngrok). Logo akan muncul normal di production dengan domain real.
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
 
-## 🎯 Ads Management
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
 
-### Posisi Ads yang Tersedia
+    error_page 404 /index.php;
 
-1. **header** - Di bagian atas halaman (setelah navbar)
-2. **footer** - Di bagian bawah halaman (sebelum footer)
-3. **sidebar** - Di sidebar kanan (blog pages)
-4. **content_top** - Di atas konten utama
-5. **content_bottom** - Di bawah konten utama
-6. **between_posts** - Di antara posts (setiap 3 post)
-7. **in_content** - Di dalam artikel (berdasarkan paragraph number)
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
 
-### Tipe Ads
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+}
+```
 
-- **AdSense** - Google AdSense code
-- **Adsera** - Adsera code
-- **Manual** - Custom HTML/JavaScript
-- **Image** - Upload gambar dengan link
+## 🛠️ Maintenance
 
-### Display Rules
-
-Filter ads berdasarkan:
-- Pages (home, blog_index, blog_detail, dll)
-- Specific posts
-- Categories
-
-## � Security Features
-
-- CSRF Protection
-- XSS Protection
-- SQL Injection prevention
-- Role-based access control (Spatie Permission)
-- Password hashing (bcrypt)
-- Secure file upload validation
-- Rate limiting
-- Trust proxies untuk ngrok/reverse proxy
-
-## 🛠️ Maintenance Commands
-
-### Clear Cache
+### Clearing Cache
 ```bash
 php artisan cache:clear
 php artisan config:clear
@@ -275,137 +250,74 @@ php artisan route:clear
 php artisan view:clear
 ```
 
-### Refresh Permissions
+### Running Queue Workers
 ```bash
-php artisan permission:cache-reset
-php artisan permission:refresh
-```
-
-### Update Dependencies
-```bash
-composer update
-npm update
-npm run build
+php artisan queue:work --daemon
 ```
 
 ### Backup Database
 ```bash
 # MySQL
-mysqldump -u root -p cms > backup-$(date +%Y%m%d).sql
+mysqldump -u username -p database_name > backup.sql
 
-# SQLite
-cp database/database.sqlite database/backup-$(date +%Y%m%d).sqlite
+# PostgreSQL
+pg_dump database_name > backup.sql
 ```
+
+## 📊 Performance Optimization
+
+1. **Enable Caching** - Use Redis or Memcached for better performance
+2. **Queue Jobs** - Process heavy tasks asynchronously
+3. **Optimize Images** - Compress images before upload
+4. **CDN Integration** - Serve static assets via CDN
+5. **Database Indexing** - Already optimized in migrations
 
 ## 🐛 Troubleshooting
 
-### Logo/Favicon tidak muncul
-```bash
-php artisan storage:link
-php artisan config:clear
-php artisan cache:clear
-php artisan view:clear
-```
+### Common Issues
 
-Pastikan `APP_URL` di `.env` sudah benar:
-```env
-APP_URL=https://your-domain.com
-```
+**Issue: 500 Internal Server Error**
+- Check file permissions on `storage` and `bootstrap/cache`
+- Check Laravel logs in `storage/logs/laravel.log`
+- Ensure `.env` file exists and is configured correctly
 
-Hard refresh browser: `Ctrl + Shift + R`
+**Issue: Database Connection Error**
+- Verify database credentials in `.env`
+- Ensure database server is running
+- Check database user permissions
 
-### Permission errors
-```bash
-chmod -R 775 storage bootstrap/cache
-chown -R www-data:www-data storage bootstrap/cache
-```
-
-### View tidak update
-```bash
-php artisan view:clear
-```
-
-### Email tidak terkirim
-1. Cek konfigurasi email di Settings
-2. Pastikan menggunakan App Password (bukan password biasa) untuk Gmail
-3. Test dengan:
-   ```bash
-   php artisan tinker
-   Mail::raw('Test email', function($msg) {
-       $msg->to('test@example.com')->subject('Test');
-   });
-   ```
-
-### Google Analytics tidak muncul
-1. Pastikan credentials JSON valid
-2. Pastikan Property ID benar (angka saja)
-3. Pastikan service account sudah ditambahkan ke GA4 property
-4. Test dengan tombol "Test Koneksi" di Settings
-5. Clear cache: `php artisan cache:clear`
-
-## 📝 Helper Functions
-
-### Storage URL Helper
-```php
-storage_url($path)  // Generate URL untuk file di storage/app/public
-```
-
-Contoh:
-```php
-storage_url('media/image.jpg')        // → https://domain.com/storage/media/image.jpg
-storage_url('/storage/media/image.jpg') // → https://domain.com/storage/media/image.jpg
-```
-
-### Favicon URL Helper
-```php
-favicon_url()  // Generate favicon URL dengan cache busting
-```
-
-## 🚀 Production Deployment
-
-### 1. Update Environment
-```env
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://your-domain.com
-
-DB_CONNECTION=mysql
-DB_HOST=your-db-host
-DB_DATABASE=your-db-name
-DB_USERNAME=your-db-user
-DB_PASSWORD=your-db-password
-```
-
-### 2. Optimize
-```bash
-composer install --optimize-autoloader --no-dev
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-npm run build
-```
-
-### 3. Set Permissions
-```bash
-chmod -R 755 storage bootstrap/cache
-chown -R www-data:www-data storage bootstrap/cache
-```
-
-### 4. Setup Cron (Optional)
-```bash
-* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
-```
-
-## 📞 Support
-
-Untuk bantuan dan support:
-- Email: admin@example.com
-- Documentation: Lihat file README ini
+**Issue: File Upload Fails**
+- Check `storage` folder permissions
+- Verify `php.ini` upload limits
+- Ensure storage link is created
 
 ## 📝 License
 
-Open-sourced software licensed under the MIT license.
+This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## 🤝 Support
+
+For issues, questions, or contributions, please contact your development team or system administrator.
+
+## 🎯 Target Audience
+
+This CMS is perfect for:
+- **Publishers** - Monetize content with strategic ad placements
+- **Businesses** - Manage corporate websites with ad revenue
+- **Bloggers** - Professional blogging platform with monetization
+- **Digital Agencies** - Manage multiple client websites
+- **E-commerce** - Content marketing with ad integration
+
+## 🔄 Updates
+
+Keep your installation up to date:
+```bash
+git pull origin main
+composer install
+php artisan migrate
+php artisan cache:clear
+```
 
 ---
 
-**Konter Digital CMS** - Modern CMS untuk Landing Page dan Blog 🚀
+**Built with ❤️ using Laravel 12**

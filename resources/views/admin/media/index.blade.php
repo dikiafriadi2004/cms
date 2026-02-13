@@ -291,8 +291,6 @@ const mediaManager = {
                 this.searchTimeout = setTimeout(() => this.filterFiles(), 500);
             });
         }
-
-        console.log('Media Manager initialized');
     },
 
     openUploadModal() {

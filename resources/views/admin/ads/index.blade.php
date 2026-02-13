@@ -10,12 +10,43 @@
         <div>
             <p class="text-gray-600">Manage advertisements (Image Banners, Google AdSense, Adsera, Manual HTML)</p>
         </div>
-        <a href="{{ route('admin.ads.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium shadow-sm">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Create New Ad
-        </a>
+        <div class="flex items-center gap-3">
+            <a href="{{ route('admin.ads.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium shadow-sm">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Create New Ad
+            </a>
+        </div>
+    </div>
+
+    <!-- Ad Rotation Info -->
+    <div class="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border border-orange-200 p-4">
+        <div class="flex items-start gap-3">
+            <div class="flex-shrink-0">
+                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-sm font-semibold text-gray-900 mb-1">🔄 Ad Rotation Feature</h3>
+                <p class="text-sm text-gray-700 mb-2">Group multiple ads to rotate in the same position. Ads with the same rotation group name will automatically rotate.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                    <div class="bg-white rounded-lg p-2 border border-orange-100">
+                        <span class="font-semibold text-orange-800">Random:</span>
+                        <span class="text-gray-600">Show random ad from group</span>
+                    </div>
+                    <div class="bg-white rounded-lg p-2 border border-orange-100">
+                        <span class="font-semibold text-orange-800">Weighted:</span>
+                        <span class="text-gray-600">Higher weight = more likely to show</span>
+                    </div>
+                    <div class="bg-white rounded-lg p-2 border border-orange-100">
+                        <span class="font-semibold text-orange-800">Sequential:</span>
+                        <span class="text-gray-600">Rotate evenly based on impressions</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Filters -->
@@ -77,6 +108,11 @@
                                 {{ $ad->status_color === 'gray' ? 'bg-gray-100 text-gray-800' : '' }}">
                                 {{ ucfirst($ad->status) }}
                             </span>
+                            @if($ad->rotation_group)
+                            <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-orange-100 text-orange-800">
+                                🔄 {{ $ad->rotation_group }}
+                            </span>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -93,6 +129,20 @@
                     <span class="text-gray-600">Position:</span>
                     <span class="ml-1 font-medium text-gray-900">{{ str_replace('_', ' ', ucfirst($ad->position)) }}</span>
                 </div>
+
+                <!-- Rotation Info -->
+                @if($ad->rotation_group)
+                <div class="flex items-center text-sm">
+                    <svg class="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    <span class="text-gray-600">Rotation:</span>
+                    <span class="ml-1 font-medium text-gray-900">{{ ucfirst($ad->rotation_mode) }}</span>
+                    @if($ad->rotation_mode === 'weighted')
+                    <span class="ml-1 text-xs text-gray-500">(Weight: {{ $ad->rotation_weight }})</span>
+                    @endif
+                </div>
+                @endif
 
                 <!-- Sort Order -->
                 <div class="flex items-center text-sm">
@@ -151,6 +201,10 @@
 
                 <!-- Action Buttons -->
                 <div class="flex items-center gap-2">
+                    <a href="{{ route('admin.ads.analytics.show', $ad) }}" 
+                        class="px-3 py-1.5 text-sm text-purple-600 hover:text-purple-900 hover:bg-purple-50 rounded transition-colors font-medium">
+                        Analytics
+                    </a>
                     <a href="{{ route('admin.ads.edit', $ad) }}" 
                         class="px-3 py-1.5 text-sm text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded transition-colors font-medium">
                         Edit

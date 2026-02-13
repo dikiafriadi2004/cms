@@ -276,10 +276,12 @@
 
             <!-- Featured Image -->
             @if($post->featured_image)
-            <div class="relative rounded-[2.5rem] overflow-hidden shadow-2xl mb-12 border border-slate-100">
-                <img src="{{ $post->featured_image }}" 
-                     class="w-full h-auto object-cover" 
-                     alt="{{ $post->title }}">
+            <div class="relative rounded-[2.5rem] overflow-hidden shadow-2xl mb-12 border border-slate-100 bg-slate-50">
+                <div class="aspect-[16/9] w-full">
+                    <img src="{{ $post->featured_image }}" 
+                         class="w-full h-full object-cover" 
+                         alt="{{ $post->title }}">
+                </div>
             </div>
             @endif
 
