@@ -9,11 +9,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('posts', function (Blueprint $table) {
-            $table->dropColumn('canonical_url');
+            if (Schema::hasColumn('posts', 'canonical_url')) {
+                $table->dropColumn('canonical_url');
+            }
         });
 
         Schema::table('pages', function (Blueprint $table) {
-            $table->dropColumn('canonical_url');
+            if (Schema::hasColumn('pages', 'canonical_url')) {
+                $table->dropColumn('canonical_url');
+            }
         });
     }
 

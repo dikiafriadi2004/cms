@@ -8,6 +8,7 @@ use App\Models\Post;
 use App\Models\Setting;
 use App\Models\Menu;
 use App\Models\Ad;
+use App\Services\TemplateService;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -37,21 +38,24 @@ class HomeController extends Controller
         ];
         
         // Get latest posts for blog section
-        $posts = Post::published()
+        $latestPosts = Post::published()
             ->with(['user', 'category', 'tags'])
             ->latest('published_at')
             ->limit(6)
             ->get();
         
+        // Get template view path
+        $viewPath = TemplateService::getTemplatePath('home');
+        
         if (!$homepage) {
             // If no homepage is set, show landing page with posts
-            return view('frontend.home', compact('posts', 'settings', 'headerMenu', 'footerMenu', 'ads'));
+            return view($viewPath, compact('latestPosts', 'settings', 'headerMenu', 'footerMenu', 'ads'));
         }
 
         // Track page view
         $this->trackPageView($homepage);
 
-        return view('frontend.home', compact('homepage', 'posts', 'settings', 'headerMenu', 'footerMenu', 'ads'));
+        return view($viewPath, compact('homepage', 'latestPosts', 'settings', 'headerMenu', 'footerMenu', 'ads'));
     }
 
     public function page(Page $page)
@@ -82,7 +86,11 @@ class HomeController extends Controller
             'content_bottom' => Ad::getByPosition('content_bottom', $context),
         ];
 
-        return view('frontend.page', compact('page', 'settings', 'headerMenu', 'footerMenu', 'ads'));
+        // Get template view path
+        $template = TemplateService::getCurrentTemplate();
+        $viewPath = TemplateService::getView($template, 'page');
+
+        return view($viewPath, compact('page', 'settings', 'headerMenu', 'footerMenu', 'ads'));
     }
 
     public function about()

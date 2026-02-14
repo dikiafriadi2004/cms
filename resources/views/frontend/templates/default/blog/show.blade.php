@@ -274,7 +274,7 @@
                 </div>
             @endif
 
-            <!-- Featured Image -->WhatsApp Number
+            <!-- Featured Image -->
             @if($post->featured_image)
             <div class="relative rounded-[2.5rem] overflow-hidden shadow-2xl mb-12 border border-slate-100 bg-slate-50">
                 <div class="aspect-[16/9] w-full">

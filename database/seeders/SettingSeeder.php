@@ -123,6 +123,47 @@ class SettingSeeder extends Seeder
                 'description' => 'Keywords default untuk SEO',
                 'sort_order' => 3,
             ],
+            [
+                'key' => 'og_image',
+                'value' => null,
+                'type' => 'file',
+                'group' => 'seo',
+                'label' => 'Open Graph Image',
+                'description' => 'Default image untuk social media sharing (1200x630px)',
+                'sort_order' => 4,
+            ],
+
+            // Template Settings
+            [
+                'key' => 'frontend_template',
+                'value' => 'default',
+                'type' => 'select',
+                'options' => 'default,minimal,magazine,corporate,elegant',
+                'group' => 'template',
+                'label' => 'Frontend Template',
+                'description' => 'Choose frontend template design',
+                'sort_order' => 1,
+            ],
+
+            // Analytics Settings
+            [
+                'key' => 'ga_property_id',
+                'value' => null,
+                'type' => 'text',
+                'group' => 'analytics',
+                'label' => 'GA Property ID',
+                'description' => 'Google Analytics Property ID for API access',
+                'sort_order' => 4,
+            ],
+            [
+                'key' => 'ga_credentials_json',
+                'value' => null,
+                'type' => 'file',
+                'group' => 'analytics',
+                'label' => 'GA Service Account Credentials',
+                'description' => 'Google Analytics service account JSON file',
+                'sort_order' => 5,
+            ],
 
             // Analytics Settings
             [
@@ -151,6 +192,80 @@ class SettingSeeder extends Seeder
                 'label' => 'Facebook Pixel ID',
                 'description' => 'Facebook Pixel ID untuk tracking',
                 'sort_order' => 3,
+            ],
+
+            // About Statistics Settings
+            [
+                'key' => 'about_stat_1_number',
+                'value' => '10K+',
+                'type' => 'text',
+                'group' => 'about',
+                'label' => 'Statistic 1 Number',
+                'description' => 'First statistic number (e.g., 10K+)',
+                'sort_order' => 1,
+            ],
+            [
+                'key' => 'about_stat_1_label',
+                'value' => 'Active Users',
+                'type' => 'text',
+                'group' => 'about',
+                'label' => 'Statistic 1 Label',
+                'description' => 'First statistic label',
+                'sort_order' => 2,
+            ],
+            [
+                'key' => 'about_stat_2_number',
+                'value' => '500+',
+                'type' => 'text',
+                'group' => 'about',
+                'label' => 'Statistic 2 Number',
+                'description' => 'Second statistic number',
+                'sort_order' => 3,
+            ],
+            [
+                'key' => 'about_stat_2_label',
+                'value' => 'Projects Completed',
+                'type' => 'text',
+                'group' => 'about',
+                'label' => 'Statistic 2 Label',
+                'description' => 'Second statistic label',
+                'sort_order' => 4,
+            ],
+            [
+                'key' => 'about_stat_3_number',
+                'value' => '99%',
+                'type' => 'text',
+                'group' => 'about',
+                'label' => 'Statistic 3 Number',
+                'description' => 'Third statistic number',
+                'sort_order' => 5,
+            ],
+            [
+                'key' => 'about_stat_3_label',
+                'value' => 'Customer Satisfaction',
+                'type' => 'text',
+                'group' => 'about',
+                'label' => 'Statistic 3 Label',
+                'description' => 'Third statistic label',
+                'sort_order' => 6,
+            ],
+            [
+                'key' => 'about_stat_4_number',
+                'value' => '24/7',
+                'type' => 'text',
+                'group' => 'about',
+                'label' => 'Statistic 4 Number',
+                'description' => 'Fourth statistic number',
+                'sort_order' => 7,
+            ],
+            [
+                'key' => 'about_stat_4_label',
+                'value' => 'Support Available',
+                'type' => 'text',
+                'group' => 'about',
+                'label' => 'Statistic 4 Label',
+                'description' => 'Fourth statistic label',
+                'sort_order' => 8,
             ],
 
             // Social Media Settings

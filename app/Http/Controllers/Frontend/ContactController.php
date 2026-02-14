@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\Contact;
 use App\Models\Setting;
+use App\Services\TemplateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -28,7 +29,11 @@ class ContactController extends Controller
             $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order');
         }])->first();
 
-        return view('frontend.contact', compact('settings', 'headerMenu', 'footerMenu'));
+        // Get template view path
+        $template = TemplateService::getCurrentTemplate();
+        $viewPath = TemplateService::getView($template, 'contact');
+
+        return view($viewPath, compact('settings', 'headerMenu', 'footerMenu'));
     }
 
     public function store(Request $request)

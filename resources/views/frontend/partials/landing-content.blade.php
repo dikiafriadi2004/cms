@@ -194,7 +194,7 @@
     </div>
 </section>
 
-@if(isset($posts) && $posts->count() > 0)
+@if(isset($latestPosts) && $latestPosts->count() > 0)
 <!-- Blog Section -->
 <section id="blog" class="py-24 bg-white reveal">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -203,7 +203,7 @@
             <p class="text-slate-500">Pelajari cara mengembangkan bisnis konter Anda lebih sukses.</p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 stagger-container">
-            @foreach($posts->take(3) as $post)
+            @foreach($latestPosts->take(3) as $post)
             <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden group cursor-pointer stagger-item card-entrance hover-lift transition-all duration-300">
                 <div class="overflow-hidden">
                     @if($post->featured_image)

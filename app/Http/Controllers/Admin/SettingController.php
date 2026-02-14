@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use App\Services\MailConfigService;
+use App\Services\TemplateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -20,13 +21,17 @@ class SettingController extends Controller
             return $item ? $item->value : '';
         };
         
-        return view('admin.settings.index', compact('settings', 'getSetting'));
+        // Get available templates
+        $templates = TemplateService::getAvailableTemplates();
+        $currentTemplate = TemplateService::getCurrentTemplate();
+        
+        return view('admin.settings.index', compact('settings', 'getSetting', 'templates', 'currentTemplate'));
     }
 
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'settings' => 'required|array',
+            'settings' => 'sometimes|array',
             'logo' => 'nullable|image|max:2048',
             'favicon' => 'nullable|image|max:1024',
             'hero_image' => 'nullable|image|max:5120',
@@ -117,7 +122,7 @@ class SettingController extends Controller
             }
         }
 
-        foreach ($request->settings as $key => $value) {
+        foreach ($request->settings ?? [] as $key => $value) {
             $setting = Setting::where('key', $key)->first();
             
             if (!$setting) {
@@ -235,5 +240,49 @@ class SettingController extends Controller
                 'property_id' => Setting::where('key', 'ga_property_id')->value('value'),
             ], 400);
         }
+    }
+
+    /**
+     * Show template preview
+     */
+    public function templatePreview($template)
+    {
+        // Validate template exists
+        if (!TemplateService::templateExists($template)) {
+            abort(404);
+        }
+
+        // Get sample data for preview
+        $settings = Setting::pluck('value', 'key')->toArray();
+        
+        // Get menus
+        $headerMenu = \App\Models\Menu::where('location', 'header')->with(['items' => function($query) {
+            $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order')->with('children');
+        }])->first();
+        
+        $footerMenu = \App\Models\Menu::where('location', 'footer')->with(['items' => function($query) {
+            $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order');
+        }])->first();
+        
+        // Get sample posts for preview
+        $latestPosts = \App\Models\Post::published()
+            ->with(['user', 'category', 'tags'])
+            ->latest('published_at')
+            ->limit(6)
+            ->get();
+        
+        // Get homepage if exists
+        $homepage = \App\Models\Page::where('is_homepage', true)->published()->first();
+        
+        // Get ads
+        $ads = [
+            'header' => \App\Models\Ad::getByPosition('header', ['page' => 'home']),
+            'footer' => \App\Models\Ad::getByPosition('footer', ['page' => 'home']),
+        ];
+        
+        // Get template view path
+        $viewPath = TemplateService::getView($template, 'home');
+        
+        return view($viewPath, compact('latestPosts', 'settings', 'headerMenu', 'footerMenu', 'ads', 'homepage'));
     }
 }

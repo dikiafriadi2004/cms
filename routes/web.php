@@ -155,10 +155,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     // Settings
     Route::middleware('permission:settings.view')->group(function () {
         Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
+        Route::get('settings/template-preview/{template}', [SettingController::class, 'templatePreview'])->name('settings.template-preview');
     });
     Route::post('settings', [SettingController::class, 'update'])->name('settings.update')->middleware('permission:settings.edit');
-    Route::post('settings/delete-analytics-credentials', [SettingController::class, 'deleteAnalyticsCredentials'])->name('settings.delete-analytics-credentials')->middleware('permission:settings.edit');
-    Route::get('settings/test-analytics', [SettingController::class, 'testAnalyticsCredentials'])->name('settings.test-analytics')->middleware('permission:settings.view');
+    Route::delete('settings/analytics/credentials', [SettingController::class, 'deleteAnalyticsCredentials'])->name('settings.analytics.delete-credentials')->middleware('permission:settings.edit');
+    Route::post('settings/analytics/test', [SettingController::class, 'testAnalyticsCredentials'])->name('settings.analytics.test')->middleware('permission:settings.view');
     
     // Ads
     Route::get('ads/create', [AdController::class, 'create'])->name('ads.create')->middleware('permission:ads.create');

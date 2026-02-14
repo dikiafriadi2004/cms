@@ -9,6 +9,7 @@ use App\Models\Tag;
 use App\Models\Setting;
 use App\Models\Menu;
 use App\Models\Ad;
+use App\Services\TemplateService;
 use Illuminate\Http\Request;
 
 class BlogController extends Controller
@@ -64,7 +65,11 @@ class BlogController extends Controller
             'sidebar' => Ad::getByPosition('sidebar', $context),
         ];
 
-        return view('frontend.blog.index', array_merge(
+        // Get template view
+        $template = TemplateService::getCurrentTemplate();
+        $view = TemplateService::getView($template, 'blog.index');
+
+        return view($view, array_merge(
             $this->getCommonData(),
             compact('posts', 'categories', 'popularPosts', 'ads')
         ));
@@ -128,7 +133,11 @@ class BlogController extends Controller
             'sidebar' => Ad::getByPosition('sidebar', $context),
         ];
 
-        return view('frontend.blog.show', compact('post', 'relatedPosts', 'popularPosts', 'settings', 'headerMenu', 'footerMenu', 'ads'));
+        // Get template view
+        $template = TemplateService::getCurrentTemplate();
+        $view = TemplateService::getView($template, 'blog.show');
+
+        return view($view, compact('post', 'relatedPosts', 'popularPosts', 'settings', 'headerMenu', 'footerMenu', 'ads'));
     }
 
     public function category(Category $category)
@@ -155,7 +164,11 @@ class BlogController extends Controller
             'sidebar' => Ad::getByPosition('sidebar', $context),
         ];
 
-        return view('frontend.blog.category', array_merge(
+        // Get template view
+        $template = TemplateService::getCurrentTemplate();
+        $view = TemplateService::getView($template, 'blog.category');
+
+        return view($view, array_merge(
             $this->getCommonData(),
             compact('category', 'posts', 'categories', 'ads')
         ));
@@ -180,7 +193,11 @@ class BlogController extends Controller
             'sidebar' => Ad::getByPosition('sidebar', $context),
         ];
 
-        return view('frontend.blog.tag', array_merge(
+        // Get template view
+        $template = TemplateService::getCurrentTemplate();
+        $view = TemplateService::getView($template, 'blog.tag');
+
+        return view($view, array_merge(
             $this->getCommonData(),
             compact('tag', 'posts', 'ads')
         ));
