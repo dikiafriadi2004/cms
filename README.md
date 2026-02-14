@@ -117,8 +117,10 @@ php artisan db:seed
 - **Categories** - Sample blog categories
 - **Tags** - Sample tags for content organization
 - **Posts** - 20 sample blog posts with content
-- **Menus** - Header and footer navigation menus
+- **Menus** - Header menu (Home, About, Blog, Contact) and Footer menu
 - **Ads** - 9 sample ads across different positions
+
+**Note:** Menu seeder includes built-in pages (Home, Blog, Contact, About) as Custom Links. You can add custom pages after creating them in Admin → Pages.
 
 **Or seed individually:**
 ```bash
@@ -275,6 +277,34 @@ cms/
 
 ## 🎨 Customization
 
+### Understanding Pages vs Built-in Routes
+
+The CMS has two types of pages:
+
+#### 1. Built-in Pages (Pre-configured)
+These pages have dedicated routes, controllers, and templates:
+
+| Page | URL | Purpose | Template Location |
+|------|-----|---------|-------------------|
+| Home | `/` | Homepage with hero section | `templates/{theme}/home.blade.php` |
+| Blog | `/blog` | Blog listing | `templates/{theme}/blog/index.blade.php` |
+| Contact | `/contact` | Contact form | `templates/{theme}/contact.blade.php` |
+| About | `/about` | About us | `frontend/about.blade.php` |
+
+**Do NOT create these in Admin → Pages** as they already exist with special functionality.
+
+#### 2. Custom Pages (Created via Admin)
+Create these for static content:
+- Privacy Policy
+- Terms of Service
+- FAQ
+- Services
+- Portfolio
+- Team
+- Any custom static content
+
+Custom pages use the template: `templates/{theme}/page.blade.php`
+
 ### Changing Site Settings
 1. Login to admin panel
 2. Navigate to **Settings**
@@ -325,6 +355,42 @@ cms/
 3. Add menu items (pages, posts, custom links)
 4. Drag and drop to reorder
 5. Create nested menu items
+
+#### Built-in Pages vs Custom Pages
+
+**Built-in Pages (DO NOT create in Pages):**
+- **Home** (`/`) - Homepage with hero section
+- **Blog** (`/blog`) - Blog listing page
+- **Contact** (`/contact`) - Contact form page
+- **About** (`/about`) - About us page
+
+These pages already have their own routes, controllers, and templates. Add them to menu using **Custom Link**.
+
+**Custom Pages (Create in Admin → Pages):**
+- Privacy Policy
+- Terms of Service
+- FAQ
+- Services
+- Portfolio
+- Any other static content
+
+#### Adding to Menu
+
+**For Built-in Pages (Home, Blog, Contact, About):**
+```
+Type: Custom Link
+Title: Home
+URL: /
+```
+
+**For Custom Pages:**
+```
+Type: Page
+Target: Select your created page
+URL: Auto-generated from slug
+```
+
+**Important:** Don't create pages with slugs: `home`, `blog`, `contact`, `about` - they will conflict with built-in routes.
 
 ## 🔒 Security Best Practices
 
@@ -585,6 +651,18 @@ php artisan cache:clear
 
 ### Q: Can I disable ads on specific pages?
 **A:** Yes, configure ad visibility rules in the ad management system.
+
+### Q: How do I add Home, Blog, Contact, About to menu?
+**A:** Use Custom Link type with URLs: `/`, `/blog`, `/contact`, `/about`. Don't create these as Pages.
+
+### Q: What's the difference between Pages and built-in routes?
+**A:** Built-in routes (Home, Blog, Contact, About) have special templates and controllers. Pages are for custom static content like Privacy Policy, Terms, etc.
+
+### Q: Can I create a page with slug "blog" or "contact"?
+**A:** No, this will conflict with built-in routes. Use different slugs like "our-blog" or "contact-us".
+
+### Q: How do I create nested menus (dropdowns)?
+**A:** Set the parent_id when creating menu items to create submenu structure.
 
 ## 🆘 Getting Help
 

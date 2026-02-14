@@ -20,10 +20,13 @@ class MenuSeeder extends Seeder
         );
 
         // Header Menu Items
+        // Note: Home, Blog, Contact, About are built-in routes
+        // DO NOT create these as Pages - they have their own controllers and templates
         $menuItems = [
             ['title' => 'Home', 'url' => '/', 'sort_order' => 1],
-            ['title' => 'Blog', 'url' => '/blog', 'sort_order' => 2],
-            ['title' => 'Contact', 'url' => '/contact', 'sort_order' => 3],
+            ['title' => 'About', 'url' => '/about', 'sort_order' => 2],
+            ['title' => 'Blog', 'url' => '/blog', 'sort_order' => 3],
+            ['title' => 'Contact', 'url' => '/contact', 'sort_order' => 4],
         ];
 
         foreach ($menuItems as $item) {
