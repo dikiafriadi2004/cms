@@ -198,6 +198,29 @@ All templates include:
 
 ## ⚙️ Configuration
 
+### Timezone & Locale
+
+The CMS is configured for Indonesian timezone and language:
+- **Timezone:** Asia/Jakarta (WIB, UTC+7)
+- **Locale:** Indonesian (id)
+- **Date Format:** Indonesian format (15 Februari 2026)
+
+To change timezone, edit `config/app.php` or set in `.env`:
+```env
+APP_TIMEZONE=Asia/Jakarta  # WIB (Jakarta, Bandung, Medan)
+APP_TIMEZONE=Asia/Makassar # WITA (Bali, Makassar)
+APP_TIMEZONE=Asia/Jayapura # WIT (Papua)
+```
+
+Helper functions for Indonesian dates:
+```php
+format_date($date)           // 15 Februari 2026
+format_datetime($datetime)   // 15 Februari 2026, 18:30 WIB
+time_ago($datetime)          // 2 jam yang lalu
+```
+
+See `INDONESIAN_LOCALIZATION.md` for complete guide.
+
 ### Mail Configuration
 Configure your mail settings in `.env`:
 ```env
