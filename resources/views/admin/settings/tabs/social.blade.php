@@ -53,6 +53,16 @@
                     <p class="mt-1 text-xs text-gray-500">Link ke profil Twitter/X Anda</p>
                 </div>
 
+                <!-- Twitter Username -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Twitter Username</label>
+                    <input type="text" name="settings[twitter_username]" 
+                        value="{{ $getSetting('social', 'twitter_username') }}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="@yourusername">
+                    <p class="mt-1 text-xs text-gray-500">Username Twitter untuk Twitter Cards (contoh: @konterdigital)</p>
+                </div>
+
                 <!-- YouTube URL -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">YouTube URL</label>

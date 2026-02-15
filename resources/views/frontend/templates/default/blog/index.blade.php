@@ -1,7 +1,7 @@
 @extends('frontend.layouts.frontend')
 
-@section('title', 'Blog & Berita - ' . ($settings['site_name'] ?? 'Konter Digital'))
-@section('description', 'Temukan tips eksklusif dan panduan sukses untuk mengembangkan bisnis server pulsa Anda.')
+@section('title', 'Blog & Berita - ' . ($settings['site_name'] ?? config('app.name')))
+@section('description', $settings['blog_page_description'] ?? 'Baca artikel dan berita terbaru dari kami.')
 
 @section('content')
 <!-- Header -->
@@ -9,7 +9,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <span class="inline-block py-1 px-4 rounded-full bg-brand-50 text-brand-600 text-xs font-bold mb-4 uppercase tracking-widest">Wawasan Agen</span>
         <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">Blog {{ $settings['site_name'] ?? 'Konter Digital' }}</h1>
-        <p class="text-slate-500 max-w-2xl mx-auto text-lg">Temukan tips eksklusif dan panduan sukses untuk mengembangkan bisnis server pulsa Anda.</p>
+        <p class="text-slate-500 max-w-2xl mx-auto text-lg">{{ $settings['blog_page_description'] ?? 'Baca artikel dan berita terbaru dari kami.' }}</p>
     </div>
 </header>
 

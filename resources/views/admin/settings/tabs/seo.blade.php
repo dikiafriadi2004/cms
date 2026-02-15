@@ -50,6 +50,34 @@
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <p class="mt-1 text-xs text-gray-500">Recommended: 1200x630px, max 2MB</p>
                 </div>
+
+                <!-- Contact Page Description -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Contact Page Description</label>
+                    <textarea name="settings[contact_page_description]" rows="2"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Meta description untuk halaman kontak">{{ $getSetting('seo', 'contact_page_description') }}</textarea>
+                    <p class="mt-1 text-xs text-gray-500">Deskripsi yang muncul di hasil pencarian untuk halaman kontak</p>
+                </div>
+
+                <!-- Blog Page Description -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Blog Page Description</label>
+                    <textarea name="settings[blog_page_description]" rows="2"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Meta description untuk halaman blog">{{ $getSetting('seo', 'blog_page_description') }}</textarea>
+                    <p class="mt-1 text-xs text-gray-500">Deskripsi yang muncul di hasil pencarian untuk halaman blog</p>
+                </div>
+
+                <!-- Google Site Verification -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Google Site Verification</label>
+                    <input type="text" name="settings[google_site_verification]" 
+                        value="{{ $getSetting('seo', 'google_site_verification') }}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                        placeholder="google1234567890abcdef">
+                    <p class="mt-1 text-xs text-gray-500">Kode verifikasi dari Google Search Console</p>
+                </div>
             </div>
         </div>
 

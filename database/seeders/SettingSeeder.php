@@ -132,6 +132,33 @@ class SettingSeeder extends Seeder
                 'description' => 'Default image untuk social media sharing (1200x630px)',
                 'sort_order' => 4,
             ],
+            [
+                'key' => 'contact_page_description',
+                'value' => 'Hubungi kami untuk informasi lebih lanjut, pertanyaan, atau dukungan. Tim kami siap membantu Anda.',
+                'type' => 'textarea',
+                'group' => 'seo',
+                'label' => 'Contact Page Description',
+                'description' => 'Meta description untuk halaman kontak',
+                'sort_order' => 5,
+            ],
+            [
+                'key' => 'blog_page_description',
+                'value' => 'Baca artikel dan berita terbaru dari kami. Temukan tips, panduan, dan informasi menarik.',
+                'type' => 'textarea',
+                'group' => 'seo',
+                'label' => 'Blog Page Description',
+                'description' => 'Meta description untuk halaman blog',
+                'sort_order' => 6,
+            ],
+            [
+                'key' => 'google_site_verification',
+                'value' => null,
+                'type' => 'text',
+                'group' => 'seo',
+                'label' => 'Google Site Verification',
+                'description' => 'Google Search Console verification code',
+                'sort_order' => 7,
+            ],
 
             // Template Settings
             [
@@ -322,6 +349,15 @@ class SettingSeeder extends Seeder
                 'label' => 'YouTube URL',
                 'description' => 'Link ke channel YouTube',
                 'sort_order' => 6,
+            ],
+            [
+                'key' => 'twitter_username',
+                'value' => null,
+                'type' => 'text',
+                'group' => 'social',
+                'label' => 'Twitter Username',
+                'description' => 'Twitter username dengan @ (e.g., @yoursite)',
+                'sort_order' => 7,
             ],
 
             // Hero Section Settings

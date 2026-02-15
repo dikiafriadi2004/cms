@@ -1,7 +1,7 @@
 @extends('frontend.layouts.frontend')
 
-@section('title', 'Blog & Berita - ' . ($settings['site_name'] ?? 'Konter Digital'))
-@section('description', 'Temukan tips eksklusif dan panduan sukses untuk mengembangkan bisnis server pulsa Anda.')
+@section('title', 'Blog & Berita - ' . ($settings['site_name'] ?? config('app.name')))
+@section('description', $settings['blog_page_description'] ?? 'Baca artikel dan berita terbaru dari kami.')
 
 @section('content')
 <!-- Elegant Header with Gold Accent -->
@@ -15,7 +15,7 @@
             Blog {{ $settings['site_name'] ?? 'Konter Digital' }}
         </h1>
         <p class="text-slate-600 max-w-2xl mx-auto text-lg leading-relaxed">
-            Temukan tips eksklusif dan panduan sukses untuk mengembangkan bisnis server pulsa Anda.
+            {{ $settings['blog_page_description'] ?? 'Baca artikel dan berita terbaru dari kami.' }}
         </p>
     </div>
 </header>

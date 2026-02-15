@@ -1,7 +1,7 @@
 @extends('frontend.layouts.frontend')
 
-@section('title', 'Hubungi Kami - ' . ($settings['site_name'] ?? 'Konter Digital'))
-@section('description', 'Butuh bantuan teknis, tanya harga produk, atau sekadar ingin menyapa? Tim kami aktif setiap hari untuk melayani Anda.')
+@section('title', 'Hubungi Kami - ' . ($settings['site_name'] ?? config('app.name')))
+@section('description', $settings['contact_page_description'] ?? 'Hubungi kami untuk informasi lebih lanjut, pertanyaan, atau dukungan.')
 
 @section('content')
 <!-- Magazine Bold Header -->
@@ -14,7 +14,7 @@
             </h1>
         </div>
         <p class="text-xl text-white/90 max-w-2xl font-bold">
-            Butuh bantuan teknis, tanya harga produk, atau sekadar ingin menyapa? Tim kami aktif setiap hari untuk melayani Anda.
+            {{ $settings['contact_page_description'] ?? 'Hubungi kami untuk informasi lebih lanjut, pertanyaan, atau dukungan.' }}
         </p>
     </div>
 </section>

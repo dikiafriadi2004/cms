@@ -1,7 +1,7 @@
 @extends('frontend.layouts.frontend')
 
-@section('title', 'Blog - ' . ($settings['site_name'] ?? 'Konter Digital'))
-@section('description', 'Temukan tips eksklusif dan panduan sukses untuk mengembangkan bisnis server pulsa Anda.')
+@section('title', 'Blog - ' . ($settings['site_name'] ?? config('app.name')))
+@section('description', $settings['blog_page_description'] ?? 'Baca artikel dan berita terbaru dari kami.')
 
 @section('content')
 <!-- Minimal Template - Blog Index -->
