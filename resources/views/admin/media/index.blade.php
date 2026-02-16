@@ -79,8 +79,7 @@
         <!-- Grid View -->
         <div id="gridView" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 p-6">
             @forelse($files as $file)
-            <div class="group relative bg-gray-50 rounded-lg overflow-hidden hover:shadow-lg transition-all cursor-pointer border-2 border-transparent hover:border-blue-500 flex flex-col"
-                onclick="mediaManager.selectFile({{ $file->id }}, '{{ $file->url }}', '{{ $file->name }}')">
+            <div class="group relative bg-gray-50 rounded-lg overflow-hidden hover:shadow-lg transition-all border-2 border-transparent hover:border-blue-500 flex flex-col cursor-pointer" data-media-type="{{ $file->file_type }}" onclick="mediaManager.selectFile({{ $file->id }}, '{{ $file->url }}', '{{ $file->name }}')">
                 
                 <!-- Preview - Fixed aspect ratio -->
                 <div class="relative w-full" style="padding-bottom: 100%;">
@@ -108,7 +107,7 @@
                     <p class="text-xs text-gray-500">{{ $file->formatted_size }}</p>
                 </div>
 
-                <!-- Actions -->
+                <!-- Delete Button -->
                 <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                     <button onclick="event.stopPropagation(); mediaManager.deleteFile({{ $file->id }})" class="p-1.5 bg-white rounded-lg shadow-lg hover:bg-red-50 transition-all">
                         <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,7 +122,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                 </svg>
                 <p class="mt-4 text-gray-500">No files found</p>
-                <button onclick="mediaManager.openUploadModal()" class="mt-4 text-blue-600 hover:text-blue-700 font-medium">
+                <button onclick="document.getElementById('uploadModal').style.display='block'" class="mt-4 text-blue-600 hover:text-blue-700 font-medium">
                     Upload your first file
                 </button>
             </div>
@@ -145,7 +144,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($files as $file)
-                    <tr class="hover:bg-gray-50 cursor-pointer" onclick="mediaManager.selectFile({{ $file->id }}, '{{ $file->url }}', '{{ $file->name }}')">
+                    <tr class="hover:bg-gray-50 cursor-pointer" data-media-type="{{ $file->file_type }}" onclick="mediaManager.selectFile({{ $file->id }}, '{{ $file->url }}', '{{ $file->name }}')">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center flex-shrink-0">
                                 @if($file->file_type === 'image')
@@ -453,17 +452,15 @@ const mediaManager = {
             }
         });
 
-        this.filterFiles();
-    },
-
-    filterFiles() {
-        const params = new URLSearchParams();
-        if (this.filterType !== 'all') params.append('type', this.filterType);
-        
-        const search = document.getElementById('searchInput')?.value;
-        if (search) params.append('search', search);
-        
-        window.location.href = '{{ route("admin.media.index") }}?' + params.toString();
+        // Filter items client-side (no page reload)
+        const mediaItems = document.querySelectorAll('[data-media-type]');
+        mediaItems.forEach(item => {
+            if (type === 'all' || item.dataset.mediaType === type) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
     },
 
     selectFile(id, url, name) {
