@@ -5,7 +5,7 @@ A modern, feature-rich Content Management System built with Laravel 12, featurin
 ## 🎯 Key Features
 
 ### 🎨 Advanced Template System
-- **5 Professional Templates** - Default Modern, Minimal Clean, Magazine Bold, Corporate Professional, Elegant Luxury
+- **5 Professional Templates** - Tech Sphere, Minimal Clean, Magazine Bold, Corporate Professional, Elegant Luxury
 - **Live Preview** - Preview templates before applying
 - **No Fallbacks** - Every template has custom designs for all pages (Home, Blog, Contact, Pages)
 - **Responsive Design** - All templates are mobile-friendly
@@ -177,7 +177,7 @@ Navigate to `/admin` to access the admin panel.
 
 ### Available Templates
 
-1. **Default Modern** - Gradient colorful design with animations (Blue gradient)
+1. **Tech Sphere** - Modern technology-focused design with gradient accents (Blue gradient)
 2. **Minimal Clean** - Ultra minimalist black & white design
 3. **Magazine Bold** - Bold editorial style with red/orange accents
 4. **Corporate Professional** - Trust-building blue design for business
@@ -632,7 +632,7 @@ This CMS is perfect for:
 
 | Template | Color Scheme | Typography | Best For |
 |----------|-------------|------------|----------|
-| Default Modern | Blue Gradient | Sans-serif, Modern | Tech, Startup, Modern Business |
+| Tech Sphere | Blue Gradient | Sans-serif, Modern | Tech, Startup, Modern Business |
 | Minimal Clean | Black & White | Sans-serif, Bold | Portfolio, Agency, Minimalist |
 | Magazine Bold | Red/Orange | Sans-serif, Extra Bold | News, Blog, Media |
 | Corporate Professional | Dark Blue | Sans-serif, Professional | Corporate, Finance, B2B |

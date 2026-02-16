@@ -13,10 +13,10 @@ class TemplateService
     {
         return [
             'default' => [
-                'name' => 'Default Modern',
-                'description' => 'Clean and modern design with gradient accents and animations',
+                'name' => 'Tech Sphere',
+                'description' => 'Modern technology-focused design with gradient accents and smooth animations',
                 'preview' => '/images/templates/default-preview.jpg',
-                'features' => ['Responsive', 'Animated', 'Colorful', 'Dynamic']
+                'features' => ['Responsive', 'Animated', 'Tech-Focused', 'Dynamic']
             ],
             'minimal' => [
                 'name' => 'Minimal Clean',

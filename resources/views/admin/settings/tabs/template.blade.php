@@ -16,93 +16,27 @@
                             class="peer sr-only">
                         
                         <div class="border-2 border-gray-200 rounded-2xl overflow-hidden transition-all peer-checked:border-blue-500 peer-checked:ring-4 peer-checked:ring-blue-100 hover:border-blue-400 hover:shadow-lg">
-                            <!-- Preview Mockup -->
-                            <div class="aspect-video bg-gray-100 relative overflow-hidden">
-                                @if($key === 'default')
-                                    <!-- Default Modern Preview -->
-                                    <div class="absolute inset-0 bg-gradient-to-br from-blue-400 to-indigo-600 p-4">
-                                        <div class="bg-white rounded-lg h-full p-3 space-y-2">
-                                            <div class="h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg"></div>
-                                            <div class="grid grid-cols-3 gap-2 h-20">
-                                                <div class="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg"></div>
-                                                <div class="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg"></div>
-                                                <div class="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg"></div>
-                                            </div>
-                                            <div class="space-y-1">
-                                                <div class="h-2 bg-blue-200 rounded w-3/4"></div>
-                                                <div class="h-2 bg-blue-100 rounded w-1/2"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @elseif($key === 'minimal')
-                                    <!-- Minimal Clean Preview -->
-                                    <div class="absolute inset-0 bg-white p-4">
-                                        <div class="border-2 border-black h-full p-3 space-y-3">
-                                            <div class="h-8 border-b-4 border-black"></div>
-                                            <div class="grid grid-cols-3 gap-3 h-20">
-                                                <div class="border-2 border-black"></div>
-                                                <div class="border-2 border-black"></div>
-                                                <div class="border-2 border-black"></div>
-                                            </div>
-                                            <div class="space-y-2">
-                                                <div class="h-3 bg-black w-3/4"></div>
-                                                <div class="h-2 bg-gray-400 w-1/2"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @elseif($key === 'magazine')
-                                    <!-- Magazine Bold Preview -->
-                                    <div class="absolute inset-0 bg-white p-4">
-                                        <div class="border-4 border-black h-full p-2 space-y-2">
-                                            <div class="h-10 bg-gradient-to-r from-red-600 to-orange-500 border-l-8 border-black flex items-center px-2">
-                                                <div class="w-2 h-6 bg-white"></div>
-                                            </div>
-                                            <div class="grid grid-cols-2 gap-2 h-16">
-                                                <div class="border-4 border-black bg-red-100"></div>
-                                                <div class="border-4 border-black bg-orange-100"></div>
-                                            </div>
-                                            <div class="space-y-1">
-                                                <div class="h-3 bg-red-600 w-3/4"></div>
-                                                <div class="h-2 bg-gray-800 w-1/2"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @elseif($key === 'corporate')
-                                    <!-- Corporate Professional Preview -->
-                                    <div class="absolute inset-0 bg-gray-50 p-4">
-                                        <div class="bg-white rounded-lg shadow-lg h-full p-3 space-y-2">
-                                            <div class="h-8 bg-gradient-to-r from-blue-900 to-blue-700 rounded-lg"></div>
-                                            <div class="grid grid-cols-3 gap-2 h-20">
-                                                <div class="bg-blue-50 border border-blue-200 rounded-lg"></div>
-                                                <div class="bg-blue-50 border border-blue-200 rounded-lg"></div>
-                                                <div class="bg-blue-50 border border-blue-200 rounded-lg"></div>
-                                            </div>
-                                            <div class="space-y-1">
-                                                <div class="h-2 bg-blue-600 rounded w-3/4"></div>
-                                                <div class="h-2 bg-gray-300 rounded w-1/2"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @elseif($key === 'elegant')
-                                    <!-- Elegant Luxury Preview -->
-                                    <div class="absolute inset-0 bg-gradient-to-b from-amber-50 to-white p-4">
-                                        <div class="bg-white border-2 border-amber-200 h-full p-3 space-y-2">
-                                            <div class="h-8 bg-gradient-to-r from-amber-400 to-amber-600 opacity-20 rounded"></div>
-                                            <div class="flex justify-center">
-                                                <div class="h-1 w-16 bg-gradient-to-r from-transparent via-amber-500 to-transparent"></div>
-                                            </div>
-                                            <div class="grid grid-cols-3 gap-2 h-16">
-                                                <div class="border-2 border-amber-200 bg-amber-50"></div>
-                                                <div class="border-2 border-amber-200 bg-amber-50"></div>
-                                                <div class="border-2 border-amber-200 bg-amber-50"></div>
-                                            </div>
-                                            <div class="space-y-1">
-                                                <div class="h-2 bg-amber-600 w-3/4 mx-auto"></div>
-                                                <div class="h-1 bg-amber-300 w-1/2 mx-auto"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
+                            <!-- Live Preview Screenshot -->
+                            <div class="template-preview-container group">
+                                <!-- Screenshot iframe (live preview) -->
+                                <iframe 
+                                    src="{{ route('admin.settings.template-preview', $key) }}" 
+                                    class="template-preview-iframe"
+                                    loading="lazy"
+                                    scrolling="no"></iframe>
+                                
+                                <!-- Hover Overlay -->
+                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center z-10">
+                                    <button type="button"
+                                       onclick="openPreviewModal('{{ $key }}', '{{ $template['name'] }}')"
+                                       class="opacity-0 group-hover:opacity-100 transform scale-90 group-hover:scale-100 transition-all duration-300 px-6 py-3 bg-white text-gray-900 font-bold rounded-lg shadow-xl flex items-center gap-2 hover:bg-gray-100">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                        View Full Preview
+                                    </button>
+                                </div>
                                 
                                 <!-- Selected Badge -->
                                 <div class="absolute top-3 right-3 opacity-0 peer-checked:opacity-100 transition-opacity">
@@ -126,17 +60,6 @@
                                     <span class="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs rounded-full font-medium">{{ $feature }}</span>
                                     @endforeach
                                 </div>
-
-                                <!-- Preview Button -->
-                                <button type="button"
-                                   onclick="openPreviewModal('{{ $key }}', '{{ $template['name'] }}')"
-                                   class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold text-sm transition">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                    </svg>
-                                    Preview Template
-                                </button>
                             </div>
                         </div>
                     </label>
@@ -163,7 +86,7 @@
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 <tr class="hover:bg-white transition">
-                                    <td class="py-3 px-4 font-semibold text-gray-900">Default Modern</td>
+                                    <td class="py-3 px-4 font-semibold text-gray-900">Tech Sphere</td>
                                     <td class="py-3 px-4">
                                         <div class="flex items-center gap-2">
                                             <div class="w-4 h-4 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600"></div>
@@ -305,6 +228,27 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+/* Template Preview Iframe Styling */
+.template-preview-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    overflow: hidden;
+    background: #f3f4f6;
+}
+
+.template-preview-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 250%;
+    height: 250%;
+    border: 0;
+    pointer-events: none;
+    transform: scale(0.4);
+    transform-origin: top left;
 }
 </style>
 
