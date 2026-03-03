@@ -170,7 +170,9 @@ class Post extends Model
         }
 
         // Tags assigned (5 points)
-        if ($this->tags()->count() > 0) {
+        if ($this->relationLoaded('tags') && $this->tags->count() > 0) {
+            $score += 5;
+        } elseif (!$this->relationLoaded('tags') && $this->tags()->exists()) {
             $score += 5;
         }
 

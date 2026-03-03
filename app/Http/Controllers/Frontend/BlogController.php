@@ -53,6 +53,7 @@ class BlogController extends Controller
         $posts = $query->paginate(9);
         $categories = Category::active()->withCount('publishedPosts')->get();
         $popularPosts = Post::published()
+            ->with(['user', 'category', 'tags'])
             ->orderBy('views_count', 'desc')
             ->limit(5)
             ->get();
@@ -86,6 +87,7 @@ class BlogController extends Controller
 
         // Get related posts
         $relatedPosts = Post::published()
+            ->with(['user', 'category', 'tags'])
             ->where('id', '!=', $post->id)
             ->where(function ($query) use ($post) {
                 if ($post->category_id) {
