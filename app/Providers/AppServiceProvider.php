@@ -3,6 +3,15 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Gate;
+use App\Models\Post;
+use App\Models\Page;
+use App\Models\Category;
+use App\Models\Ad;
+use App\Policies\PostPolicy;
+use App\Policies\PagePolicy;
+use App\Policies\CategoryPolicy;
+use App\Policies\AdPolicy;
 use Illuminate\Support\Facades\View;
 use App\Models\Setting;
 use App\Models\Menu;
@@ -28,6 +37,12 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') !== 'local' || request()->header('X-Forwarded-Proto') === 'https') {
             \URL::forceScheme('https');
         }
+        
+        // Register policies
+        Gate::policy(Post::class, PostPolicy::class);
+        Gate::policy(Page::class, PagePolicy::class);
+        Gate::policy(Category::class, CategoryPolicy::class);
+        Gate::policy(Ad::class, AdPolicy::class);
         
         // Configure mail from database settings
         try {

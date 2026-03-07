@@ -1,6 +1,6 @@
 @extends('frontend.layouts.frontend')
 
-@section('title', $category->name . ' - Blog - ' . ($settings['site_name'] ?? 'Konter Digital'))
+@section('title', $category->meta_title ? (($settings['site_name'] ?? config('app.name')) . ' - ' . $category->meta_title) : (($settings['site_name'] ?? config('app.name')) . ' - ' . $category->name . ' - Blog'))
 @section('description', $category->description ?? 'Artikel kategori ' . $category->name)
 
 @section('content')

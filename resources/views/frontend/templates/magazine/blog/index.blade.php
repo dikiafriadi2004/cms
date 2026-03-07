@@ -1,6 +1,6 @@
 @extends('frontend.layouts.frontend')
 
-@section('title', 'Blog & Berita - ' . ($settings['site_name'] ?? config('app.name')))
+@section('title', ($settings['site_name'] ?? config('app.name')) . ' - Blog & Berita')
 @section('description', $settings['blog_page_description'] ?? 'Baca artikel dan berita terbaru dari kami.')
 
 @push('styles')

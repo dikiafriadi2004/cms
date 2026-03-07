@@ -542,12 +542,10 @@ function updateSEOScore() {
         score += 15;
     }
     
-    // Meta title (10 points)
-    const metaTitle = $('#meta_title').val();
-    if (metaTitle.length >= 50 && metaTitle.length <= 60) {
-        score += 10;
-    } else if (metaTitle.length >= 40) {
-        score += 5;
+    // Focus keyword in content (15 points)
+    const content = quill.getText();
+    if (focusKeyword && content.toLowerCase().includes(focusKeyword.toLowerCase())) {
+        score += 15;
     }
     
     // Featured image (10 points)
@@ -555,21 +553,21 @@ function updateSEOScore() {
         score += 10;
     }
     
-    // Category (10 points)
+    // Content length (10 points)
+    const wordCount = content.trim().split(/\s+/).length;
+    if (wordCount >= 300) {
+        score += 10;
+    } else if (wordCount >= 150) {
+        score += 5;
+    }
+    
+    // Category (5 points)
     if ($('select[name="category_id"]').val()) {
-        score += 10;
+        score += 5;
     }
     
-    // Tags (10 points)
+    // Tags (5 points)
     if ($('#tags').val() && $('#tags').val().length > 0) {
-        score += 10;
-    }
-    
-    // Excerpt (10 points)
-    const excerpt = $('#excerpt').val();
-    if (excerpt.length >= 150 && excerpt.length <= 160) {
-        score += 10;
-    } else if (excerpt.length >= 100) {
         score += 5;
     }
     
@@ -578,11 +576,11 @@ function updateSEOScore() {
     scoreElement.text(score + '%');
     
     if (score >= 80) {
-        scoreElement.removeClass('text-gray-400 text-yellow-500 text-red-500').addClass('text-green-500');
+        scoreElement.removeClass('text-gray-400 text-yellow-500 text-red-500 text-orange-500').addClass('text-green-500');
     } else if (score >= 60) {
-        scoreElement.removeClass('text-gray-400 text-green-500 text-red-500').addClass('text-yellow-500');
+        scoreElement.removeClass('text-gray-400 text-green-500 text-red-500 text-orange-500').addClass('text-yellow-500');
     } else if (score >= 40) {
-        scoreElement.removeClass('text-gray-400 text-green-500 text-yellow-500').addClass('text-orange-500');
+        scoreElement.removeClass('text-gray-400 text-green-500 text-yellow-500 text-red-500').addClass('text-orange-500');
     } else {
         scoreElement.removeClass('text-gray-400 text-green-500 text-yellow-500 text-orange-500').addClass('text-red-500');
     }
@@ -618,6 +616,7 @@ function removeFeaturedImage() {
 
 // Update SEO score on input changes
 $('#focus_keyword, select[name="category_id"], #tags').on('change input', updateSEOScore);
+quill.on('text-change', updateSEOScore);
 
 // Initial SEO score calculation
 $(document).ready(function() {

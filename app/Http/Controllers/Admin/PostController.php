@@ -55,6 +55,15 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
+        // Log incoming request for debugging
+        \Log::info('Post Store Request', [
+            'title' => $request->title,
+            'has_content' => !empty($request->content),
+            'content_length' => strlen($request->content ?? ''),
+            'status' => $request->status,
+            'user_id' => Auth::id(),
+        ]);
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'slug' => 'nullable|string|unique:posts,slug',
@@ -66,9 +75,9 @@ class PostController extends Controller
             'tags' => 'nullable|array',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:160',
-            'meta_keywords' => 'nullable|string',
-            'canonical_url' => 'nullable|url',
-            'focus_keyword' => 'nullable|string',
+            'meta_keywords' => 'nullable|string|max:500',
+            'canonical_url' => 'nullable|url|max:500',
+            'focus_keyword' => 'nullable|string|max:1000',
             'published_at' => 'nullable|date',
         ]);
 
@@ -82,33 +91,52 @@ class PostController extends Controller
             $validated['published_at'] = now();
         }
 
-        $post = Post::create($validated);
+        try {
+            $post = Post::create($validated);
+            
+            \Log::info('Post Created Successfully', [
+                'post_id' => $post->id,
+                'title' => $post->title,
+            ]);
 
-        // Handle tags - create new tags if needed
-        if ($request->filled('tags')) {
-            $tagIds = [];
-            foreach ($request->tags as $tagInput) {
-                if (str_starts_with($tagInput, 'new:')) {
-                    // Create new tag
-                    $tagName = substr($tagInput, 4); // Remove 'new:' prefix
-                    $tag = Tag::firstOrCreate(
-                        ['slug' => Str::slug($tagName)],
-                        [
-                            'name' => $tagName,
-                            'is_active' => true
-                        ]
-                    );
-                    $tagIds[] = $tag->id;
-                } else {
-                    // Existing tag
-                    $tagIds[] = $tagInput;
+            // Handle tags - create new tags if needed
+            if ($request->filled('tags')) {
+                $tagIds = [];
+                foreach ($request->tags as $tagInput) {
+                    if (str_starts_with($tagInput, 'new:')) {
+                        // Create new tag
+                        $tagName = substr($tagInput, 4); // Remove 'new:' prefix
+                        $tag = Tag::firstOrCreate(
+                            ['slug' => Str::slug($tagName)],
+                            [
+                                'name' => $tagName,
+                                'is_active' => true
+                            ]
+                        );
+                        $tagIds[] = $tag->id;
+                    } else {
+                        // Existing tag
+                        $tagIds[] = $tagInput;
+                    }
                 }
+                $post->tags()->sync($tagIds);
+                
+                \Log::info('Tags Synced', ['tag_count' => count($tagIds)]);
             }
-            $post->tags()->sync($tagIds);
-        }
 
-        return redirect()->route('admin.posts.index')
-            ->with('success', 'Post berhasil dibuat!');
+            return redirect()->route('admin.posts.index')
+                ->with('success', 'Post berhasil dibuat!');
+                
+        } catch (\Exception $e) {
+            \Log::error('Post Creation Failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            return back()
+                ->withInput()
+                ->with('error', 'Gagal membuat post: ' . $e->getMessage());
+        }
     }
 
     public function show(Post $post)
@@ -158,9 +186,9 @@ class PostController extends Controller
             'tags' => 'nullable|array',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:160',
-            'meta_keywords' => 'nullable|string',
-            'canonical_url' => 'nullable|url',
-            'focus_keyword' => 'nullable|string',
+            'meta_keywords' => 'nullable|string|max:500',
+            'canonical_url' => 'nullable|url|max:500',
+            'focus_keyword' => 'nullable|string|max:1000',
             'published_at' => 'nullable|date',
         ]);
 
@@ -237,19 +265,27 @@ class PostController extends Controller
             'posts.*' => 'exists:posts,id',
         ]);
 
-        $posts = Post::whereIn('id', $request->posts);
+        $posts = Post::whereIn('id', $request->posts)->get();
+        
+        // Check authorization for each post
+        foreach ($posts as $post) {
+            if (Auth::user()->hasRole('author') && $post->user_id !== Auth::id()) {
+                return redirect()->route('admin.posts.index')
+                    ->with('error', 'Anda tidak memiliki akses untuk melakukan aksi pada beberapa post yang dipilih.');
+            }
+        }
 
         switch ($request->action) {
             case 'delete':
-                $posts->delete();
+                Post::whereIn('id', $request->posts)->delete();
                 $message = 'Posts berhasil dihapus!';
                 break;
             case 'publish':
-                $posts->update(['status' => 'published', 'published_at' => now()]);
+                Post::whereIn('id', $request->posts)->update(['status' => 'published', 'published_at' => now()]);
                 $message = 'Posts berhasil dipublish!';
                 break;
             case 'draft':
-                $posts->update(['status' => 'draft']);
+                Post::whereIn('id', $request->posts)->update(['status' => 'draft']);
                 $message = 'Posts berhasil dijadikan draft!';
                 break;
         }

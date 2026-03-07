@@ -51,6 +51,12 @@ class ContactController extends Controller
             'phone' => 'nullable|string|max:20',
             'subject' => 'required|string|max:255',
             'message' => 'required|string|max:5000',
+        ], [
+            'name.required' => 'Nama wajib diisi.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'subject.required' => 'Subjek wajib diisi.',
+            'message.required' => 'Pesan wajib diisi.',
         ]);
 
         // Create contact record
@@ -75,11 +81,11 @@ class ContactController extends Controller
             }
             
             if ($recipientEmail) {
-                // Send auto-reply to sender
-                Mail::to($contact->email)->send(new \App\Mail\ContactAutoReply($contact));
+                // Send auto-reply to sender (queued)
+                Mail::to($contact->email)->queue(new \App\Mail\ContactAutoReply($contact));
                 
-                // Send notification to admin (mail_username)
-                Mail::to($recipientEmail)->send(new \App\Mail\ContactNotification($contact));
+                // Send notification to admin (queued)
+                Mail::to($recipientEmail)->queue(new \App\Mail\ContactNotification($contact));
             }
         } catch (\Exception $e) {
             // Log error but don't fail the request

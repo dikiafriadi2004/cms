@@ -9,6 +9,7 @@
     </li>
     
     <!-- Posts Collapse Menu (WordPress Style) -->
+    @if(auth()->user()->can('posts.view') || auth()->user()->can('categories.view') || auth()->user()->can('tags.view'))
     <li x-data="{ open: {{ request()->routeIs('admin.posts.*') || request()->routeIs('admin.categories.*') || request()->routeIs('admin.tags.*') ? 'true' : 'false' }} }">
         <button @click="open = !open" class="{{ request()->routeIs('admin.posts.*') || request()->routeIs('admin.categories.*') || request()->routeIs('admin.tags.*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50' }} group flex w-full items-center gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
             <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -29,24 +30,32 @@
             x-transition:leave-end="opacity-0 -translate-y-2"
             class="mt-1 px-2 space-y-1"
             style="{{ request()->routeIs('admin.posts.*') || request()->routeIs('admin.categories.*') || request()->routeIs('admin.tags.*') ? '' : 'display: none;' }}">
+            @can('posts.view')
             <li>
                 <a href="{{ route('admin.posts.index') }}" class="{{ request()->routeIs('admin.posts.*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50' }} group flex gap-x-3 rounded-md p-2 pl-9 text-sm leading-6">
                     All Posts
                 </a>
             </li>
+            @endcan
+            @can('categories.view')
             <li>
                 <a href="{{ route('admin.categories.index') }}" class="{{ request()->routeIs('admin.categories.*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50' }} group flex gap-x-3 rounded-md p-2 pl-9 text-sm leading-6">
                     Categories
                 </a>
             </li>
+            @endcan
+            @can('tags.view')
             <li>
                 <a href="{{ route('admin.tags.index') }}" class="{{ request()->routeIs('admin.tags.*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50' }} group flex gap-x-3 rounded-md p-2 pl-9 text-sm leading-6">
                     Tags
                 </a>
             </li>
+            @endcan
         </ul>
     </li>
+    @endif
     
+    @can('pages.view')
     <li>
         <a href="{{ route('admin.pages.index') }}" class="{{ request()->routeIs('admin.pages.*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50' }} group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
             <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -55,6 +64,8 @@
             Pages
         </a>
     </li>
+    @endcan
+    @can('media.view')
     <li>
         <a href="{{ route('admin.media.index') }}" class="{{ request()->routeIs('admin.media.*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50' }} group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
             <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -63,6 +74,8 @@
             Media
         </a>
     </li>
+    @endcan
+    @can('menus.view')
     <li>
         <a href="{{ route('admin.menus.index') }}" class="{{ request()->routeIs('admin.menus.*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50' }} group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
             <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -71,6 +84,7 @@
             Menus
         </a>
     </li>
+    @endcan
     @can('users.view')
     <li>
         <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50' }} group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
@@ -91,6 +105,7 @@
         </a>
     </li>
     @endcan
+    @can('ads.view')
     <li>
         <a href="{{ route('admin.ads.index') }}" class="{{ request()->routeIs('admin.ads.*') && !request()->routeIs('admin.ads.analytics.*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50' }} group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
             <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -107,6 +122,8 @@
             Ads Analytics
         </a>
     </li>
+    @endcan
+    @can('contacts.view')
     <li>
         <a href="{{ route('admin.contacts.index') }}" class="{{ request()->routeIs('admin.contacts.*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50' }} group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
             <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -115,6 +132,7 @@
             Contacts
         </a>
     </li>
+    @endcan
     @can('settings.view')
     <li>
         <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50' }} group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">

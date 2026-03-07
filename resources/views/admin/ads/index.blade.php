@@ -11,12 +11,14 @@
             <p class="text-gray-600">Manage advertisements (Image Banners, Google AdSense, Adsera, Manual HTML)</p>
         </div>
         <div class="flex items-center gap-3">
+            @can('ads.create')
             <a href="{{ route('admin.ads.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium shadow-sm">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
                 Create New Ad
             </a>
+            @endcan
         </div>
     </div>
 
@@ -186,6 +188,7 @@
             <!-- Footer Actions -->
             <div class="px-4 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between gap-2">
                 <!-- Toggle Status -->
+                @can('ads.edit')
                 <div class="flex items-center gap-2">
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" 
@@ -198,6 +201,13 @@
                         {{ $ad->is_active ? 'Active' : 'Inactive' }}
                     </span>
                 </div>
+                @else
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold {{ $ad->is_active ? 'text-green-600' : 'text-gray-500' }}">
+                        {{ $ad->is_active ? 'Active' : 'Inactive' }}
+                    </span>
+                </div>
+                @endcan
 
                 <!-- Action Buttons -->
                 <div class="flex items-center gap-2">
@@ -205,14 +215,18 @@
                         class="px-3 py-1.5 text-sm text-purple-600 hover:text-purple-900 hover:bg-purple-50 rounded transition-colors font-medium">
                         Analytics
                     </a>
+                    @can('ads.edit')
                     <a href="{{ route('admin.ads.edit', $ad) }}" 
                         class="px-3 py-1.5 text-sm text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded transition-colors font-medium">
                         Edit
                     </a>
+                    @endcan
+                    @can('ads.delete')
                     <button onclick="deleteAd({{ $ad->id }}, '{{ route('admin.ads.destroy', $ad) }}')" 
                         class="px-3 py-1.5 text-sm text-red-600 hover:text-red-900 hover:bg-red-50 rounded transition-colors font-medium">
                         Delete
                     </button>
+                    @endcan
                 </div>
             </div>
         </div>
@@ -224,12 +238,14 @@
                 </svg>
                 <p class="text-lg font-medium text-gray-900">No ads found</p>
                 <p class="mt-2 text-gray-600">Create your first ad to get started</p>
+                @can('ads.create')
                 <a href="{{ route('admin.ads.create') }}" class="mt-4 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>
                     Create New Ad
                 </a>
+                @endcan
             </div>
         </div>
         @endforelse

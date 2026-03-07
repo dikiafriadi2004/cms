@@ -1,6 +1,6 @@
 @extends('frontend.layouts.frontend')
 
-@section('title', 'Blog & Berita - ' . ($settings['site_name'] ?? 'Konter Digital'))
+@section('title', ($settings['site_name'] ?? config('app.name')) . ' - Blog & Berita')
 @section('description', 'Temukan tips eksklusif dan panduan sukses untuk mengembangkan bisnis server pulsa Anda.')
 
 @section('content')

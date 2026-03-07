@@ -35,7 +35,9 @@ class RoleController extends Controller
         $role = Role::create(['name' => $validated['name']]);
         
         if (isset($validated['permissions'])) {
-            $role->syncPermissions($validated['permissions']);
+            // Convert permission IDs to permission objects
+            $permissions = Permission::whereIn('id', $validated['permissions'])->get();
+            $role->syncPermissions($permissions);
         }
 
         return redirect()->route('admin.roles.index')
@@ -77,7 +79,9 @@ class RoleController extends Controller
         $role->update(['name' => $validated['name']]);
         
         if (isset($validated['permissions'])) {
-            $role->syncPermissions($validated['permissions']);
+            // Convert permission IDs to permission objects
+            $permissions = Permission::whereIn('id', $validated['permissions'])->get();
+            $role->syncPermissions($permissions);
         } else {
             $role->syncPermissions([]);
         }

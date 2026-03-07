@@ -179,6 +179,41 @@ class Post extends Model
         return min(100, $score);
     }
 
+    /**
+     * Auto-generate Open Graph meta tags
+     */
+    public function generateOpenGraphData(): array
+    {
+        return [
+            'og:title' => $this->meta_title ?: $this->title,
+            'og:description' => $this->meta_description ?: $this->excerpt ?: substr(strip_tags($this->content), 0, 160),
+            'og:image' => $this->featured_image ?: asset('images/default-og-image.jpg'),
+            'og:url' => route('blog.show', $this->slug),
+            'og:type' => 'article',
+            'og:site_name' => config('app.name'),
+            'article:published_time' => $this->published_at?->toIso8601String(),
+            'article:modified_time' => $this->updated_at->toIso8601String(),
+            'article:author' => $this->user->name ?? '',
+            'article:section' => $this->category->name ?? '',
+            'article:tag' => $this->tags->pluck('name')->toArray(),
+        ];
+    }
+
+    /**
+     * Auto-generate Twitter Card meta tags
+     */
+    public function generateTwitterCardData(): array
+    {
+        return [
+            'twitter:card' => $this->featured_image ? 'summary_large_image' : 'summary',
+            'twitter:title' => $this->meta_title ?: $this->title,
+            'twitter:description' => $this->meta_description ?: $this->excerpt ?: substr(strip_tags($this->content), 0, 160),
+            'twitter:image' => $this->featured_image ?: asset('images/default-og-image.jpg'),
+            'twitter:site' => config('app.twitter_handle', '@yoursite'),
+            'twitter:creator' => $this->user->twitter_handle ?? config('app.twitter_handle', '@yoursite'),
+        ];
+    }
+
     protected static function boot()
     {
         parent::boot();
@@ -186,6 +221,31 @@ class Post extends Model
         static::saving(function ($post) {
             $post->reading_time = $post->getReadingTimeAttribute(null);
             $post->seo_score = $post->calculateSeoScore();
+            
+            // Auto-generate Open Graph and Twitter Card data
+            // Load relationships if not loaded
+            if (!$post->relationLoaded('user')) {
+                $post->load('user');
+            }
+            if (!$post->relationLoaded('category')) {
+                $post->load('category');
+            }
+            if (!$post->relationLoaded('tags')) {
+                $post->load('tags');
+            }
+            
+            $post->open_graph = $post->generateOpenGraphData();
+            $post->twitter_card = $post->generateTwitterCardData();
+        });
+
+        static::saved(function ($post) {
+            // Clear caches when post is saved
+            static::clearCache();
+        });
+
+        static::deleted(function ($post) {
+            // Clear caches when post is deleted
+            static::clearCache();
         });
     }
 
@@ -201,4 +261,48 @@ class Post extends Model
             'published_at' => $this->published_at?->timestamp,
         ];
     }
+
+    /**
+     * Get popular posts (cached)
+     *
+     * @param int $limit
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public static function popular(int $limit = 5)
+    {
+        return \Illuminate\Support\Facades\Cache::remember('popular_posts', 3600, function () use ($limit) {
+            return static::published()
+                ->with(['user', 'category'])
+                ->orderBy('views_count', 'desc')
+                ->take($limit)
+                ->get();
+        });
+    }
+
+    /**
+     * Get latest posts (cached)
+     *
+     * @param int $limit
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public static function latest(int $limit = 6)
+    {
+        return \Illuminate\Support\Facades\Cache::remember('latest_posts', 1800, function () use ($limit) {
+            return static::published()
+                ->with(['user', 'category', 'tags'])
+                ->latest('published_at')
+                ->take($limit)
+                ->get();
+        });
+    }
+
+    /**
+     * Clear post caches
+     */
+    public static function clearCache()
+    {
+        \Illuminate\Support\Facades\Cache::forget('popular_posts');
+        \Illuminate\Support\Facades\Cache::forget('latest_posts');
+    }
+
 }

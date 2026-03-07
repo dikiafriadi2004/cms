@@ -1,6 +1,6 @@
 @extends('frontend.layouts.frontend')
 
-@section('title', 'Hubungi Kami - ' . ($settings['site_name'] ?? 'Konter Digital'))
+@section('title', ($settings['site_name'] ?? config('app.name')) . ' - Hubungi Kami')
 @section('description', 'Butuh bantuan teknis, tanya harga produk, atau sekadar ingin menyapa? Tim kami aktif setiap hari untuk melayani Anda.')
 
 @section('content')

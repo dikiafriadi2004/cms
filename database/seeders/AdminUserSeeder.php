@@ -13,10 +13,10 @@ class AdminUserSeeder extends Seeder
         // Delete all existing users first
         User::query()->delete();
 
-        // Create single admin account with full access
+        // Create admin account with full access
         $admin = User::create([
             'name' => 'Administrator',
-            'email' => 'admin@konterdigital.com',
+            'email' => 'admin@example.com',
             'password' => Hash::make('password'),
             'is_active' => true,
             'bio' => 'System Administrator - Full Access',
@@ -27,8 +27,8 @@ class AdminUserSeeder extends Seeder
         $admin->assignRole('super-admin');
 
         $this->command->info('✅ Admin account created successfully!');
-        $this->command->info('📧 Email: admin@konterdigital.com');
+        $this->command->info('📧 Email: admin@example.com');
         $this->command->info('🔑 Password: password');
-        $this->command->warn('⚠️  Please change the password after first login!');
+        $this->command->warn('⚠️  IMPORTANT: Change the password after first login!');
     }
 }

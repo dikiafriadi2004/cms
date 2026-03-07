@@ -27,8 +27,12 @@ Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap')
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 // Ads Tracking API (Public - No Auth Required)
-Route::post('/api/ads/track-impression', [AdAnalyticsController::class, 'trackImpression'])->name('api.ads.track-impression');
-Route::post('/api/ads/track-click', [AdAnalyticsController::class, 'trackClick'])->name('api.ads.track-click');
+Route::post('/api/ads/track-impression', [AdAnalyticsController::class, 'trackImpression'])
+    ->middleware('throttle:100,1')
+    ->name('api.ads.track-impression');
+Route::post('/api/ads/track-click', [AdAnalyticsController::class, 'trackClick'])
+    ->middleware('throttle:100,1')
+    ->name('api.ads.track-click');
 
 // Frontend Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -40,7 +44,9 @@ Route::get('/tag/{tag}', [BlogController::class, 'tag'])->name('blog.tag');
 
 // Contact Routes
 Route::get('/contact', [ContactController::class, 'show'])->name('contact.show');
-Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+Route::post('/contact', [ContactController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('contact.store');
 
 // About Us Route
 Route::get('/about', [HomeController::class, 'about'])->name('about');

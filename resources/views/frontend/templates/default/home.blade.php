@@ -1,6 +1,6 @@
 @extends('frontend.layouts.frontend')
 
-@section('title', $settings['meta_title'] ?? $settings['site_name'] ?? 'Konter Digital CMS')
+@section('title', $settings['meta_title'] ?? (($settings['site_name'] ?? config('app.name')) . ($settings['site_description'] ? ' - ' . $settings['site_description'] : '')))
 @section('description', $settings['meta_description'] ?? $settings['site_description'] ?? '')
 
 @section('content')

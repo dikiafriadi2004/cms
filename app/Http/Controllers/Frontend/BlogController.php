@@ -44,10 +44,14 @@ class BlogController extends Controller
         }
 
         // Category filter
+        $selectedCategory = null;
         if ($request->filled('category')) {
-            $query->whereHas('category', function ($q) use ($request) {
-                $q->where('slug', $request->category);
-            });
+            $categorySlug = $request->category;
+            $selectedCategory = Category::where('slug', $categorySlug)->first();
+            
+            if ($selectedCategory) {
+                $query->where('category_id', $selectedCategory->id);
+            }
         }
 
         $posts = $query->paginate(9);
@@ -70,9 +74,18 @@ class BlogController extends Controller
         $template = TemplateService::getCurrentTemplate();
         $view = TemplateService::getView($template, 'blog.index');
 
+        // If AJAX request, return only posts HTML
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('frontend.templates.default.blog.partials.posts-grid', compact('posts'))->render(),
+                'pagination' => $posts->onEachSide(1)->links('partials.pagination-custom')->render(),
+                'total' => $posts->total(),
+            ]);
+        }
+
         return view($view, array_merge(
             $this->getCommonData(),
-            compact('posts', 'categories', 'popularPosts', 'ads')
+            compact('posts', 'categories', 'popularPosts', 'ads', 'selectedCategory')
         ));
     }
 

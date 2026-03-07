@@ -157,6 +157,9 @@ class SettingController extends Controller
 
         // Clear settings cache
         Setting::clearCache();
+        
+        // Also clear SettingsCache helper
+        \App\Helpers\SettingsCache::flush();
 
         // Reconfigure mail with new settings
         MailConfigService::configure();

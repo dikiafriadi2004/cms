@@ -1,6 +1,6 @@
 @extends('frontend.layouts.frontend')
 
-@section('title', 'Hubungi Kami - ' . ($settings['site_name'] ?? config('app.name')))
+@section('title', ($settings['site_name'] ?? config('app.name')) . ' - Hubungi Kami')
 @section('description', $settings['contact_page_description'] ?? 'Hubungi kami untuk informasi lebih lanjut, pertanyaan, atau dukungan.')
 
 @section('content')

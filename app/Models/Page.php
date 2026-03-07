@@ -16,6 +16,7 @@ class Page extends Model
         'title',
         'slug',
         'content',
+        'featured_image',
         'template',
         'status',
         'user_id',
@@ -27,6 +28,7 @@ class Page extends Model
         'show_in_menu',
         'is_homepage',
         'sort_order',
+        'views_count',
     ];
 
     protected $casts = [
@@ -78,6 +80,50 @@ class Page extends Model
         return $value ?: substr(strip_tags($this->content), 0, 160);
     }
 
+    public function getFeaturedImageAttribute($value): ?string
+    {
+        if (!$value) {
+            return null;
+        }
+        
+        // Jika sudah berisi URL lengkap (http/https), return as is
+        if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
+            return $value;
+        }
+        
+        // Jika berisi path relatif, tambahkan asset
+        return asset('storage/' . $value);
+    }
+
+    /**
+     * Auto-generate Open Graph meta tags
+     */
+    public function generateOpenGraphData(): array
+    {
+        return [
+            'og:title' => $this->meta_title ?: $this->title,
+            'og:description' => $this->meta_description ?: substr(strip_tags($this->content), 0, 160),
+            'og:image' => $this->featured_image ?: asset('images/default-og-image.jpg'),
+            'og:url' => route('page.show', $this->slug),
+            'og:type' => 'website',
+            'og:site_name' => config('app.name'),
+        ];
+    }
+
+    /**
+     * Auto-generate Twitter Card meta tags
+     */
+    public function generateTwitterCardData(): array
+    {
+        return [
+            'twitter:card' => $this->featured_image ? 'summary_large_image' : 'summary',
+            'twitter:title' => $this->meta_title ?: $this->title,
+            'twitter:description' => $this->meta_description ?: substr(strip_tags($this->content), 0, 160),
+            'twitter:image' => $this->featured_image ?: asset('images/default-og-image.jpg'),
+            'twitter:site' => config('app.twitter_handle', '@yoursite'),
+        ];
+    }
+
     protected static function boot()
     {
         parent::boot();
@@ -87,6 +133,14 @@ class Page extends Model
                 // Ensure only one homepage exists
                 static::where('is_homepage', true)->where('id', '!=', $page->id)->update(['is_homepage' => false]);
             }
+            
+            // Auto-generate Open Graph and Twitter Card data
+            if (!$page->relationLoaded('user')) {
+                $page->load('user');
+            }
+            
+            $page->open_graph = $page->generateOpenGraphData();
+            $page->twitter_card = $page->generateTwitterCardData();
         });
     }
 }

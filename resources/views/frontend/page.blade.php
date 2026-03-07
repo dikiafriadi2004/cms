@@ -1,6 +1,6 @@
 @extends('frontend.layouts.frontend')
 
-@section('title', $page->meta_title ?? $page->title . ' - ' . ($settings['site_name'] ?? 'Konter Digital'))
+@section('title', $page->meta_title ? (($settings['site_name'] ?? config('app.name')) . ' - ' . $page->meta_title) : (($settings['site_name'] ?? config('app.name')) . ' - ' . $page->title))
 @section('description', $page->meta_description ?? strip_tags(substr($page->content, 0, 160)))
 
 @push('styles')

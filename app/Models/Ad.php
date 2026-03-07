@@ -326,7 +326,69 @@ class Ad extends Model
         }
         
         // Otherwise return the code (HTML/JavaScript) wrapped with tracking
-        return sprintf('<div %s>%s</div>', $trackingAttr, $this->code);
+        // Sanitize ad code to prevent XSS attacks
+        $sanitizedCode = $this->sanitizeAdCode($this->code);
+        return sprintf('<div %s>%s</div>', $trackingAttr, $sanitizedCode);
+    }
+
+    /**
+     * Sanitize ad code to prevent XSS attacks
+     */
+    private function sanitizeAdCode(string $code): string
+    {
+        // Allow only safe HTML tags and attributes
+        $allowedTags = '<div><span><a><img><iframe><script><ins><p><br><strong><em><b><i>';
+        
+        // Strip dangerous tags but keep allowed ones
+        $sanitized = strip_tags($code, $allowedTags);
+        
+        // Additional security: validate iframe and script sources
+        // Only allow known ad networks
+        $allowedDomains = [
+            'googlesyndication.com',
+            'doubleclick.net',
+            'adnxs.com',
+            'amazon-adsystem.com',
+            'media.net',
+        ];
+        
+        // Check for iframe src
+        if (preg_match_all('/<iframe[^>]+src=["\']([^"\']+)["\'][^>]*>/i', $sanitized, $matches)) {
+            foreach ($matches[1] as $src) {
+                $isAllowed = false;
+                foreach ($allowedDomains as $domain) {
+                    if (str_contains($src, $domain)) {
+                        $isAllowed = true;
+                        break;
+                    }
+                }
+                
+                // If not from allowed domain, remove the iframe
+                if (!$isAllowed && !str_starts_with($src, '/') && !str_starts_with($src, asset(''))) {
+                    $sanitized = preg_replace('/<iframe[^>]+src=["\']' . preg_quote($src, '/') . '["\'][^>]*>.*?<\/iframe>/is', '', $sanitized);
+                }
+            }
+        }
+        
+        // Check for script src
+        if (preg_match_all('/<script[^>]+src=["\']([^"\']+)["\'][^>]*>/i', $sanitized, $matches)) {
+            foreach ($matches[1] as $src) {
+                $isAllowed = false;
+                foreach ($allowedDomains as $domain) {
+                    if (str_contains($src, $domain)) {
+                        $isAllowed = true;
+                        break;
+                    }
+                }
+                
+                // If not from allowed domain, remove the script
+                if (!$isAllowed && !str_starts_with($src, '/') && !str_starts_with($src, asset(''))) {
+                    $sanitized = preg_replace('/<script[^>]+src=["\']' . preg_quote($src, '/') . '["\'][^>]*>.*?<\/script>/is', '', $sanitized);
+                }
+            }
+        }
+        
+        return $sanitized;
     }
 
     /**

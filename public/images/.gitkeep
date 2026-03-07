@@ -1,0 +1,9 @@
+# This folder contains default images for the CMS
+
+# Required images:
+# - default-og-image.jpg (1200x630) - Default Open Graph image
+# - default-avatar.png (200x200) - Default user avatar
+# - default-featured.jpg (800x600) - Default featured image for posts
+# - placeholder.jpg (800x600) - Placeholder image
+
+# You can create these images using any image editor or online tools

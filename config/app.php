@@ -86,6 +86,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Social Media Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure your social media handles for Open Graph and Twitter Card
+    | meta tags. These will be used automatically when generating SEO tags
+    | for posts and pages.
+    |
+    */
+
+    'twitter_handle' => env('APP_TWITTER_HANDLE', '@yoursite'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Encryption Key
     |--------------------------------------------------------------------------
     |

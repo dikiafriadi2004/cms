@@ -10,12 +10,14 @@
         <div>
             <p class="text-gray-600">Manage system users and their roles</p>
         </div>
+        @can('users.create')
         <a href="{{ route('admin.users.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium shadow-sm">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
             Add New User
         </a>
+        @endcan
     </div>
 
     <!-- Filters -->
@@ -97,22 +99,31 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
+                            @can('users.toggle.status')
                             <button onclick="toggleUserStatus({{ $user->id }}, {{ $user->is_active ? 'true' : 'false' }})"
                                 class="px-3 py-1 text-xs font-medium rounded-full transition-all {{ $user->is_active ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-gray-100 text-gray-800 hover:bg-gray-200' }}">
                                 {{ $user->is_active ? 'Active' : 'Inactive' }}
                             </button>
+                            @else
+                            <span class="px-3 py-1 text-xs font-medium rounded-full {{ $user->is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
+                                {{ $user->is_active ? 'Active' : 'Inactive' }}
+                            </span>
+                            @endcan
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {{ $user->created_at->format('M d, Y') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex items-center justify-end gap-2">
+                                @can('users.edit')
                                 <a href="{{ route('admin.users.edit', $user) }}" 
                                     class="text-blue-600 hover:text-blue-900 transition-colors p-2 hover:bg-blue-50 rounded">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                     </svg>
                                 </a>
+                                @endcan
+                                @can('users.delete')
                                 @if($user->id !== auth()->id())
                                 <button onclick="deleteUser({{ $user->id }}, '{{ route('admin.users.destroy', $user) }}')" 
                                     class="text-red-600 hover:text-red-900 transition-colors p-2 hover:bg-red-50 rounded">
@@ -121,6 +132,7 @@
                                     </svg>
                                 </button>
                                 @endif
+                                @endcan
                             </div>
                         </td>
                     </tr>

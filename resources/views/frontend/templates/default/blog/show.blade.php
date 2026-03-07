@@ -1,6 +1,6 @@
 @extends('frontend.layouts.frontend')
 
-@section('title', $post->meta_title ?: ($post->title . ' - ' . ($settings['site_name'] ?? config('app.name'))))
+@section('title', $post->meta_title ? (($settings['site_name'] ?? config('app.name')) . ' - ' . $post->meta_title) : (($settings['site_name'] ?? config('app.name')) . ' - ' . $post->title))
 @section('description', $post->meta_description ?: ($post->excerpt ?: strip_tags(substr($post->content, 0, 160))))
 @section('keywords', $post->tags->pluck('name')->implode(', '))
 @section('canonical', route('blog.show', $post->slug))

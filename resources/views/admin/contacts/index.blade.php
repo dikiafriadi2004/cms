@@ -155,6 +155,7 @@
                                 </svg>
                                 View
                             </a>
+                            @can('contacts.delete')
                             <button onclick="deleteContact({{ $contact->id }}, '{{ route('admin.contacts.destroy', $contact) }}')" 
                                 class="inline-flex items-center px-3 py-1.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -162,6 +163,7 @@
                                 </svg>
                                 Delete
                             </button>
+                            @endcan
                         </td>
                     </tr>
                     @endforeach

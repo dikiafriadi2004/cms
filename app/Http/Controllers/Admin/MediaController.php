@@ -62,6 +62,11 @@ class MediaController extends Controller
 
             foreach ($request->file('files') as $file) {
                 try {
+                    // Additional security check: validate file content
+                    if (!$this->isValidFileContent($file)) {
+                        throw new \Exception('File content validation failed for: ' . $file->getClientOriginalName());
+                    }
+                    
                     $uploadedFile = $this->processUpload($file, $folder);
                     $uploadedFiles[] = $uploadedFile;
                 } catch (\Exception $e) {
@@ -119,6 +124,62 @@ class MediaController extends Controller
             
             return redirect()->back()->with('error', 'Upload failed: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Validate file content to prevent malicious uploads
+     */
+    private function isValidFileContent($file): bool
+    {
+        $mimeType = $file->getMimeType();
+        $extension = strtolower($file->getClientOriginalExtension());
+        
+        // Check if mime type matches extension
+        $validMimeTypes = [
+            'jpg' => ['image/jpeg', 'image/jpg'],
+            'jpeg' => ['image/jpeg', 'image/jpg'],
+            'png' => ['image/png'],
+            'gif' => ['image/gif'],
+            'webp' => ['image/webp'],
+            'pdf' => ['application/pdf'],
+            'doc' => ['application/msword'],
+            'docx' => ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+            'xls' => ['application/vnd.ms-excel'],
+            'xlsx' => ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+            'zip' => ['application/zip', 'application/x-zip-compressed'],
+        ];
+        
+        if (!isset($validMimeTypes[$extension])) {
+            return false;
+        }
+        
+        if (!in_array($mimeType, $validMimeTypes[$extension])) {
+            \Log::warning("Mime type mismatch: extension={$extension}, mime={$mimeType}");
+            return false;
+        }
+        
+        // Additional check for images: verify it's actually an image
+        if (str_starts_with($mimeType, 'image/')) {
+            try {
+                $imageInfo = @getimagesize($file->getRealPath());
+                if ($imageInfo === false) {
+                    \Log::warning("File claims to be image but getimagesize failed");
+                    return false;
+                }
+            } catch (\Exception $e) {
+                \Log::warning("Image validation failed: " . $e->getMessage());
+                return false;
+            }
+        }
+        
+        // Check for PHP code in files (prevent PHP file upload disguised as other types)
+        $content = file_get_contents($file->getRealPath(), false, null, 0, 1024);
+        if (preg_match('/<\?php|<\?=|<script.*language.*php/i', $content)) {
+            \Log::warning("PHP code detected in uploaded file");
+            return false;
+        }
+        
+        return true;
     }
 
     private function processUpload($file, $folder)

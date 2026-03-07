@@ -10,12 +10,14 @@
         <div>
             <p class="text-gray-600">Create and manage navigation menus</p>
         </div>
+        @can('menus.create')
         <button onclick="openCreateModal()" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium shadow-sm">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
             Create Menu
         </button>
+        @endcan
     </div>
 
     <!-- Menus Grid -->
@@ -48,14 +50,18 @@
                 </div>
 
                 <div class="mt-6 flex gap-2">
+                    @can('menus.edit')
                     <a href="{{ route('admin.menus.show', $menu) }}" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all text-center font-medium">
                         Edit Menu
                     </a>
+                    @endcan
+                    @can('menus.delete')
                     <button onclick="deleteMenu({{ $menu->id }}, '{{ route('admin.menus.destroy', $menu) }}')" class="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                         </svg>
                     </button>
+                    @endcan
                 </div>
             </div>
         </div>
@@ -66,12 +72,14 @@
             </svg>
             <h3 class="text-lg font-medium text-gray-900 mb-2">No menus yet</h3>
             <p class="text-gray-600 mb-4">Create your first menu to get started</p>
+            @can('menus.create')
             <button onclick="openCreateModal()" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
                 Create Menu
             </button>
+            @endcan
         </div>
         @endforelse
     </div>

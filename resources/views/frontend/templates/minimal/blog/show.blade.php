@@ -1,6 +1,6 @@
 @extends('frontend.layouts.frontend')
 
-@section('title', $post->meta_title ?: $post->title . ' - ' . ($settings['site_name'] ?? 'Konter Digital'))
+@section('title', $post->meta_title ? (($settings['site_name'] ?? config('app.name')) . ' - ' . $post->meta_title) : (($settings['site_name'] ?? config('app.name')) . ' - ' . $post->title))
 @section('description', $post->meta_description ?: Str::limit(strip_tags($post->content), 160))
 
 @push('styles')
