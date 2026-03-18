@@ -11,29 +11,6 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <script defer src="{{ asset('js/app.js') }}"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        primary: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                        }
-                    },
-                    boxShadow: {
-                        'soft': '0 20px 40px -15px rgba(0, 0, 0, 0.1)',
-                        'glow': '0 0 20px rgba(79, 70, 229, 0.15)'
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         @keyframes blob {
             0%, 100% { transform: translate(0, 0) scale(1); }
@@ -46,13 +23,13 @@
     </style>
 </head>
 <body class="min-h-screen w-full flex items-center justify-center bg-slate-50 relative overflow-hidden">
-    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-brand-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
     <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
 
     <div class="relative w-full max-w-[440px] px-6">
-        <div class="bg-white rounded-3xl shadow-soft border border-slate-100 p-8 sm:p-10 relative z-10">
+        <div class="bg-white rounded-3xl border border-slate-100 p-8 sm:p-10 relative z-10" style="box-shadow: 0 20px 40px -15px rgba(0,0,0,0.1)">
             <div class="text-center mb-10">
-                <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-primary-600 to-indigo-500 text-white shadow-glow mb-6">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 text-white mb-6" style="box-shadow: 0 0 20px rgba(79,70,229,0.15)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
                     </svg>
@@ -73,7 +50,7 @@
                                 <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                             </svg>
                         </div>
-                        <input type="email" id="email" name="email" value="{{ old('email') }}" required autocomplete="email" class="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition duration-200 sm:text-sm" placeholder="name@company.com">
+                        <input type="email" id="email" name="email" value="{{ old('email') }}" required autocomplete="email" class="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-600/20 focus:border-brand-600 transition duration-200 sm:text-sm" placeholder="name@company.com">
                     </div>
                     @error('email')
                         <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
@@ -90,7 +67,7 @@
                                 <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
                             </svg>
                         </div>
-                        <input type="password" id="password" name="password" required autocomplete="current-password" class="block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition duration-200 sm:text-sm" placeholder="••••••••">
+                        <input type="password" id="password" name="password" required autocomplete="current-password" class="block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-600/20 focus:border-brand-600 transition duration-200 sm:text-sm" placeholder="••••••••">
                         <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center">
                             <svg id="eyeIcon" class="h-5 w-5 text-slate-400 hover:text-slate-600 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -108,12 +85,12 @@
 
                 <div class="flex items-center">
                     <div class="flex items-center">
-                        <input id="remember-me" name="remember" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-600 border-slate-300 rounded">
+                        <input id="remember-me" name="remember" type="checkbox" class="h-4 w-4 text-brand-600 focus:ring-brand-600 border-slate-300 rounded">
                         <label for="remember-me" class="ml-2 block text-sm text-slate-600">Keep me signed in</label>
                     </div>
                 </div>
 
-                <button type="submit" class="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg shadow-primary-600/20 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-600 transition-all duration-200 transform hover:-translate-y-0.5">Sign In</button>
+                <button type="submit" class="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-600 transition-all duration-200 transform hover:-translate-y-0.5" style="box-shadow: 0 4px 14px rgba(79,70,229,0.3)">Sign In</button>
             </form>
         </div>
 
