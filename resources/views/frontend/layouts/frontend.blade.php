@@ -45,8 +45,8 @@
     @stack('structured-data')
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <script defer src="{{ asset('js/app.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ filemtime(public_path('css/app.css')) }}">
+    <script defer src="{{ asset('js/app.js') }}?v={{ filemtime(public_path('js/app.js')) }}"></script>
     
     @if(isset($settings['google_analytics_id']) && $settings['google_analytics_id'])
     <!-- Google Analytics (GA4) -->
@@ -91,7 +91,7 @@
     @endif
     
     <!-- Animations CSS & JS (No Vite) -->
-    <link rel="stylesheet" href="{{ asset('css/animations.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/animations.css') }}?v={{ filemtime(public_path('css/animations.css')) }}">
     
     @stack('styles')
 </head>

@@ -56,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Share global settings with all views (hanya layout views, bukan semua view)
         View::composer(
-            ['layouts.*', 'frontend.layouts.*', 'frontend.partials.*', 'admin.*'],
+            ['layouts.*', 'frontend.*', 'admin.*'],
             function ($view) {
                 try {
                     $settings = \App\Helpers\SettingsCache::all()->toArray();
