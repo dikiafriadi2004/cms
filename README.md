@@ -88,7 +88,7 @@ php artisan migrate --seed
 # 6. Create storage link
 php artisan storage:link
 
-# 7. Build assets
+# 7. Build assets (generates public/css/app.css & public/js/app.js)
 npm run build
 
 # 8. Start server

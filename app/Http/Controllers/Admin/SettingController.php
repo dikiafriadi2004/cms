@@ -161,6 +161,9 @@ class SettingController extends Controller
         // Also clear SettingsCache helper
         \App\Helpers\SettingsCache::flush();
 
+        // Clear sitemap cache so robots.txt and sitemap.xml reflect new settings
+        cache()->forget('sitemap.xml');
+
         // Reconfigure mail with new settings
         MailConfigService::configure();
 

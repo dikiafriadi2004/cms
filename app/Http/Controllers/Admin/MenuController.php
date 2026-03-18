@@ -9,6 +9,7 @@ use App\Models\Page;
 use App\Models\Post;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class MenuController extends Controller
 {
@@ -26,6 +27,13 @@ class MenuController extends Controller
         return view('admin.menus.create');
     }
 
+    private function clearMenuCache(): void
+    {
+        Cache::forget('menu.header');
+        Cache::forget('menu.footer');
+        Cache::forget('menu.sidebar');
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -35,6 +43,7 @@ class MenuController extends Controller
         ]);
 
         Menu::create($validated);
+        $this->clearMenuCache();
 
         return redirect()->route('admin.menus.index')
             ->with('success', 'Menu berhasil dibuat!');
@@ -68,6 +77,7 @@ class MenuController extends Controller
         ]);
 
         $menu->update($validated);
+        $this->clearMenuCache();
 
         return redirect()->route('admin.menus.index')
             ->with('success', 'Menu berhasil diupdate!');
@@ -76,6 +86,7 @@ class MenuController extends Controller
     public function destroy(Menu $menu)
     {
         $menu->delete();
+        $this->clearMenuCache();
 
         if (request()->ajax() || request()->wantsJson()) {
             return response()->json([
@@ -133,8 +144,8 @@ class MenuController extends Controller
         }
 
         $validated['menu_id'] = $menu->id;
-
         MenuItem::create($validated);
+        $this->clearMenuCache();
 
         return response()->json([
             'success' => true,
@@ -157,6 +168,7 @@ class MenuController extends Controller
         ]);
 
         $item->update($validated);
+        $this->clearMenuCache();
 
         return response()->json([
             'success' => true,
@@ -167,6 +179,7 @@ class MenuController extends Controller
     public function destroyItem(Menu $menu, MenuItem $item)
     {
         $item->delete();
+        $this->clearMenuCache();
 
         return response()->json([
             'success' => true,
@@ -189,6 +202,8 @@ class MenuController extends Controller
                 'parent_id' => $itemData['parent_id'],
             ]);
         }
+
+        $this->clearMenuCache();
 
         return response()->json([
             'success' => true,

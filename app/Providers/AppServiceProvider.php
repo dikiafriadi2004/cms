@@ -57,20 +57,23 @@ class AppServiceProvider extends ServiceProvider
         // Share global settings with all views
         View::composer('*', function ($view) {
             try {
-                $settings = Setting::pluck('value', 'key')->toArray();
+                $settings = \App\Helpers\SettingsCache::all()->toArray();
 
-                // Get menus
-                $headerMenu = Menu::where('location', 'header')->with(['items' => function($query) {
-                    $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order')->with('children');
-                }])->first();
+                // Cache menus for 1 hour
+                $headerMenu = \Illuminate\Support\Facades\Cache::remember('menu.header', 3600, function () {
+                    return Menu::where('location', 'header')->with(['items' => function($query) {
+                        $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order')->with('children');
+                    }])->first();
+                });
                 
-                $footerMenu = Menu::where('location', 'footer')->with(['items' => function($query) {
-                    $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order');
-                }])->first();
+                $footerMenu = \Illuminate\Support\Facades\Cache::remember('menu.footer', 3600, function () {
+                    return Menu::where('location', 'footer')->with(['items' => function($query) {
+                        $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order');
+                    }])->first();
+                });
 
                 $view->with(compact('settings', 'headerMenu', 'footerMenu'));
             } catch (\Exception $e) {
-                // Handle case when database is not yet migrated
                 $view->with([
                     'settings' => [],
                     'headerMenu' => null,

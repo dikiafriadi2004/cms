@@ -7,7 +7,8 @@
     
     <link rel="icon" type="image/png" href="{{ favicon_url() }}">
     
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <script defer src="{{ asset('js/app.js') }}"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {

@@ -3,6 +3,43 @@
 @section('title', ($settings['site_name'] ?? config('app.name')) . ' - Blog & Berita')
 @section('description', 'Temukan tips eksklusif dan panduan sukses untuk mengembangkan bisnis server pulsa Anda.')
 
+@push('structured-data')
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "name": "Blog {{ addslashes($settings['site_name'] ?? config('app.name')) }}",
+    "description": "Temukan tips eksklusif dan panduan sukses untuk mengembangkan bisnis server pulsa Anda.",
+    "url": "{{ route('blog.index') }}",
+    "publisher": {
+        "@type": "Organization",
+        "name": "{{ addslashes($settings['site_name'] ?? config('app.name')) }}",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "{{ isset($settings['logo']) ? storage_url($settings['logo']) : url('/favicon.ico') }}"
+        }
+    },
+    "blogPost": [
+        @foreach($posts->take(5) as $index => $post)
+        {
+            "@type": "BlogPosting",
+            "headline": "{{ addslashes($post->title) }}",
+            "url": "{{ route('blog.show', $post->slug) }}",
+            "datePublished": "{{ $post->published_at->toIso8601String() }}",
+            "dateModified": "{{ $post->updated_at->toIso8601String() }}"
+            @if($post->featured_image)
+            ,"image": "{{ $post->featured_image }}"
+            @endif
+            @if($post->excerpt)
+            ,"description": "{{ addslashes($post->excerpt) }}"
+            @endif
+        }{{ !$loop->last ? ',' : '' }}
+        @endforeach
+    ]
+}
+</script>
+@endpush
+
 @section('content')
 <!-- Header -->
 <header class="pt-40 pb-12 bg-white border-b border-slate-100 text-center">

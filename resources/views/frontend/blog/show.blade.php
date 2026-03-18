@@ -14,6 +14,50 @@
 @section('twitter_description', $post->excerpt ?: strip_tags(substr($post->content, 0, 160)))
 @section('twitter_image', $post->featured_image ?: (isset($settings['og_image']) ? storage_url($settings['og_image']) : storage_url(($settings['logo'] ?? 'default-og-image.jpg'))))
 
+@push('structured-data')
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "{{ addslashes($post->title) }}",
+    "description": "{{ addslashes($post->excerpt ?: strip_tags(substr($post->content, 0, 160))) }}",
+    "url": "{{ route('blog.show', $post->slug) }}",
+    "datePublished": "{{ $post->published_at->toIso8601String() }}",
+    "dateModified": "{{ $post->updated_at->toIso8601String() }}",
+    @if($post->featured_image)
+    "image": {
+        "@type": "ImageObject",
+        "url": "{{ $post->featured_image }}",
+        "width": 1200,
+        "height": 630
+    },
+    @endif
+    "author": {
+        "@type": "Person",
+        "name": "{{ addslashes($post->user->name ?? '') }}"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "{{ addslashes($settings['site_name'] ?? config('app.name')) }}",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "{{ isset($settings['logo']) ? storage_url($settings['logo']) : url('/favicon.ico') }}"
+        }
+    },
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "{{ route('blog.show', $post->slug) }}"
+    }
+    @if($post->category)
+    ,"articleSection": "{{ addslashes($post->category->name) }}"
+    @endif
+    @if($post->tags->count() > 0)
+    ,"keywords": "{{ addslashes($post->tags->pluck('name')->implode(', ')) }}"
+    @endif
+}
+</script>
+@endpush
+
 
 
 @push('styles')

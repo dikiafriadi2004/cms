@@ -15,18 +15,15 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700,800,900&display=swap" rel="stylesheet" />
 
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <script defer src="{{ asset('js/app.js') }}"></script>
     
     <!-- Alpine.js x-cloak style -->
     <style>
         [x-cloak] { display: none !important; }
     </style>
-    
+
     @stack('styles')
-    
-    <!-- Alpine.js - Load AFTER custom scripts -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="h-full" x-data="{ sidebarOpen: false }">
     <div class="min-h-full">

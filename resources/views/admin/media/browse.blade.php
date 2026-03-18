@@ -8,8 +8,9 @@
     
     <link rel="icon" type="image/png" href="{{ favicon_url() }}">
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <script defer src="{{ asset('js/app.js') }}"></script>
+    
 </head>
 <body class="bg-gray-50">
     <div x-data="mediaBrowser()" x-init="init()" class="min-h-screen flex flex-col">

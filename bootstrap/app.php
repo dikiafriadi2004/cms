@@ -31,11 +31,14 @@ return Application::configure(basePath: dirname(__DIR__))
             '/api/ads/track-click',
         ]);
         
-        // Trust all proxies (for ngrok and other reverse proxies)
-        $middleware->trustProxies(at: '*', headers: \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR | 
-            \Illuminate\Http\Request::HEADER_X_FORWARDED_HOST | 
-            \Illuminate\Http\Request::HEADER_X_FORWARDED_PORT | 
-            \Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO);
+        // Trust proxies - set to specific IPs in production, or '*' only if behind load balancer
+        $middleware->trustProxies(
+            at: env('TRUSTED_PROXIES', '127.0.0.1'),
+            headers: \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR | 
+                \Illuminate\Http\Request::HEADER_X_FORWARDED_HOST | 
+                \Illuminate\Http\Request::HEADER_X_FORWARDED_PORT | 
+                \Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

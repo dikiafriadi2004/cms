@@ -78,6 +78,18 @@
                         placeholder="google1234567890abcdef">
                     <p class="mt-1 text-xs text-gray-500">Kode verifikasi dari Google Search Console</p>
                 </div>
+
+                <!-- Robots.txt -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Robots.txt</label>
+                    <textarea name="settings[robots_txt]" rows="8"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                        placeholder="User-agent: *&#10;Allow: /&#10;Disallow: /admin/">{{ $getSetting('seo', 'robots_txt') }}</textarea>
+                    <p class="mt-1 text-xs text-gray-500">
+                        Isi file <code class="bg-gray-100 px-1 rounded">/robots.txt</code> — mengatur halaman mana yang boleh/tidak boleh di-crawl oleh search engine.
+                        URL sitemap otomatis ditambahkan jika tidak ada.
+                    </p>
+                </div>
             </div>
         </div>
 

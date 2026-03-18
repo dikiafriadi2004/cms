@@ -159,6 +159,15 @@ class SettingSeeder extends Seeder
                 'description' => 'Google Search Console verification code',
                 'sort_order' => 7,
             ],
+            [
+                'key' => 'robots_txt',
+                'value' => "User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /login\n\nSitemap: " . url('/sitemap.xml'),
+                'type' => 'textarea',
+                'group' => 'seo',
+                'label' => 'Robots.txt Content',
+                'description' => 'Isi file robots.txt untuk mengatur akses crawler/bot',
+                'sort_order' => 8,
+            ],
 
             // Template Settings
             [

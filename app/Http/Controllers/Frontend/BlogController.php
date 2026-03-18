@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Models\Category;
 use App\Models\Tag;
-use App\Models\Setting;
-use App\Models\Menu;
 use App\Models\Ad;
 use App\Services\TemplateService;
 use Illuminate\Http\Request;
@@ -16,15 +14,9 @@ class BlogController extends Controller
 {
     private function getCommonData()
     {
-        return [
-            'settings' => Setting::pluck('value', 'key')->toArray(),
-            'headerMenu' => Menu::where('location', 'header')->with(['items' => function($query) {
-                $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order')->with('children');
-            }])->first(),
-            'footerMenu' => Menu::where('location', 'footer')->with(['items' => function($query) {
-                $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order');
-            }])->first(),
-        ];
+        // Settings dan menu sudah di-share via AppServiceProvider (cached)
+        // Method ini dipertahankan untuk kompatibilitas tapi tidak query ulang
+        return [];
     }
 
     public function index(Request $request)
@@ -126,15 +118,6 @@ class BlogController extends Controller
 
         $post->load(['user', 'category', 'tags']);
 
-        // Get common data manually
-        $settings = Setting::pluck('value', 'key')->toArray();
-        $headerMenu = Menu::where('location', 'header')->with(['items' => function($query) {
-            $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order')->with('children');
-        }])->first();
-        $footerMenu = Menu::where('location', 'footer')->with(['items' => function($query) {
-            $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order');
-        }])->first();
-
         // Get ads for blog detail page
         $context = [
             'page' => 'blog_detail',
@@ -152,7 +135,7 @@ class BlogController extends Controller
         $template = TemplateService::getCurrentTemplate();
         $view = TemplateService::getView($template, 'blog.show');
 
-        return view($view, compact('post', 'relatedPosts', 'popularPosts', 'settings', 'headerMenu', 'footerMenu', 'ads'));
+        return view($view, compact('post', 'relatedPosts', 'popularPosts', 'ads'));
     }
 
     public function category(Category $category)
