@@ -3,7 +3,7 @@
 namespace App\Mail;
 
 use App\Models\Contact;
-use App\Models\Setting;
+use App\Helpers\SettingsCache;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -27,14 +27,15 @@ class ContactAutoReply extends Mailable
     public function __construct(Contact $contact)
     {
         $this->contact = $contact;
-        $this->siteName = Setting::get('site_name', config('app.name'));
-        $this->logo = Setting::get('logo');
-        $this->contactEmail = Setting::get('contact_email');
-        $this->contactPhone = Setting::get('contact_phone');
-        $this->contactAddress = Setting::get('contact_address');
-        $this->socialFacebook = Setting::get('social_facebook');
-        $this->socialInstagram = Setting::get('social_instagram');
-        $this->socialTwitter = Setting::get('social_twitter');
+        $settings = SettingsCache::all();
+        $this->siteName = $settings->get('site_name', config('app.name'));
+        $this->logo = $settings->get('logo');
+        $this->contactEmail = $settings->get('contact_email');
+        $this->contactPhone = $settings->get('contact_phone');
+        $this->contactAddress = $settings->get('contact_address');
+        $this->socialFacebook = $settings->get('social_facebook');
+        $this->socialInstagram = $settings->get('social_instagram');
+        $this->socialTwitter = $settings->get('social_twitter');
     }
 
     public function envelope(): Envelope

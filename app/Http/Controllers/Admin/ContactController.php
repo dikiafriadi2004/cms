@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\SettingsCache;
 use App\Models\Contact;
 use Illuminate\Http\Request;
 
@@ -29,11 +30,20 @@ class ContactController extends Controller
         }
 
         $contacts = $query->paginate(20);
+
+        // Single query untuk semua stats
+        $allStats = Contact::selectRaw("
+            COUNT(*) as total,
+            SUM(status = 'new') as new,
+            SUM(status = 'read') as `read`,
+            SUM(status = 'replied') as replied
+        ")->first();
+
         $stats = [
-            'total' => Contact::count(),
-            'new' => Contact::where('status', 'new')->count(),
-            'read' => Contact::where('status', 'read')->count(),
-            'replied' => Contact::where('status', 'replied')->count(),
+            'total' => $allStats->total,
+            'new' => $allStats->new,
+            'read' => $allStats->read,
+            'replied' => $allStats->replied,
         ];
 
         return view('admin.contacts.index', compact('contacts', 'stats'));
@@ -114,15 +124,16 @@ class ContactController extends Controller
         ]);
 
         try {
-            // Get settings for email
-            $siteName = \App\Models\Setting::get('site_name', config('app.name'));
-            $logo = \App\Models\Setting::get('logo');
-            $contactEmail = \App\Models\Setting::get('contact_email');
-            $contactPhone = \App\Models\Setting::get('contact_phone');
-            $contactAddress = \App\Models\Setting::get('contact_address');
-            $socialFacebook = \App\Models\Setting::get('social_facebook');
-            $socialInstagram = \App\Models\Setting::get('social_instagram');
-            $socialTwitter = \App\Models\Setting::get('social_twitter');
+            // Ambil semua settings sekaligus dari cache
+            $settings = SettingsCache::all();
+            $siteName = $settings['site_name'] ?? config('app.name');
+            $logo = $settings['logo'] ?? null;
+            $contactEmail = $settings['contact_email'] ?? null;
+            $contactPhone = $settings['contact_phone'] ?? null;
+            $contactAddress = $settings['contact_address'] ?? null;
+            $socialFacebook = $settings['social_facebook'] ?? null;
+            $socialInstagram = $settings['social_instagram'] ?? null;
+            $socialTwitter = $settings['social_twitter'] ?? null;
 
             // Check if using real domain (not ngrok or localhost)
             $isRealDomain = !str_contains(config('app.url'), 'ngrok') && 

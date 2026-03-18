@@ -24,20 +24,38 @@ class DashboardController extends Controller
 
     public function index()
     {
+        // Single query per model untuk stats
+        $postStats = Post::selectRaw("
+            COUNT(*) as total,
+            SUM(status = 'published' AND published_at <= NOW()) as published,
+            SUM(status = 'draft') as draft,
+            SUM(status = 'scheduled' AND published_at > NOW()) as scheduled
+        ")->first();
+
+        $pageStats = Page::selectRaw("
+            COUNT(*) as total,
+            SUM(status = 'published') as published
+        ")->first();
+
+        $userStats = User::selectRaw("
+            COUNT(*) as total,
+            SUM(is_active = 1) as active
+        ")->first();
+
         $stats = [
             'posts' => [
-                'total' => Post::count(),
-                'published' => Post::published()->count(),
-                'draft' => Post::draft()->count(),
-                'scheduled' => Post::scheduled()->count(),
+                'total' => $postStats->total,
+                'published' => $postStats->published,
+                'draft' => $postStats->draft,
+                'scheduled' => $postStats->scheduled,
             ],
             'pages' => [
-                'total' => Page::count(),
-                'published' => Page::published()->count(),
+                'total' => $pageStats->total,
+                'published' => $pageStats->published,
             ],
             'users' => [
-                'total' => User::count(),
-                'active' => User::active()->count(),
+                'total' => $userStats->total,
+                'active' => $userStats->active,
             ],
             'categories' => Category::count(),
             'tags' => Tag::count(),

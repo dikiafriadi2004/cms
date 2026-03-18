@@ -3,7 +3,7 @@
 namespace App\Mail;
 
 use App\Models\Contact;
-use App\Models\Setting;
+use App\Helpers\SettingsCache;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -22,8 +22,9 @@ class ContactNotification extends Mailable
     public function __construct(Contact $contact)
     {
         $this->contact = $contact;
-        $this->siteName = Setting::get('site_name', config('app.name'));
-        $this->logo = Setting::get('logo');
+        $settings = SettingsCache::all();
+        $this->siteName = $settings->get('site_name', config('app.name'));
+        $this->logo = $settings->get('logo');
         $this->adminUrl = url('/admin/contacts/' . $contact->id);
     }
 

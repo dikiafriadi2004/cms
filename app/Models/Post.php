@@ -8,11 +8,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
-use Laravel\Scout\Searchable;
 
 class Post extends Model
 {
-    use HasFactory, HasSlug, Searchable;
+    use HasFactory, HasSlug;
 
     protected $fillable = [
         'title',
@@ -247,19 +246,6 @@ class Post extends Model
             // Clear caches when post is deleted
             static::clearCache();
         });
-    }
-
-    public function toSearchableArray(): array
-    {
-        return [
-            'id' => $this->id,
-            'title' => $this->title,
-            'content' => strip_tags($this->content),
-            'excerpt' => $this->excerpt,
-            'category' => $this->category?->name,
-            'tags' => $this->tags->pluck('name')->toArray(),
-            'published_at' => $this->published_at?->timestamp,
-        ];
     }
 
     /**

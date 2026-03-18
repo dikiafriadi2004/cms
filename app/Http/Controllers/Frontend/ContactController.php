@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\SettingsCache;
 use App\Models\Contact;
-use App\Models\Setting;
 use App\Services\TemplateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -13,35 +13,23 @@ class ContactController extends Controller
 {
     public function show()
     {
-        // Check if contact form is enabled
-        $enabled = Setting::where('key', 'contact_form_enabled')->value('value');
-        
-        if ($enabled != '1') {
+        $settings = SettingsCache::all()->toArray();
+
+        if (($settings['contact_form_enabled'] ?? '0') != '1') {
             abort(404);
         }
 
-        // Get settings and menus
-        $settings = Setting::pluck('value', 'key')->toArray();
-        $headerMenu = \App\Models\Menu::where('location', 'header')->with(['items' => function($query) {
-            $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order')->with('children');
-        }])->first();
-        $footerMenu = \App\Models\Menu::where('location', 'footer')->with(['items' => function($query) {
-            $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order');
-        }])->first();
-
-        // Get template view path
         $template = TemplateService::getCurrentTemplate();
         $viewPath = TemplateService::getView($template, 'contact');
 
-        return view($viewPath, compact('settings', 'headerMenu', 'footerMenu'));
+        return view($viewPath, compact('settings'));
     }
 
     public function store(Request $request)
     {
-        // Check if contact form is enabled
-        $enabled = Setting::where('key', 'contact_form_enabled')->value('value');
-        
-        if ($enabled != '1') {
+        $settings = SettingsCache::all();
+
+        if (($settings->get('contact_form_enabled', '0')) != '1') {
             return back()->with('error', 'Contact form is currently disabled.');
         }
 
@@ -72,24 +60,15 @@ class ContactController extends Controller
 
         // Send email notifications
         try {
-            // Get recipient email (use mail_username as primary recipient)
-            $recipientEmail = Setting::where('key', 'mail_username')->value('value');
-            
-            // Fallback to contact_email if mail_username is not set
-            if (!$recipientEmail) {
-                $recipientEmail = Setting::where('key', 'contact_email')->value('value');
-            }
-            
+            $recipientEmail = $settings->get('mail_username') 
+                ?: $settings->get('contact_email');
+
             if ($recipientEmail) {
-                // Send auto-reply to sender (queued)
                 Mail::to($contact->email)->queue(new \App\Mail\ContactAutoReply($contact));
-                
-                // Send notification to admin (queued)
                 Mail::to($recipientEmail)->queue(new \App\Mail\ContactNotification($contact));
             }
         } catch (\Exception $e) {
-            // Log error but don't fail the request
-            \Log::error('Failed to send contact form email: ' . $e->getMessage());
+            \Log::error('Failed to queue contact form email: ' . $e->getMessage());
         }
 
         return back()->with('success', 'Terima kasih telah menghubungi kami! Kami akan segera merespons pesan Anda.');

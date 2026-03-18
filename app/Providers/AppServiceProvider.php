@@ -54,32 +54,34 @@ class AppServiceProvider extends ServiceProvider
         // Use Tailwind for pagination
         Paginator::useTailwind();
 
-        // Share global settings with all views
-        View::composer('*', function ($view) {
-            try {
-                $settings = \App\Helpers\SettingsCache::all()->toArray();
+        // Share global settings with all views (hanya layout views, bukan semua view)
+        View::composer(
+            ['layouts.*', 'frontend.layouts.*', 'frontend.partials.*', 'admin.*'],
+            function ($view) {
+                try {
+                    $settings = \App\Helpers\SettingsCache::all()->toArray();
 
-                // Cache menus for 1 hour
-                $headerMenu = \Illuminate\Support\Facades\Cache::remember('menu.header', 3600, function () {
-                    return Menu::where('location', 'header')->with(['items' => function($query) {
-                        $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order')->with('children');
-                    }])->first();
-                });
-                
-                $footerMenu = \Illuminate\Support\Facades\Cache::remember('menu.footer', 3600, function () {
-                    return Menu::where('location', 'footer')->with(['items' => function($query) {
-                        $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order');
-                    }])->first();
-                });
+                    $headerMenu = \Illuminate\Support\Facades\Cache::remember('menu.header', 3600, function () {
+                        return Menu::where('location', 'header')->with(['items' => function($query) {
+                            $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order')->with('children');
+                        }])->first();
+                    });
+                    
+                    $footerMenu = \Illuminate\Support\Facades\Cache::remember('menu.footer', 3600, function () {
+                        return Menu::where('location', 'footer')->with(['items' => function($query) {
+                            $query->where('is_active', true)->whereNull('parent_id')->orderBy('sort_order');
+                        }])->first();
+                    });
 
-                $view->with(compact('settings', 'headerMenu', 'footerMenu'));
-            } catch (\Exception $e) {
-                $view->with([
-                    'settings' => [],
-                    'headerMenu' => null,
-                    'footerMenu' => null,
-                ]);
+                    $view->with(compact('settings', 'headerMenu', 'footerMenu'));
+                } catch (\Exception $e) {
+                    $view->with([
+                        'settings' => [],
+                        'headerMenu' => null,
+                        'footerMenu' => null,
+                    ]);
+                }
             }
-        });
+        );
     }
 }
