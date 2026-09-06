@@ -24,38 +24,39 @@ class DashboardController extends Controller
 
     public function index()
     {
-        // Single query per model untuk stats
+        // Single query per model untuk stats — pakai CASE WHEN supaya portable
+        // (lebih aman dari `SUM(condition)` yang bergantung pada vendor SQL mode).
         $postStats = Post::selectRaw("
-            COUNT(*) as total,
-            SUM(status = 'published' AND published_at <= NOW()) as published,
-            SUM(status = 'draft') as draft,
-            SUM(status = 'scheduled' AND published_at > NOW()) as scheduled
+            COUNT(*) AS total,
+            SUM(CASE WHEN status = 'published' AND published_at <= NOW() THEN 1 ELSE 0 END) AS published,
+            SUM(CASE WHEN status = 'draft' THEN 1 ELSE 0 END) AS draft,
+            SUM(CASE WHEN status = 'scheduled' AND published_at > NOW() THEN 1 ELSE 0 END) AS scheduled
         ")->first();
 
         $pageStats = Page::selectRaw("
-            COUNT(*) as total,
-            SUM(status = 'published') as published
+            COUNT(*) AS total,
+            SUM(CASE WHEN status = 'published' THEN 1 ELSE 0 END) AS published
         ")->first();
 
         $userStats = User::selectRaw("
-            COUNT(*) as total,
-            SUM(is_active = 1) as active
+            COUNT(*) AS total,
+            SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) AS active
         ")->first();
 
         $stats = [
             'posts' => [
-                'total' => $postStats->total,
-                'published' => $postStats->published,
-                'draft' => $postStats->draft,
-                'scheduled' => $postStats->scheduled,
+                'total' => (int) $postStats->total,
+                'published' => (int) $postStats->published,
+                'draft' => (int) $postStats->draft,
+                'scheduled' => (int) $postStats->scheduled,
             ],
             'pages' => [
-                'total' => $pageStats->total,
-                'published' => $pageStats->published,
+                'total' => (int) $pageStats->total,
+                'published' => (int) $pageStats->published,
             ],
             'users' => [
-                'total' => $userStats->total,
-                'active' => $userStats->active,
+                'total' => (int) $userStats->total,
+                'active' => (int) $userStats->active,
             ],
             'categories' => Category::count(),
             'tags' => Tag::count(),

@@ -12,22 +12,20 @@ use Illuminate\Http\Request;
 
 class BlogController extends Controller
 {
-    private function getCommonData()
-    {
-        // Settings dan menu sudah di-share via AppServiceProvider (cached)
-        // Method ini dipertahankan untuk kompatibilitas tapi tidak query ulang
-        return [];
-    }
-
     public function index(Request $request)
     {
+        $request->validate([
+            'search' => 'nullable|string|max:200',
+            'category' => 'nullable|string|max:100',
+        ]);
+
         $query = Post::published()
             ->with(['user', 'category', 'tags'])
             ->latest('published_at');
 
         // Search functionality
         if ($request->filled('search')) {
-            $search = $request->search;
+            $search = safe_like_input($request->search);
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
                   ->orWhere('content', 'like', "%{$search}%")
@@ -47,12 +45,11 @@ class BlogController extends Controller
         }
 
         $posts = $query->paginate(9);
+        if ($request->integer('page', 1) > $posts->lastPage() && $posts->lastPage() > 0) {
+            abort(404);
+        }
         $categories = Category::active()->withCount('publishedPosts')->get();
-        $popularPosts = Post::published()
-            ->with(['user', 'category', 'tags'])
-            ->orderBy('views_count', 'desc')
-            ->limit(5)
-            ->get();
+        $popularPosts = Post::popular(5);
 
         // Get ads for blog index page
         $context = ['page' => 'blog_index'];
@@ -75,10 +72,7 @@ class BlogController extends Controller
             ]);
         }
 
-        return view($view, array_merge(
-            $this->getCommonData(),
-            compact('posts', 'categories', 'popularPosts', 'ads', 'selectedCategory')
-        ));
+        return view($view, compact('posts', 'categories', 'popularPosts', 'ads', 'selectedCategory'));
     }
 
     public function show(Post $post)
@@ -87,8 +81,19 @@ class BlogController extends Controller
             abort(404);
         }
 
-        // Increment view count
-        $post->increment('views_count');
+        // Idempotent view tracking: only count once per IP+post per hour.
+        // Use raw UPDATE to bypass model events — increment() would trigger
+        // saving/saved which recompute SEO score and bust caches every view.
+        $viewKey = sprintf('post:viewed:%d:%s', $post->id, sha1(request()->ip()));
+        if (!\Illuminate\Support\Facades\Cache::has($viewKey)) {
+            \Illuminate\Support\Facades\Cache::put($viewKey, 1, now()->addHour());
+            \Illuminate\Support\Facades\DB::table('posts')
+                ->where('id', $post->id)
+                ->update(['views_count' => \Illuminate\Support\Facades\DB::raw('views_count + 1')]);
+        }
+
+        // Eager load tags BEFORE building related-posts query to avoid N+1.
+        $post->load(['user', 'category', 'tags']);
 
         // Get related posts
         $relatedPosts = Post::published()
@@ -108,15 +113,14 @@ class BlogController extends Controller
             ->limit(4)
             ->get();
 
-        // Get popular posts
+        // Popular posts excluding current post (cannot reuse Post::popular()
+        // cache since this filter is per-post). Limit to 5 with eager-loaded relations.
         $popularPosts = Post::published()
             ->where('id', '!=', $post->id)
             ->with(['user', 'category'])
             ->orderBy('views_count', 'desc')
             ->limit(5)
             ->get();
-
-        $post->load(['user', 'category', 'tags']);
 
         // Get ads for blog detail page
         $context = [
@@ -166,10 +170,7 @@ class BlogController extends Controller
         $template = TemplateService::getCurrentTemplate();
         $view = TemplateService::getView($template, 'blog.category');
 
-        return view($view, array_merge(
-            $this->getCommonData(),
-            compact('category', 'posts', 'categories', 'ads')
-        ));
+        return view($view, compact('category', 'posts', 'categories', 'ads'));
     }
 
     public function tag(Tag $tag)
@@ -195,9 +196,6 @@ class BlogController extends Controller
         $template = TemplateService::getCurrentTemplate();
         $view = TemplateService::getView($template, 'blog.tag');
 
-        return view($view, array_merge(
-            $this->getCommonData(),
-            compact('tag', 'posts', 'ads')
-        ));
+        return view($view, compact('tag', 'posts', 'ads'));
     }
 }

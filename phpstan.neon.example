@@ -1,0 +1,23 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app
+        - config
+        - database
+        - routes
+
+    level: 5
+
+    ignoreErrors:
+        # Common Laravel false positives
+        - '#Call to an undefined method Illuminate\\.*#'
+
+    excludePaths:
+        - app/Console/Kernel.php
+        - app/Http/Kernel.php
+
+    # Reporting
+    reportUnmatchedIgnoredErrors: false
+    checkMissingIterableValueType: false

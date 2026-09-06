@@ -129,6 +129,21 @@ class Ad extends Model
         return $query->where('type', $type);
     }
 
+    /**
+     * Auto-invalidate the per-position cache when an ad is saved/deleted.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        $invalidate = function ($ad) {
+            \Illuminate\Support\Facades\Cache::forget("ads.position.{$ad->position}");
+        };
+
+        static::saved($invalidate);
+        static::deleted($invalidate);
+    }
+
     public function shouldDisplay($context = []): bool
     {
         if (!$this->is_active) {
@@ -170,19 +185,32 @@ class Ad extends Model
 
     public static function getByPosition(string $position, array $context = [])
     {
-        $ads = static::active()
-            ->byPosition($position)
-            ->orderBy('sort_order')
-            ->get()
-            ->filter(function ($ad) use ($context) {
-                return $ad->shouldDisplay($context);
-            });
+        // Cache the active ads list per-position for 5 minutes. Filtering by
+        // context (page/post/category) and rotation selection still happens
+        // in PHP because they depend on per-request data, but the underlying
+        // active ads query is cached so we don't hit DB on every render.
+        $cacheKey = "ads.position.{$position}";
+
+        $allAdsForPosition = \Illuminate\Support\Facades\Cache::remember(
+            $cacheKey,
+            300, // 5 minutes
+            function () use ($position) {
+                return static::active()
+                    ->byPosition($position)
+                    ->orderBy('sort_order')
+                    ->get();
+            }
+        );
+
+        $ads = $allAdsForPosition->filter(function ($ad) use ($context) {
+            return $ad->shouldDisplay($context);
+        });
 
         // Group ads by rotation_group
         $grouped = $ads->groupBy('rotation_group');
-        
+
         $result = collect();
-        
+
         foreach ($grouped as $group => $groupAds) {
             if ($group && $groupAds->count() > 1) {
                 // This is a rotation group - select one ad based on rotation mode
@@ -195,7 +223,7 @@ class Ad extends Model
                 $result = $result->merge($groupAds);
             }
         }
-        
+
         return $result;
     }
 
@@ -284,14 +312,7 @@ class Ad extends Model
             $target = $this->open_new_tab ? '_blank' : '_self';
             $rel = $this->open_new_tab ? 'noopener noreferrer' : '';
             
-            // Get image dimensions to set max-width
-            $imagePath = storage_path('app/public/' . $this->image);
-            $maxWidthStyle = '';
-            
-            if (file_exists($imagePath)) {
-                list($width, $height) = getimagesize($imagePath);
-                $maxWidthStyle = "max-width: {$width}px; ";
-            }
+            $maxWidthStyle = $this->getCachedMaxWidthStyle();
             
             return sprintf(
                 '<div %s><a href="%s" target="%s" rel="%s" class="block"><img src="%s" alt="%s" class="rounded-lg" style="%swidth: 100%%; height: auto; display: block; margin: 0 auto;"></a></div>',
@@ -307,14 +328,7 @@ class Ad extends Model
         
         // If it's just an image without link
         if ($this->image && !$this->link) {
-            // Get image dimensions to set max-width
-            $imagePath = storage_path('app/public/' . $this->image);
-            $maxWidthStyle = '';
-            
-            if (file_exists($imagePath)) {
-                list($width, $height) = getimagesize($imagePath);
-                $maxWidthStyle = "max-width: {$width}px; ";
-            }
+            $maxWidthStyle = $this->getCachedMaxWidthStyle();
             
             return sprintf(
                 '<div %s><img src="%s" alt="%s" class="rounded-lg" style="%swidth: 100%%; height: auto; display: block; margin: 0 auto;"></div>',
@@ -332,62 +346,123 @@ class Ad extends Model
     }
 
     /**
+     * Get the max-width style for an image ad. Cached 1 week per image path
+     * so admin replacing an image with the same path eventually picks up
+     * new dimensions (vs. forever which never refreshes).
+     */
+    private function getCachedMaxWidthStyle(): string
+    {
+        if (!$this->image) {
+            return '';
+        }
+
+        $cacheKey = 'ad.image.dim.' . sha1($this->image);
+
+        return \Illuminate\Support\Facades\Cache::remember($cacheKey, 604800, function () {
+            $imagePath = storage_path('app/public/' . $this->image);
+            if (!file_exists($imagePath)) {
+                return '';
+            }
+            $info = @getimagesize($imagePath);
+            if (!$info || empty($info[0])) {
+                return '';
+            }
+            return "max-width: {$info[0]}px; ";
+        });
+    }
+
+    /**
      * Sanitize ad code to prevent XSS attacks
+     *
+     * Multi-layer defense:
+     * 1. strip_tags with whitelist
+     * 2. Remove dangerous attributes (on*, javascript:, data: URI scripts)
+     * 3. Whitelist iframe/script sources to known ad networks only
+     * 4. Strip inline scripts that aren't from allowed domains
      */
     private function sanitizeAdCode(string $code): string
     {
-        // Allow only safe HTML tags and attributes
-        $allowedTags = '<div><span><a><img><iframe><script><ins><p><br><strong><em><b><i>';
-        
-        // Strip dangerous tags but keep allowed ones
+        // Layer 1: Allow only safe HTML tags
+        $allowedTags = '<div><span><a><img><iframe><script><ins><p><br><strong><em><b><i><h1><h2><h3><h4><h5><h6>';
         $sanitized = strip_tags($code, $allowedTags);
-        
-        // Additional security: validate iframe and script sources
-        // Only allow known ad networks
+
+        // Layer 2: Strip event handler attributes (onclick, onerror, onload, etc)
+        // Match: ' on\w+="..."' or " on\w+='...'" or ' on\w+=value'
+        $sanitized = preg_replace('/\s+on\w+\s*=\s*(["\'])(?:(?!\1).)*\1/i', '', $sanitized);
+        $sanitized = preg_replace('/\s+on\w+\s*=\s*[^\s>]+/i', '', $sanitized);
+
+        // Layer 3: Strip javascript: pseudo-protocol from href/src
+        $sanitized = preg_replace('/(href|src)\s*=\s*(["\'])\s*javascript:[^"\']*\2/i', '$1="#"', $sanitized);
+
+        // Layer 4: Strip data: URI when used in script/iframe contexts (allow data: in img only)
+        $sanitized = preg_replace_callback(
+            '/<(script|iframe)([^>]*)>/i',
+            function ($m) {
+                $attrs = $m[2];
+                $attrs = preg_replace('/(src|href)\s*=\s*(["\'])\s*data:[^"\']*\2/i', '', $attrs);
+                return '<' . $m[1] . $attrs . '>';
+            },
+            $sanitized
+        );
+
+        // Layer 5: Whitelist iframe/script sources to known ad networks
         $allowedDomains = [
             'googlesyndication.com',
             'doubleclick.net',
+            'googletagservices.com',
             'adnxs.com',
             'amazon-adsystem.com',
             'media.net',
         ];
-        
-        // Check for iframe src
-        if (preg_match_all('/<iframe[^>]+src=["\']([^"\']+)["\'][^>]*>/i', $sanitized, $matches)) {
-            foreach ($matches[1] as $src) {
-                $isAllowed = false;
-                foreach ($allowedDomains as $domain) {
-                    if (str_contains($src, $domain)) {
-                        $isAllowed = true;
-                        break;
-                    }
+
+        // Build allowed pattern: matches if URL contains one of allowed domains
+        $allowedPattern = implode('|', array_map(fn($d) => preg_quote($d, '/'), $allowedDomains));
+
+        // Strip <iframe> with src that does not match allowed domains
+        $sanitized = preg_replace_callback(
+            '/<iframe[^>]*\bsrc\s*=\s*(["\'])([^"\']*)\1[^>]*>(.*?)<\/iframe>/is',
+            function ($m) use ($allowedPattern) {
+                $src = $m[2];
+                if (preg_match('/^https?:\/\/(?:[^\/]+\.)?(' . $allowedPattern . ')\//i', $src)
+                    || str_starts_with($src, '/')
+                    || str_starts_with($src, asset(''))) {
+                    return $m[0];
                 }
-                
-                // If not from allowed domain, remove the iframe
-                if (!$isAllowed && !str_starts_with($src, '/') && !str_starts_with($src, asset(''))) {
-                    $sanitized = preg_replace('/<iframe[^>]+src=["\']' . preg_quote($src, '/') . '["\'][^>]*>.*?<\/iframe>/is', '', $sanitized);
+                return '';
+            },
+            $sanitized
+        );
+
+        // Strip <script src="..."> with src that does not match allowed domains
+        $sanitized = preg_replace_callback(
+            '/<script[^>]*\bsrc\s*=\s*(["\'])([^"\']*)\1[^>]*>(.*?)<\/script>/is',
+            function ($m) use ($allowedPattern) {
+                $src = $m[2];
+                if (preg_match('/^https?:\/\/(?:[^\/]+\.)?(' . $allowedPattern . ')\//i', $src)
+                    || str_starts_with($src, '/')
+                    || str_starts_with($src, asset(''))) {
+                    return $m[0];
                 }
-            }
-        }
-        
-        // Check for script src
-        if (preg_match_all('/<script[^>]+src=["\']([^"\']+)["\'][^>]*>/i', $sanitized, $matches)) {
-            foreach ($matches[1] as $src) {
-                $isAllowed = false;
-                foreach ($allowedDomains as $domain) {
-                    if (str_contains($src, $domain)) {
-                        $isAllowed = true;
-                        break;
-                    }
+                return '';
+            },
+            $sanitized
+        );
+
+        // Layer 6: Strip <script> WITHOUT src (inline scripts) — these are dangerous
+        // Allow only AdSense-style inline pushes (very narrow whitelist)
+        $sanitized = preg_replace_callback(
+            '/<script\b(?![^>]*\bsrc\s*=)[^>]*>(.*?)<\/script>/is',
+            function ($m) {
+                $body = trim($m[1]);
+                // Allow Google AdSense push pattern only
+                if (preg_match('/^\(adsbygoogle\s*=\s*window\.adsbygoogle\s*\|\|\s*\[\]\)\.push\(\{[^}]*\}\)\s*;?\s*$/i', $body)) {
+                    return $m[0];
                 }
-                
-                // If not from allowed domain, remove the script
-                if (!$isAllowed && !str_starts_with($src, '/') && !str_starts_with($src, asset(''))) {
-                    $sanitized = preg_replace('/<script[^>]+src=["\']' . preg_quote($src, '/') . '["\'][^>]*>.*?<\/script>/is', '', $sanitized);
-                }
-            }
-        }
-        
+                return '';
+            },
+            $sanitized
+        );
+
         return $sanitized;
     }
 
@@ -396,22 +471,33 @@ class Ad extends Model
      */
     public static function injectIntoContent(string $content, array $context = []): string
     {
-        // Get all in_content ads for this context
-        $ads = static::active()
-            ->where('position', 'in_content')
-            ->orderBy('in_content_paragraph')
-            ->orderBy('sort_order')
-            ->get()
-            ->filter(function ($ad) use ($context) {
-                return $ad->shouldDisplay($context);
-            });
+        // Get all in_content ads cached for 5 min. Same pattern as getByPosition().
+        $ads = \Illuminate\Support\Facades\Cache::remember(
+            'ads.position.in_content',
+            300,
+            function () {
+                return static::active()
+                    ->where('position', 'in_content')
+                    ->orderBy('in_content_paragraph')
+                    ->orderBy('sort_order')
+                    ->get();
+            }
+        )->filter(function ($ad) use ($context) {
+            return $ad->shouldDisplay($context);
+        });
 
         if ($ads->isEmpty()) {
             return $content;
         }
 
-        // Split content by paragraphs (looking for </p> tags)
-        $paragraphs = preg_split('/(<\/p>)/i', $content, -1, PREG_SPLIT_DELIM_CAPTURE);
+        // Split content by closing paragraph tags. We accept tags like
+        // </p>, </P>, </p > with optional whitespace. Note: TinyMCE may
+        // emit content without explicit </p> in some structures (lists,
+        // tables); in those cases the paragraph counter simply doesn't
+        // advance and ads attached to those positions are skipped. This is
+        // acceptable defensive behavior — content with malformed structure
+        // gets fewer ads, not duplicated or wrong-position ads.
+        $paragraphs = preg_split('/(<\/p\s*>)/i', $content, -1, PREG_SPLIT_DELIM_CAPTURE);
         
         // Group ads by paragraph number
         $adsByParagraph = $ads->groupBy('in_content_paragraph');
@@ -422,8 +508,8 @@ class Ad extends Model
         foreach ($paragraphs as $index => $part) {
             $result .= $part;
             
-            // Check if this is a closing </p> tag
-            if (strtolower(trim($part)) === '</p>') {
+            // Check if this is a closing </p> tag (allow whitespace)
+            if (preg_match('#^\s*</p\s*>\s*$#i', $part)) {
                 $paragraphCount++;
                 
                 // Insert ads after this paragraph if any

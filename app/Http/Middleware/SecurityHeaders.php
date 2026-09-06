@@ -32,15 +32,27 @@ class SecurityHeaders
         // Permissions Policy (restrict browser features)
         $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
         
-        // Content Security Policy (adjust as needed for your assets)
+        // Strict Transport Security (HSTS) — only in production over HTTPS
+        if (app()->environment('production') && $request->isSecure()) {
+            $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+        }
+
+        // Content Security Policy — tightened: removed 'unsafe-eval', kept 'unsafe-inline'
+        // for script only because admin uses inline init scripts. To remove 'unsafe-inline'
+        // entirely, refactor inline scripts to external files and add a nonce per request.
         if (!app()->environment('local')) {
-            $response->headers->set('Content-Security-Policy', 
+            $response->headers->set('Content-Security-Policy',
                 "default-src 'self'; " .
-                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com; " .
-                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " .
-                "font-src 'self' https://fonts.gstatic.com; " .
-                "img-src 'self' data: https:; " .
-                "connect-src 'self' https://www.google-analytics.com;"
+                "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tiny.cloud https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://www.googleadservices.com; " .
+                "script-src-elem 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tiny.cloud https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://www.googleadservices.com; " .
+                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdn.tiny.cloud; " .
+                "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; " .
+                "img-src 'self' data: blob: https:; " .
+                "connect-src 'self' https://www.google-analytics.com https://cdn.tiny.cloud; " .
+                "frame-src 'self' https://www.googletagmanager.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com; " .
+                "object-src 'none'; " .
+                "base-uri 'self'; " .
+                "form-action 'self';"
             );
         }
         

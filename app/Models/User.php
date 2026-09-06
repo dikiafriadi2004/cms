@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -12,10 +13,14 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
+     *
+     * NOTE: `is_active` is intentionally NOT in this list. It is set via the
+     * dedicated UserController::toggleStatus action, never via mass-assign,
+     * so it cannot be promoted by user-controlled input on other endpoints.
      *
      * @var list<string>
      */
@@ -25,7 +30,6 @@ class User extends Authenticatable
         'password',
         'avatar',
         'bio',
-        'is_active',
     ];
 
     /**
@@ -79,6 +83,20 @@ class User extends Authenticatable
 
     public function getAvatarUrlAttribute(): string
     {
-        return $this->avatar ? asset('storage/' . $this->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=7F9CF5&background=EBF4FF';
+        return $this->avatar
+            ? asset('storage/' . $this->avatar)
+            : 'https://ui-avatars.com/api/?name=' . urlencode($this->name ?? 'User') . '&color=7F9CF5&background=EBF4FF';
+    }
+
+    /**
+     * Display name that gracefully indicates a soft-deleted account.
+     * Use this in views instead of `$user->name` for safer output.
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        if ($this->trashed()) {
+            return ($this->name ?? 'Pengguna') . ' (dihapus)';
+        }
+        return $this->name ?? 'Pengguna';
     }
 }

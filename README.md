@@ -509,3 +509,183 @@ supervisor/
 | Markdown | League CommonMark |
 | Queue | Laravel Database Queue |
 | Scheduler | Laravel Task Scheduling |
+
+
+---
+
+## Production Deployment Quick Guide
+
+### 1. Setup Initial di Server
+
+```bash
+# Clone & install
+git clone <repo-url> /var/www/cms
+cd /var/www/cms
+composer install --no-dev --optimize-autoloader
+
+# Setup .env
+cp .env.example .env
+nano .env  # edit production values (lihat bawah)
+php artisan key:generate --force
+```
+
+### 2. Deploy Routine (setiap update code)
+
+```bash
+# Pull code terbaru
+git pull
+
+# Run deploy script (auto: migrate, storage:link, permissions:refresh, all caches)
+composer deploy
+
+# Restart queue worker supaya pakai code baru
+sudo supervisorctl restart laravel-queue:*
+```
+
+### 3. Production .env Wajib
+
+```dotenv
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://yourdomain.com
+APP_VERSION=1.0.0       # naikkan setiap deploy untuk asset cache busting
+
+LOG_LEVEL=error
+LOG_STACK=daily
+
+SESSION_ENCRYPT=true
+SESSION_SECURE_COOKIE=true
+FORCE_HTTPS=true        # set true kalau tidak di-handle proxy
+
+CACHE_STORE=redis       # recommended (atau database)
+QUEUE_CONNECTION=redis  # recommended (atau database)
+
+BACKUP_NOTIFICATION_EMAIL=admin@yourdomain.com
+```
+
+### 4. Cron Schedule (wajib)
+
+Tambah ke crontab user web (`crontab -e`):
+
+```cron
+* * * * * cd /var/www/cms && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Yang otomatis berjalan via schedule:
+- `backup:run` (daily 02:00)
+- `backup:clean` (daily 01:00)
+- Auto-publish scheduled posts (every 5 min)
+- Prune ad analytics > 90 hari (daily 03:00)
+- Prune failed jobs > 30 hari (daily 03:30)
+
+### 5. Queue Worker (Supervisor)
+
+File config sudah ada di `supervisor/laravel-queue.conf`.
+
+```bash
+sudo cp supervisor/laravel-queue.conf /etc/supervisor/conf.d/
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start laravel-queue:*
+```
+
+Cek status: `sudo supervisorctl status`
+
+### 6. Webserver — Nginx HTTPS Force
+
+```nginx
+server {
+    listen 80;
+    server_name yourdomain.com;
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name yourdomain.com;
+    root /var/www/cms/public;
+
+    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+
+    # Security
+    add_header X-Real-IP $remote_addr;
+    add_header X-Forwarded-Proto $scheme;
+
+    index index.php;
+    charset utf-8;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    # Cache static assets aggressively (asset_version() handles cache busting)
+    location ~* \.(css|js|jpg|jpeg|png|gif|svg|webp|woff|woff2)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+}
+```
+
+### 7. Build Assets di Server
+
+```bash
+npm install --production=false
+npx tailwindcss -i resources/css/app.css -o public/css/app.css --minify
+npx esbuild resources/js/app.js --bundle --minify --outfile=public/js/app.js --format=iife
+```
+
+Atau commit hasil build (`public/css/app.css`, `public/js/app.js`) ke git supaya tidak perlu Node di server.
+
+### 8. Permission File Server
+
+```bash
+sudo chown -R www-data:www-data /var/www/cms
+sudo chmod -R 755 /var/www/cms
+sudo chmod -R 775 /var/www/cms/storage /var/www/cms/bootstrap/cache
+```
+
+### 9. Post-Deploy Checklist
+
+- [ ] `php artisan about` — env=production, debug=false
+- [ ] `https://yourdomain.com` — buka di browser, no errors
+- [ ] `https://yourdomain.com/sitemap.xml` — accessible
+- [ ] `https://yourdomain.com/robots.txt` — accessible
+- [ ] Login admin works
+- [ ] `sudo supervisorctl status` — queue worker running
+- [ ] `tail -f storage/logs/laravel.log` — no errors
+- [ ] Upload media → file appears in `storage/app/public/media`
+- [ ] Send contact form test → email received
+- [ ] Publish post → cache invalidated, post tampil di blog
+
+---
+
+## Troubleshooting
+
+**CSS tidak update setelah deploy?**
+- Naikkan `APP_VERSION` di `.env` lalu `php artisan config:cache`
+- Atau clear browser cache
+
+**Queue email tidak terkirim?**
+- `php artisan queue:failed` — lihat failed jobs
+- `sudo supervisorctl restart laravel-queue:*`
+- Cek `BACKUP_NOTIFICATION_EMAIL` untuk auto-notify saat fail
+
+**Permission denied saat upload?**
+- `sudo chmod -R 775 storage bootstrap/cache`
+- `sudo chown -R www-data:www-data storage bootstrap/cache`
+
+**Sitemap kosong / error?**
+- `php artisan cache:forget sitemap.xml.full`
+- `php artisan cache:clear`

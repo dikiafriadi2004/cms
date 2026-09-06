@@ -16,6 +16,13 @@ class PostController extends Controller
     {
         $query = Post::with(['user', 'category', 'tags']);
 
+        // Trashed filter: ?trashed=only | ?trashed=with
+        if ($request->trashed === 'only') {
+            $query = Post::onlyTrashed()->with(['user', 'category', 'tags']);
+        } elseif ($request->trashed === 'with') {
+            $query = Post::withTrashed()->with(['user', 'category', 'tags']);
+        }
+
         // Author can only see their own posts
         if (Auth::user()->hasRole('author')) {
             $query->where('user_id', Auth::id());
@@ -33,9 +40,10 @@ class PostController extends Controller
 
         // Search
         if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('title', 'like', '%' . $request->search . '%')
-                  ->orWhere('content', 'like', '%' . $request->search . '%');
+            $search = safe_like_input($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                  ->orWhere('content', 'like', '%' . $search . '%');
             });
         }
 
@@ -55,28 +63,23 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
-        // Log incoming request for debugging
-        \Log::info('Post Store Request', [
-            'title' => $request->title,
-            'has_content' => !empty($request->content),
-            'content_length' => strlen($request->content ?? ''),
-            'status' => $request->status,
-            'user_id' => Auth::id(),
-        ]);
-
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|unique:posts,slug',
+            'slug' => [
+                'nullable',
+                'string',
+                \Illuminate\Validation\Rule::unique('posts', 'slug')->whereNull('deleted_at'),
+            ],
             'excerpt' => 'nullable|string|max:160',
             'content' => 'required|string',
             'featured_image' => 'nullable|string',
             'status' => 'required|in:draft,published,scheduled',
             'category_id' => 'nullable|exists:categories,id',
             'tags' => 'nullable|array',
+            'tags.*' => 'string|max:100',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:160',
             'meta_keywords' => 'nullable|string|max:500',
-            'canonical_url' => 'nullable|url|max:500',
             'focus_keyword' => 'nullable|string|max:1000',
             'published_at' => 'nullable|date',
         ]);
@@ -87,41 +90,24 @@ class PostController extends Controller
 
         $validated['user_id'] = Auth::id();
 
+        // Enforce publish permission. Author without `posts.publish` is forced to draft.
+        if (in_array($validated['status'], ['published', 'scheduled'])
+            && !Auth::user()->can('posts.publish')) {
+            $validated['status'] = 'draft';
+            unset($validated['published_at']);
+        }
+
         if ($validated['status'] === 'published' && !isset($validated['published_at'])) {
             $validated['published_at'] = now();
         }
 
         try {
             $post = Post::create($validated);
-            
-            \Log::info('Post Created Successfully', [
-                'post_id' => $post->id,
-                'title' => $post->title,
-            ]);
 
             // Handle tags - create new tags if needed
             if ($request->filled('tags')) {
-                $tagIds = [];
-                foreach ($request->tags as $tagInput) {
-                    if (str_starts_with($tagInput, 'new:')) {
-                        // Create new tag
-                        $tagName = substr($tagInput, 4); // Remove 'new:' prefix
-                        $tag = Tag::firstOrCreate(
-                            ['slug' => Str::slug($tagName)],
-                            [
-                                'name' => $tagName,
-                                'is_active' => true
-                            ]
-                        );
-                        $tagIds[] = $tag->id;
-                    } else {
-                        // Existing tag
-                        $tagIds[] = $tagInput;
-                    }
-                }
+                $tagIds = $this->resolveTagIds($request->tags);
                 $post->tags()->sync($tagIds);
-                
-                \Log::info('Tags Synced', ['tag_count' => count($tagIds)]);
             }
 
             return redirect()->route('admin.posts.index')
@@ -177,23 +163,36 @@ class PostController extends Controller
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|unique:posts,slug,' . $post->id,
+            'slug' => [
+                'nullable',
+                'string',
+                \Illuminate\Validation\Rule::unique('posts', 'slug')
+                    ->ignore($post->id)
+                    ->whereNull('deleted_at'),
+            ],
             'excerpt' => 'nullable|string|max:160',
             'content' => 'required|string',
             'featured_image' => 'nullable|string',
             'status' => 'required|in:draft,published,scheduled',
             'category_id' => 'nullable|exists:categories,id',
             'tags' => 'nullable|array',
+            'tags.*' => 'string|max:100',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:160',
             'meta_keywords' => 'nullable|string|max:500',
-            'canonical_url' => 'nullable|url|max:500',
             'focus_keyword' => 'nullable|string|max:1000',
             'published_at' => 'nullable|date',
         ]);
 
         if (!$validated['slug']) {
             $validated['slug'] = Str::slug($validated['title']);
+        }
+
+        // Enforce publish permission on update
+        if (in_array($validated['status'], ['published', 'scheduled'])
+            && !Auth::user()->can('posts.publish')) {
+            $validated['status'] = 'draft';
+            unset($validated['published_at']);
         }
 
         if ($validated['status'] === 'published' && !$post->published_at && !isset($validated['published_at'])) {
@@ -204,24 +203,7 @@ class PostController extends Controller
 
         // Handle tags - create new tags if needed
         if ($request->has('tags')) {
-            $tagIds = [];
-            foreach ($request->tags ?? [] as $tagInput) {
-                if (str_starts_with($tagInput, 'new:')) {
-                    // Create new tag
-                    $tagName = substr($tagInput, 4); // Remove 'new:' prefix
-                    $tag = Tag::firstOrCreate(
-                        ['slug' => Str::slug($tagName)],
-                        [
-                            'name' => $tagName,
-                            'is_active' => true
-                        ]
-                    );
-                    $tagIds[] = $tag->id;
-                } else {
-                    // Existing tag
-                    $tagIds[] = $tagInput;
-                }
-            }
+            $tagIds = $this->resolveTagIds($request->tags ?? []);
             $post->tags()->sync($tagIds);
         }
 
@@ -257,40 +239,156 @@ class PostController extends Controller
             ->with('success', 'Post berhasil dihapus!');
     }
 
+    /**
+     * Resolve tag IDs from input. Each item is either:
+     * - 'new:Tag Name' → create or fetch by slug
+     * - integer/string id → validate exists in DB
+     *
+     * Race-safe: handles UNIQUE constraint violation when two requests
+     * try to create the same tag simultaneously.
+     *
+     * @param array<int, string|int> $tagInputs
+     * @return array<int, int>
+     */
+    protected function resolveTagIds(array $tagInputs): array
+    {
+        $tagIds = [];
+        $existingIds = [];
+
+        foreach ($tagInputs as $tagInput) {
+            if (is_string($tagInput) && str_starts_with($tagInput, 'new:')) {
+                $tagName = trim(substr($tagInput, 4));
+                if ($tagName === '') {
+                    continue;
+                }
+
+                $slug = Str::slug($tagName);
+
+                try {
+                    $tag = Tag::firstOrCreate(
+                        ['slug' => $slug],
+                        ['name' => $tagName, 'is_active' => true]
+                    );
+                } catch (\Illuminate\Database\QueryException $e) {
+                    // UNIQUE violation race: another request inserted the same
+                    // slug between our SELECT and INSERT. Re-fetch the row.
+                    $tag = Tag::where('slug', $slug)->firstOrFail();
+                }
+
+                $tagIds[] = $tag->id;
+            } elseif (is_numeric($tagInput)) {
+                $existingIds[] = (int) $tagInput;
+            }
+        }
+
+        if (!empty($existingIds)) {
+            // Validate IDs exist in DB before sync — prevents orphan references
+            $validIds = Tag::whereIn('id', $existingIds)->pluck('id')->toArray();
+            $tagIds = array_merge($tagIds, $validIds);
+        }
+
+        return array_values(array_unique($tagIds));
+    }
+
     public function bulkAction(Request $request)
     {
         $request->validate([
             'action' => 'required|in:delete,publish,draft',
-            'posts' => 'required|array',
+            'posts' => 'required|array|min:1|max:100',
             'posts.*' => 'exists:posts,id',
         ]);
 
-        $posts = Post::whereIn('id', $request->posts)->get();
-        
-        // Check authorization for each post
-        foreach ($posts as $post) {
-            if (Auth::user()->hasRole('author') && $post->user_id !== Auth::id()) {
+        // Filter post IDs by ownership for author role to prevent
+        // information leakage and unauthorized bulk modifications.
+        $postIds = $request->posts;
+        if (Auth::user()->hasRole('author')) {
+            $ownedIds = Post::whereIn('id', $postIds)
+                ->where('user_id', Auth::id())
+                ->pluck('id')
+                ->toArray();
+
+            if (count($ownedIds) !== count($postIds)) {
                 return redirect()->route('admin.posts.index')
                     ->with('error', 'Anda tidak memiliki akses untuk melakukan aksi pada beberapa post yang dipilih.');
             }
+            $postIds = $ownedIds;
         }
 
         switch ($request->action) {
             case 'delete':
-                Post::whereIn('id', $request->posts)->delete();
+                // delete() on Eloquent collection does fire deleting/deleted events.
+                Post::whereIn('id', $postIds)->get()->each->delete();
                 $message = 'Posts berhasil dihapus!';
                 break;
             case 'publish':
-                Post::whereIn('id', $request->posts)->update(['status' => 'published', 'published_at' => now()]);
+                // Enforce posts.publish permission for bulk publish
+                if (!Auth::user()->can('posts.publish')) {
+                    return redirect()->route('admin.posts.index')
+                        ->with('error', 'Anda tidak memiliki akses untuk publish post.');
+                }
+                // Loop to fire model events (cache invalidation, OG/Twitter regen)
+                Post::whereIn('id', $postIds)->get()->each(function ($p) {
+                    if ($p->status !== 'published' || !$p->published_at) {
+                        $p->status = 'published';
+                        if (!$p->published_at) {
+                            $p->published_at = now();
+                        }
+                        $p->save();
+                    }
+                });
                 $message = 'Posts berhasil dipublish!';
                 break;
             case 'draft':
-                Post::whereIn('id', $request->posts)->update(['status' => 'draft']);
+                Post::whereIn('id', $postIds)->get()->each(function ($p) {
+                    $p->status = 'draft';
+                    $p->save();
+                });
                 $message = 'Posts berhasil dijadikan draft!';
                 break;
         }
 
+        // Defensive: ensure caches cleared even if events somehow skip.
+        Post::clearCache();
+
         return redirect()->route('admin.posts.index')
             ->with('success', $message);
+    }
+
+    /**
+     * Restore a soft-deleted post.
+     */
+    public function restore($id)
+    {
+        $post = Post::onlyTrashed()->findOrFail($id);
+
+        // Author can only restore own posts
+        if (Auth::user()->hasRole('author') && $post->user_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses untuk merestore post ini.');
+        }
+
+        $post->restore();
+        Post::clearCache();
+
+        return redirect()->route('admin.posts.index', ['trashed' => 'only'])
+            ->with('success', 'Post berhasil direstore!');
+    }
+
+    /**
+     * Permanently delete a soft-deleted post.
+     */
+    public function forceDestroy($id)
+    {
+        $post = Post::onlyTrashed()->findOrFail($id);
+
+        // Only users with full delete permission can force-delete
+        if (!Auth::user()->can('posts.delete')) {
+            abort(403, 'Anda tidak memiliki akses untuk menghapus permanen.');
+        }
+
+        $post->forceDelete();
+        Post::clearCache();
+
+        return redirect()->route('admin.posts.index', ['trashed' => 'only'])
+            ->with('success', 'Post berhasil dihapus permanen!');
     }
 }

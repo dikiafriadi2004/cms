@@ -63,27 +63,58 @@ class MenuItem extends Model
         return $query->where('is_active', true);
     }
 
+    /**
+     * Resolve the URL for this menu item.
+     *
+     * Reads from raw `attributes['url']` to avoid recursion through the
+     * `getUrlAttribute` accessor.
+     */
     public function getUrl(): string
     {
-        if ($this->url) {
-            return $this->url;
+        $rawUrl = $this->attributes['url'] ?? null;
+
+        if (!empty($rawUrl)) {
+            return $rawUrl;
         }
 
         return match ($this->type) {
             'page' => $this->page ? route('page.show', $this->page->slug) : '#',
             'post' => $this->post ? route('blog.show', $this->post->slug) : '#',
             'category' => $this->category ? route('blog.category', $this->category->slug) : '#',
-            'external' => $this->attributes['url'] ?? '#',
+            'external' => $rawUrl ?? '#',
             default => '#',
         };
     }
 
+    /**
+     * Eloquent accessor for `url` attribute.
+     *
+     * Falls back to computed URL via getUrl() when the column is empty.
+     * Note: relations (page/post/category) should be eager-loaded by the
+     * caller to avoid N+1 when rendering menus.
+     */
     public function getUrlAttribute($value): string
     {
-        if ($value) {
+        if (!empty($value)) {
             return $value;
         }
 
         return $this->getUrl();
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        $invalidate = function ($item) {
+            // Invalidate parent menu cache (lookup by location of parent menu)
+            $location = optional($item->menu)->location;
+            if ($location) {
+                \Illuminate\Support\Facades\Cache::forget("menu.{$location}");
+            }
+        };
+
+        static::saved($invalidate);
+        static::deleted($invalidate);
     }
 }

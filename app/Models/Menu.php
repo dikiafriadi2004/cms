@@ -39,4 +39,16 @@ class Menu extends Model
     {
         return $query->where('location', $location);
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        $invalidate = function ($menu) {
+            \Illuminate\Support\Facades\Cache::forget("menu.{$menu->location}");
+        };
+
+        static::saved($invalidate);
+        static::deleted($invalidate);
+    }
 }

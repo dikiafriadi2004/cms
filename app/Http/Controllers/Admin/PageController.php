@@ -14,15 +14,23 @@ class PageController extends Controller
     {
         $query = Page::with('user');
 
+        // Trashed filter: ?trashed=only | ?trashed=with
+        if ($request->trashed === 'only') {
+            $query = Page::onlyTrashed()->with('user');
+        } elseif ($request->trashed === 'with') {
+            $query = Page::withTrashed()->with('user');
+        }
+
         // Author can only see their own pages
         if (Auth::user()->hasRole('author')) {
             $query->where('user_id', Auth::id());
         }
 
         if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('title', 'like', '%' . $request->search . '%')
-                  ->orWhere('content', 'like', '%' . $request->search . '%');
+            $search = safe_like_input($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                  ->orWhere('content', 'like', '%' . $search . '%');
             });
         }
 
@@ -44,7 +52,13 @@ class PageController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|unique:pages,slug',
+            'slug' => [
+                'nullable',
+                'string',
+                \Illuminate\Validation\Rule::unique('pages', 'slug')->whereNull('deleted_at'),
+                // Reserved slugs that conflict with reserved frontend routes.
+                'not_in:admin,api,login,logout,register,blog,category,tag,contact,about,sitemap.xml,robots.txt',
+            ],
             'content' => 'required|string',
             'featured_image' => 'nullable|string',
             'template' => 'required|string',
@@ -52,7 +66,6 @@ class PageController extends Controller
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:160',
             'meta_keywords' => 'nullable|string|max:500',
-            'canonical_url' => 'nullable|url|max:500',
             'show_in_menu' => 'boolean',
             'is_homepage' => 'boolean',
             'sort_order' => 'integer|min:0',
@@ -63,6 +76,11 @@ class PageController extends Controller
         }
 
         $validated['user_id'] = Auth::id();
+
+        // Enforce publish permission. Without `pages.publish` force to draft.
+        if ($validated['status'] === 'published' && !Auth::user()->can('pages.publish')) {
+            $validated['status'] = 'draft';
+        }
 
         Page::create($validated);
 
@@ -104,7 +122,14 @@ class PageController extends Controller
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|unique:pages,slug,' . $page->id,
+            'slug' => [
+                'nullable',
+                'string',
+                \Illuminate\Validation\Rule::unique('pages', 'slug')
+                    ->ignore($page->id)
+                    ->whereNull('deleted_at'),
+                'not_in:admin,api,login,logout,register,blog,category,tag,contact,about,sitemap.xml,robots.txt',
+            ],
             'content' => 'required|string',
             'featured_image' => 'nullable|string',
             'template' => 'required|string',
@@ -112,7 +137,6 @@ class PageController extends Controller
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:160',
             'meta_keywords' => 'nullable|string|max:500',
-            'canonical_url' => 'nullable|url|max:500',
             'show_in_menu' => 'boolean',
             'is_homepage' => 'boolean',
             'sort_order' => 'integer|min:0',
@@ -120,6 +144,11 @@ class PageController extends Controller
 
         if (!$validated['slug']) {
             $validated['slug'] = Str::slug($validated['title']);
+        }
+
+        // Enforce publish permission on update
+        if ($validated['status'] === 'published' && !Auth::user()->can('pages.publish')) {
+            $validated['status'] = 'draft';
         }
 
         $page->update($validated);
@@ -165,5 +194,39 @@ class PageController extends Controller
 
         return redirect()->route('admin.pages.index')
             ->with('success', 'Page berhasil dihapus!');
+    }
+
+    /**
+     * Restore a soft-deleted page.
+     */
+    public function restore($id)
+    {
+        $page = Page::onlyTrashed()->findOrFail($id);
+
+        if (Auth::user()->hasRole('author') && $page->user_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses untuk merestore page ini.');
+        }
+
+        $page->restore();
+
+        return redirect()->route('admin.pages.index', ['trashed' => 'only'])
+            ->with('success', 'Page berhasil direstore!');
+    }
+
+    /**
+     * Permanently delete a soft-deleted page.
+     */
+    public function forceDestroy($id)
+    {
+        $page = Page::onlyTrashed()->findOrFail($id);
+
+        if (!Auth::user()->can('pages.delete')) {
+            abort(403, 'Anda tidak memiliki akses untuk menghapus permanen.');
+        }
+
+        $page->forceDelete();
+
+        return redirect()->route('admin.pages.index', ['trashed' => 'only'])
+            ->with('success', 'Page berhasil dihapus permanen!');
     }
 }

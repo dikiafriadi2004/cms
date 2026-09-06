@@ -162,3 +162,58 @@ if (!function_exists('time_ago')) {
         return str_replace(array_keys($translations), array_values($translations), $diff);
     }
 }
+
+if (!function_exists('asset_version')) {
+    /**
+     * Generate a versioned asset URL with cache busting.
+     *
+     * Uses APP_VERSION env if set (recommended for production deploys via CI),
+     * otherwise falls back to filemtime. Cached per-process to avoid repeated
+     * disk I/O for the same asset within a single request.
+     *
+     * Usage:
+     *   <link rel="stylesheet" href="{{ asset_version('css/app.css') }}">
+     */
+    function asset_version(string $relativePath): string
+    {
+        static $cache = [];
+
+        if (isset($cache[$relativePath])) {
+            return $cache[$relativePath];
+        }
+
+        $appVersion = env('APP_VERSION');
+        if ($appVersion) {
+            return $cache[$relativePath] = asset($relativePath) . '?v=' . urlencode($appVersion);
+        }
+
+        $absolute = public_path($relativePath);
+        if (!file_exists($absolute)) {
+            return $cache[$relativePath] = asset($relativePath);
+        }
+
+        $stamp = filemtime($absolute) ?: time();
+        return $cache[$relativePath] = asset($relativePath) . '?v=' . $stamp;
+    }
+}
+
+if (!function_exists('safe_like_input')) {
+    /**
+     * Sanitize search input for use in SQL LIKE queries.
+     *
+     * - Trims and caps length to prevent DoS via massive patterns.
+     * - Escapes SQL LIKE wildcards (%, _) and the escape char (\) so
+     *   user input "100%" matches the literal string, not a wildcard.
+     *
+     * Pair with default LIKE behavior (use the escape character explicitly
+     * if your DB requires it; MySQL accepts default \ as escape).
+     */
+    function safe_like_input(?string $input, int $maxLength = 200): string
+    {
+        if ($input === null) {
+            return '';
+        }
+        $trimmed = mb_substr(trim($input), 0, $maxLength);
+        return addcslashes($trimmed, '%_\\');
+    }
+}

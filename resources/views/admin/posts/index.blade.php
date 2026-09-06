@@ -135,8 +135,8 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center">
-                                    <img src="{{ $post->user->avatar_url }}" alt="" class="w-8 h-8 rounded-full mr-2">
-                                    <span class="text-sm text-gray-900">{{ $post->user->name }}</span>
+                                    <img src="{{ $post->user?->avatar_url ?? 'https://ui-avatars.com/api/?name=Unknown' }}" alt="" class="w-8 h-8 rounded-full mr-2">
+                                    <span class="text-sm text-gray-900">{{ $post->user?->display_name ?? 'Unknown' }}</span>
                                 </div>
                             </td>
                             <td class="px-6 py-4">

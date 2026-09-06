@@ -40,6 +40,10 @@ class RoleController extends Controller
             $role->syncPermissions($permissions);
         }
 
+        // Invalidate Spatie permission cache so changes take effect immediately
+        // for users currently logged in (default cache is 24h).
+        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+
         return redirect()->route('admin.roles.index')
             ->with('success', 'Role berhasil dibuat!');
     }
@@ -86,6 +90,9 @@ class RoleController extends Controller
             $role->syncPermissions([]);
         }
 
+        // Invalidate Spatie permission cache
+        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+
         return redirect()->route('admin.roles.index')
             ->with('success', 'Role berhasil diupdate!');
     }
@@ -119,6 +126,9 @@ class RoleController extends Controller
         }
 
         $role->delete();
+
+        // Invalidate Spatie permission cache
+        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
 
         if (request()->ajax() || request()->wantsJson()) {
             return response()->json([

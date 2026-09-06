@@ -6,12 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 class Post extends Model
 {
-    use HasFactory, HasSlug;
+    use HasFactory, HasSlug, SoftDeletes;
 
     protected $fillable = [
         'title',
@@ -59,7 +60,10 @@ class Post extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        // Use withTrashed so that soft-deleted authors are still resolvable.
+        // This prevents NULL pointer crashes in views that render $post->user->name.
+        // To filter out content from deleted users, use a dedicated scope.
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function tags(): BelongsToMany
@@ -220,24 +224,26 @@ class Post extends Model
         static::saving(function ($post) {
             $post->reading_time = $post->getReadingTimeAttribute(null);
             $post->seo_score = $post->calculateSeoScore();
-            
-            // Auto-generate Open Graph and Twitter Card data
-            // Load relationships if not loaded
-            if (!$post->relationLoaded('user')) {
-                $post->load('user');
-            }
-            if (!$post->relationLoaded('category')) {
-                $post->load('category');
-            }
-            if (!$post->relationLoaded('tags')) {
-                $post->load('tags');
-            }
-            
-            $post->open_graph = $post->generateOpenGraphData();
-            $post->twitter_card = $post->generateTwitterCardData();
         });
 
+        // Generate Open Graph and Twitter Card data AFTER save so we have a
+        // stable id/slug. Doing it in `saving` would force loading relations
+        // every save (potentially N queries) and the slug may not be final yet.
         static::saved(function ($post) {
+            $needsUpdate = false;
+
+            if (empty($post->open_graph) || empty($post->twitter_card)) {
+                $post->loadMissing(['user', 'category', 'tags']);
+                $post->open_graph = $post->generateOpenGraphData();
+                $post->twitter_card = $post->generateTwitterCardData();
+                $needsUpdate = true;
+            }
+
+            if ($needsUpdate) {
+                // saveQuietly to avoid recursive saved event
+                $post->saveQuietly();
+            }
+
             // Clear caches when post is saved
             static::clearCache();
         });
@@ -249,14 +255,11 @@ class Post extends Model
     }
 
     /**
-     * Get popular posts (cached)
-     *
-     * @param int $limit
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Get popular posts (cached per limit)
      */
     public static function popular(int $limit = 5)
     {
-        return \Illuminate\Support\Facades\Cache::remember('popular_posts', 3600, function () use ($limit) {
+        return \Illuminate\Support\Facades\Cache::remember("popular_posts:{$limit}", 3600, function () use ($limit) {
             return static::published()
                 ->with(['user', 'category'])
                 ->orderBy('views_count', 'desc')
@@ -266,14 +269,14 @@ class Post extends Model
     }
 
     /**
-     * Get latest posts (cached)
+     * Get latest posts (cached per limit)
      *
-     * @param int $limit
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Renamed from `latest()` to avoid clashing with Eloquent's
+     * Builder::latest() which is widely used across the codebase.
      */
-    public static function latest(int $limit = 6)
+    public static function latestPublished(int $limit = 6)
     {
-        return \Illuminate\Support\Facades\Cache::remember('latest_posts', 1800, function () use ($limit) {
+        return \Illuminate\Support\Facades\Cache::remember("latest_posts:{$limit}", 1800, function () use ($limit) {
             return static::published()
                 ->with(['user', 'category', 'tags'])
                 ->latest('published_at')
@@ -283,12 +286,22 @@ class Post extends Model
     }
 
     /**
-     * Clear post caches
+     * Clear post caches AND sitemap caches (post URLs are in sitemap).
      */
     public static function clearCache()
     {
         \Illuminate\Support\Facades\Cache::forget('popular_posts');
         \Illuminate\Support\Facades\Cache::forget('latest_posts');
+
+        // Pattern: forget all popular_posts:* and latest_posts:* variants
+        // (covers different limit parameters cached separately)
+        for ($i = 1; $i <= 50; $i++) {
+            \Illuminate\Support\Facades\Cache::forget("popular_posts:{$i}");
+            \Illuminate\Support\Facades\Cache::forget("latest_posts:{$i}");
+        }
+
+        // Sitemap includes post URLs — invalidate too
+        \App\Http\Controllers\SitemapController::flushCache();
     }
 
 }

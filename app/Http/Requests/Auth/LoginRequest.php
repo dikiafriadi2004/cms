@@ -49,11 +49,15 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        // Check if user is active
+        // Check if user is active — count this as a failed attempt to prevent
+        // attackers from probing for valid-but-inactive accounts unrate-limited.
         $user = Auth::user();
         if (!$user->is_active) {
             Auth::logout();
-            
+
+            // Hit the rate limiter so this counts toward the throttle threshold
+            RateLimiter::hit($this->throttleKey());
+
             throw ValidationException::withMessages([
                 'email' => 'Your account has been deactivated. Please contact the administrator.',
             ]);

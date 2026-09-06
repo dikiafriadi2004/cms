@@ -54,21 +54,32 @@ class AdController extends Controller
             'custom_height' => 'nullable|integer|min:50|max:2000',
         ]);
 
+        $uploadedImagePath = null;
+
         // Handle image upload with resize
         if ($request->hasFile('image')) {
-            $validated['image'] = $this->handleImageUpload(
+            $uploadedImagePath = $this->handleImageUpload(
                 $request->file('image'),
                 $request->input('position'),
                 $request->input('size_preset', 'medium'),
                 $request->input('custom_width'),
                 $request->input('custom_height')
             );
+            $validated['image'] = $uploadedImagePath;
         }
 
         // Set open_new_tab default
         $validated['open_new_tab'] = $request->has('open_new_tab');
 
-        Ad::create($validated);
+        try {
+            Ad::create($validated);
+        } catch (\Throwable $e) {
+            // Rollback orphan image if DB insert fails
+            if ($uploadedImagePath) {
+                \Storage::disk('public')->delete($uploadedImagePath);
+            }
+            throw $e;
+        }
 
         return redirect()->route('admin.ads.index')
             ->with('success', 'Ad berhasil dibuat!');
@@ -101,8 +112,9 @@ class AdController extends Controller
             $image->scale(height: $dimensions['height']);
         }
         
-        // Generate filename
-        $filename = uniqid() . '_' . time() . '.jpg';
+        // Generate cryptographically random filename to prevent
+        // concurrent upload collisions.
+        $filename = bin2hex(random_bytes(16)) . '.jpg';
         $path = storage_path('app/public/ads/' . $filename);
         
         // Ensure directory exists

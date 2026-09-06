@@ -16,8 +16,11 @@ class ContactFormRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
+            'phone' => 'nullable|string|max:20',
             'subject' => 'required|string|max:255',
             'message' => 'required|string|max:5000',
+            // Honeypot: bot biasanya isi field hidden ini
+            'website' => 'nullable|prohibited',
         ];
     }
 
@@ -33,6 +36,7 @@ class ContactFormRequest extends FormRequest
             'subject.max' => 'Subjek maksimal 255 karakter.',
             'message.required' => 'Pesan wajib diisi.',
             'message.max' => 'Pesan maksimal 5000 karakter.',
+            'website.prohibited' => 'Spam terdeteksi.',
         ];
     }
 }

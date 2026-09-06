@@ -31,7 +31,7 @@ class MediaFile extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function getUrlAttribute(): string
@@ -43,7 +43,9 @@ class MediaFile extends Model
     {
         if ($this->isImage()) {
             $thumbnailPath = str_replace('.', '_thumb.', $this->file_path);
-            if (Storage::exists('public/' . $thumbnailPath)) {
+            // Laravel 11/12: explicit disk usage. The file_path is already
+            // relative to the public disk root (no 'public/' prefix needed).
+            if (Storage::disk('public')->exists($thumbnailPath)) {
                 return asset('storage/' . $thumbnailPath);
             }
         }
@@ -113,16 +115,20 @@ class MediaFile extends Model
         parent::boot();
 
         static::deleting(function ($mediaFile) {
+            // Laravel 11/12: explicit disk usage. file_path is already
+            // relative to the disk root, no 'public/' prefix needed.
+            $disk = Storage::disk('public');
+
             // Delete main file
-            if (Storage::exists('public/' . $mediaFile->file_path)) {
-                Storage::delete('public/' . $mediaFile->file_path);
+            if ($mediaFile->file_path && $disk->exists($mediaFile->file_path)) {
+                $disk->delete($mediaFile->file_path);
             }
-            
+
             // Delete thumbnail if it's an image
-            if ($mediaFile->isImage()) {
+            if ($mediaFile->isImage() && $mediaFile->file_path) {
                 $thumbnailPath = str_replace('.', '_thumb.', $mediaFile->file_path);
-                if (Storage::exists('public/' . $thumbnailPath)) {
-                    Storage::delete('public/' . $thumbnailPath);
+                if ($disk->exists($thumbnailPath)) {
+                    $disk->delete($thumbnailPath);
                 }
             }
         });

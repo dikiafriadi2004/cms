@@ -28,9 +28,10 @@ class MediaController extends Controller
 
         // Search
         if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('original_name', 'like', '%' . $request->search . '%');
+            $search = safe_like_input($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('original_name', 'like', '%' . $search . '%');
             });
         }
 
@@ -184,53 +185,56 @@ class MediaController extends Controller
 
     private function processUpload($file, $folder)
     {
+        $originalName = $file->getClientOriginalName();
+        $extension = $file->getClientOriginalExtension();
+        $mimeType = $file->getMimeType();
+        $size = $file->getSize();
+
+        // Use cryptographically random filename to prevent collisions on
+        // concurrent uploads (uniqid() can collide on fast servers).
+        $filename = bin2hex(random_bytes(16)) . '.' . $extension;
+        $folderPath = 'media' . ($folder !== '/' ? '/' . trim($folder, '/') : '');
+
+        // Store file first
+        $path = $file->storeAs($folderPath, $filename, 'public');
+
+        if (!$path) {
+            throw new \Exception('Failed to store file to disk');
+        }
+
+        // Wrap DB write in transaction; on any failure, delete the orphan file.
         try {
-            $originalName = $file->getClientOriginalName();
-            $extension = $file->getClientOriginalExtension();
-            $mimeType = $file->getMimeType();
-            $size = $file->getSize();
+            return \Illuminate\Support\Facades\DB::transaction(function () use (
+                $path, $originalName, $folder, $size, $mimeType
+            ) {
+                $fileType = $this->getFileType($mimeType);
 
-            // Generate unique filename
-            $filename = time() . '_' . uniqid() . '.' . $extension;
-            $folderPath = 'media' . ($folder !== '/' ? '/' . trim($folder, '/') : '');
-            
-            // Store file - FIXED: use storeAs without 'public/' prefix
-            $path = $file->storeAs($folderPath, $filename, 'public');
-            
-            if (!$path) {
-                throw new \Exception('Failed to store file to disk');
-            }
-
-            // Determine file type
-            $fileType = $this->getFileType($mimeType);
-
-            // Process image if it's an image
-            $dimensions = null;
-            if ($fileType === 'image') {
-                try {
-                    $dimensions = $this->processImage($path);
-                } catch (\Exception $e) {
-                    \Log::warning('Failed to process image: ' . $e->getMessage());
-                    // Continue without dimensions
+                // Process image (resize if too large) — best effort.
+                $dimensions = null;
+                if ($fileType === 'image') {
+                    try {
+                        $dimensions = $this->processImage($path);
+                    } catch (\Exception $e) {
+                        \Log::warning('Failed to process image: ' . $e->getMessage());
+                    }
                 }
-            }
 
-            // Save to database
-            $mediaFile = MediaFile::create([
-                'name' => pathinfo($originalName, PATHINFO_FILENAME),
-                'original_name' => $originalName,
-                'file_path' => $path,
-                'file_type' => $fileType,
-                'mime_type' => $mimeType,
-                'file_size' => $size,
-                'dimensions' => $dimensions,
-                'user_id' => Auth::id(),
-                'folder' => $folder,
-            ]);
-
-            return $mediaFile;
-        } catch (\Exception $e) {
-            \Log::error('Upload processing failed: ' . $e->getMessage());
+                return MediaFile::create([
+                    'name' => pathinfo($originalName, PATHINFO_FILENAME),
+                    'original_name' => $originalName,
+                    'file_path' => $path,
+                    'file_type' => $fileType,
+                    'mime_type' => $mimeType,
+                    'file_size' => $size,
+                    'dimensions' => $dimensions,
+                    'user_id' => Auth::id(),
+                    'folder' => $folder,
+                ]);
+            });
+        } catch (\Throwable $e) {
+            // Rollback orphan file from disk
+            Storage::disk('public')->delete($path);
+            \Log::error('Upload rollback: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -252,12 +256,22 @@ class MediaController extends Controller
     {
         try {
             $manager = new ImageManager(new Driver());
-            $image = $manager->read(storage_path('app/public/' . $path));
-            
+            $fullPath = storage_path('app/public/' . $path);
+            $image = $manager->read($fullPath);
+
             $width = $image->width();
             $height = $image->height();
 
-            // Tidak buat thumbnail lagi - langsung return dimensions
+            // Auto-resize: cap max width at 1920px to keep storage/bandwidth small.
+            // Aspect ratio preserved by single-axis scaleDown.
+            $MAX_WIDTH = 1920;
+            if ($width > $MAX_WIDTH) {
+                $image->scaleDown(width: $MAX_WIDTH);
+                $image->save($fullPath);
+                $width = $image->width();
+                $height = $image->height();
+            }
+
             return ['width' => $width, 'height' => $height];
         } catch (\Exception $e) {
             return null;
@@ -332,16 +346,34 @@ class MediaController extends Controller
 
     public function createFolder(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'parent' => 'nullable|string',
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|regex:/^[\w\-\.\s]+$/',
+            // Parent must be either '/' or an absolute path under storage root.
+            // Reject any path containing '..', backslash, or null bytes.
+            'parent' => ['nullable', 'string', 'max:500', 'regex:/^[\/\w\-\.\s]+$/'],
         ]);
 
-        $parent = $request->parent ?: '/';
-        $folderPath = rtrim($parent, '/') . '/' . $request->name;
+        $parent = $validated['parent'] ?? '/';
+        // Normalize and reject path traversal attempts.
+        if (str_contains($parent, '..') || str_contains($parent, '\\')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid parent path.',
+            ], 422);
+        }
 
-        // Create folder in storage
-        Storage::makeDirectory('public/media' . $folderPath);
+        $folderPath = rtrim($parent, '/') . '/' . $validated['name'];
+        $absolute = 'media' . $folderPath;
+
+        // Final sanity check: resolved path must still be inside media/
+        if (!str_starts_with($absolute, 'media/') || str_contains($absolute, '..')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid folder path.',
+            ], 422);
+        }
+
+        Storage::disk('public')->makeDirectory($absolute);
 
         return response()->json([
             'success' => true,

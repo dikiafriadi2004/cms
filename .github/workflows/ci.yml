@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint:
+    name: PHP Syntax & Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, dom, fileinfo, mysql, gd
+          tools: composer:v2
+
+      - name: Cache composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: PHP Syntax Check
+        run: |
+          find app config database routes -name "*.php" -print0 \
+            | xargs -0 -n1 -P4 php -l > /dev/null
+
+      - name: Pint (Laravel code style)
+        run: vendor/bin/pint --test
+
+  build-assets:
+    name: Build CSS & JS
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build CSS
+        run: npx tailwindcss -i resources/css/app.css -o public/css/app.css --minify
+
+      - name: Build JS
+        run: npx esbuild resources/js/app.js --bundle --minify --outfile=public/js/app.js --format=iife
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-assets
+          path: |
+            public/css/app.css
+            public/js/app.js

@@ -5,12 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 class Page extends Model
 {
-    use HasFactory, HasSlug;
+    use HasFactory, HasSlug, SoftDeletes;
 
     protected $fillable = [
         'title',
@@ -52,7 +53,8 @@ class Page extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        // Use withTrashed so soft-deleted authors are still resolvable in views.
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function scopePublished($query)
@@ -130,17 +132,56 @@ class Page extends Model
 
         static::saving(function ($page) {
             if ($page->is_homepage) {
-                // Ensure only one homepage exists
-                static::where('is_homepage', true)->where('id', '!=', $page->id)->update(['is_homepage' => false]);
+                // Ensure only one homepage exists. On CREATE, $page->id is null
+                // and `WHERE id != NULL` is unknown SQL → matches nothing.
+                // Only add the exclusion clause when the page already has an id.
+                $query = static::where('is_homepage', true);
+                if ($page->exists) {
+                    $query->where('id', '!=', $page->id);
+                }
+                $query->update(['is_homepage' => false]);
             }
-            
-            // Auto-generate Open Graph and Twitter Card data
-            if (!$page->relationLoaded('user')) {
-                $page->load('user');
+        });
+
+        static::saved(function ($page) {
+            $needsUpdate = false;
+
+            if (empty($page->open_graph) || empty($page->twitter_card)) {
+                $page->loadMissing('user');
+                $page->open_graph = $page->generateOpenGraphData();
+                $page->twitter_card = $page->generateTwitterCardData();
+                $needsUpdate = true;
             }
-            
-            $page->open_graph = $page->generateOpenGraphData();
-            $page->twitter_card = $page->generateTwitterCardData();
+
+            if ($needsUpdate) {
+                $page->saveQuietly();
+            }
+
+            // Invalidate sitemap cache (page URLs are in sitemap)
+            \App\Http\Controllers\SitemapController::flushCache();
+
+            // Invalidate menu caches — menu items may reference this page slug
+            \Illuminate\Support\Facades\Cache::forget('menu.header');
+            \Illuminate\Support\Facades\Cache::forget('menu.footer');
+        });
+
+        static::deleted(function ($page) {
+            \App\Http\Controllers\SitemapController::flushCache();
+            \Illuminate\Support\Facades\Cache::forget('menu.header');
+            \Illuminate\Support\Facades\Cache::forget('menu.footer');
+        });
+
+        static::restored(function ($page) {
+            \App\Http\Controllers\SitemapController::flushCache();
+            \Illuminate\Support\Facades\Cache::forget('menu.header');
+            \Illuminate\Support\Facades\Cache::forget('menu.footer');
+
+            // Restoration of an old homepage may create duplicate homepage
+            if ($page->is_homepage) {
+                static::where('is_homepage', true)
+                    ->where('id', '!=', $page->id)
+                    ->update(['is_homepage' => false]);
+            }
         });
     }
 }

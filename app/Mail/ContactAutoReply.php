@@ -2,75 +2,88 @@
 
 namespace App\Mail;
 
-use App\Models\Contact;
 use App\Helpers\SettingsCache;
+use App\Models\Contact;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
-class ContactAutoReply extends Mailable
+class ContactAutoReply extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public $contact;
-    public $siteName;
-    public $logo;
-    public $contactEmail;
-    public $contactPhone;
-    public $contactAddress;
-    public $socialFacebook;
-    public $socialInstagram;
-    public $socialTwitter;
+    public function __construct(
+        public string $contactName,
+        public string $contactEmail,
+        public string $originalSubject,
+        public string $originalMessage
+    ) {}
 
-    public function __construct(Contact $contact)
+    public static function fromContact(Contact $contact): self
     {
-        $this->contact = $contact;
-        $settings = SettingsCache::all();
-        $this->siteName = $settings->get('site_name', config('app.name'));
-        $this->logo = $settings->get('logo');
-        $this->contactEmail = $settings->get('contact_email');
-        $this->contactPhone = $settings->get('contact_phone');
-        $this->contactAddress = $settings->get('contact_address');
-        $this->socialFacebook = $settings->get('social_facebook');
-        $this->socialInstagram = $settings->get('social_instagram');
-        $this->socialTwitter = $settings->get('social_twitter');
+        return new self(
+            contactName: $contact->name,
+            contactEmail: $contact->email,
+            originalSubject: $contact->subject,
+            originalMessage: $contact->message
+        );
     }
 
     public function envelope(): Envelope
     {
+        $settings = SettingsCache::all();
+        $siteName = $settings->get('site_name', config('app.name'));
+
         return new Envelope(
-            subject: 'Terima Kasih Telah Menghubungi Kami - ' . $this->siteName,
+            subject: 'Terima Kasih Telah Menghubungi Kami - ' . $siteName,
         );
     }
 
     public function content(): Content
     {
-        // Check if using real domain (not ngrok or localhost)
-        $isRealDomain = !str_contains(config('app.url'), 'ngrok') && 
-                        !str_contains(config('app.url'), 'localhost') &&
-                        !str_contains(config('app.url'), '127.0.0.1');
-        
+        // Resolve settings inside content() (queue worker context) so values
+        // reflect current settings, not a snapshot at dispatch time.
+        $settings = SettingsCache::all();
+        $appUrl = config('app.url');
+        $isRealDomain = !str_contains($appUrl, 'ngrok')
+            && !str_contains($appUrl, 'localhost')
+            && !str_contains($appUrl, '127.0.0.1');
+
+        $logo = $settings->get('logo');
+
+        $contact = (object) [
+            'name' => $this->contactName,
+            'email' => $this->contactEmail,
+            'subject' => $this->originalSubject,
+            'message' => $this->originalMessage,
+        ];
+
         return new Content(
             view: 'emails.contact-auto-reply',
             with: [
-                'contact' => $this->contact,
-                'siteName' => $this->siteName,
-                'logo' => $this->logo,
-                'hasLogo' => $isRealDomain && !empty($this->logo),
-                'contactEmail' => $this->contactEmail,
-                'contactPhone' => $this->contactPhone,
-                'contactAddress' => $this->contactAddress,
-                'socialFacebook' => $this->socialFacebook,
-                'socialInstagram' => $this->socialInstagram,
-                'socialTwitter' => $this->socialTwitter,
+                'contact' => $contact,
+                'siteName' => $settings->get('site_name', config('app.name')),
+                'logo' => $logo,
+                'hasLogo' => $isRealDomain && !empty($logo),
+                'contactEmail' => $settings->get('contact_email'),
+                'contactPhone' => $settings->get('contact_phone'),
+                'contactAddress' => $settings->get('contact_address'),
+                'socialFacebook' => $settings->get('social_facebook'),
+                'socialInstagram' => $settings->get('social_instagram'),
+                'socialTwitter' => $settings->get('social_twitter'),
             ]
         );
     }
 
-    public function attachments(): array
+    public function failed(\Throwable $exception): void
     {
-        return [];
+        Log::error('ContactAutoReply failed', [
+            'recipient' => $this->contactEmail,
+            'error' => $exception->getMessage(),
+        ]);
     }
 }

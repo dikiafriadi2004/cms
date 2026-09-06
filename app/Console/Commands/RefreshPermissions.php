@@ -36,9 +36,11 @@ class RefreshPermissions extends Command
             
             // Posts Management
             'posts.view', 'posts.create', 'posts.edit', 'posts.edit.own', 'posts.delete', 'posts.delete.own', 'posts.publish',
+            'posts.restore', 'posts.force-delete',
             
             // Pages Management
             'pages.view', 'pages.create', 'pages.edit', 'pages.edit.own', 'pages.delete', 'pages.delete.own', 'pages.publish',
+            'pages.restore', 'pages.force-delete',
             
             // Categories Management
             'categories.view', 'categories.create', 'categories.edit', 'categories.delete',

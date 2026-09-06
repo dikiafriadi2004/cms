@@ -14,10 +14,18 @@ class UserController extends Controller
     {
         $query = User::with('roles');
 
+        // Trashed filter: ?trashed=only | ?trashed=with
+        if ($request->trashed === 'only') {
+            $query = User::onlyTrashed()->with('roles');
+        } elseif ($request->trashed === 'with') {
+            $query = User::withTrashed()->with('roles');
+        }
+
         if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('email', 'like', '%' . $request->search . '%');
+            $search = safe_like_input($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%');
             });
         }
 
@@ -41,7 +49,11 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'email' => [
+                'required',
+                'email',
+                \Illuminate\Validation\Rule::unique('users', 'email')->whereNull('deleted_at'),
+            ],
             'password' => 'required|string|min:8|confirmed',
             'bio' => 'nullable|string',
             'is_active' => 'boolean',
@@ -49,10 +61,18 @@ class UserController extends Controller
             'roles.*' => 'exists:roles,name',
         ]);
 
+        $isActive = (bool) ($validated['is_active'] ?? true);
+        unset($validated['is_active'], $validated['roles']);
+
         $validated['password'] = Hash::make($validated['password']);
 
         $user = User::create($validated);
+        // is_active is NOT in $fillable for security; set explicitly.
+        $user->forceFill(['is_active' => $isActive])->save();
         $user->syncRoles($request->roles);
+
+        // Invalidate permission cache so role assignment is immediate
+        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
 
         return redirect()->route('admin.users.index')
             ->with('success', 'User berhasil dibuat!');
@@ -74,7 +94,13 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'email' => [
+                'required',
+                'email',
+                \Illuminate\Validation\Rule::unique('users', 'email')
+                    ->ignore($user->id)
+                    ->whereNull('deleted_at'),
+            ],
             'password' => 'nullable|string|min:8|confirmed',
             'bio' => 'nullable|string',
             'is_active' => 'boolean',
@@ -88,17 +114,24 @@ class UserController extends Controller
             unset($validated['password']);
         }
 
+        // Extract is_active and roles separately — they need explicit handling.
+        $isActive = $validated['is_active'] ?? null;
+        unset($validated['is_active'], $validated['roles']);
+
         // Prevent users from modifying their own roles and status
-        if ($user->id === auth()->id()) {
-            unset($validated['roles']);
-            unset($validated['is_active']);
-        }
+        $editingSelf = $user->id === auth()->id();
 
         $user->update($validated);
-        
-        // Only sync roles if not editing own account
-        if ($user->id !== auth()->id()) {
+
+        if (!$editingSelf) {
+            // is_active is NOT in $fillable for security; set explicitly.
+            if ($isActive !== null) {
+                $user->forceFill(['is_active' => (bool) $isActive])->save();
+            }
             $user->syncRoles($request->roles);
+
+            // Invalidate permission cache
+            app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
         }
 
         return redirect()->route('admin.users.index')
@@ -133,12 +166,51 @@ class UserController extends Controller
 
     public function toggleStatus(User $user)
     {
-        $user->update(['is_active' => !$user->is_active]);
+        // Prevent self-deactivation
+        if ($user->id === auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak dapat menonaktifkan akun sendiri!',
+            ], 403);
+        }
+
+        // is_active is NOT in $fillable for security; set explicitly.
+        $user->forceFill(['is_active' => !$user->is_active])->save();
 
         return response()->json([
             'success' => true,
             'is_active' => $user->is_active,
             'message' => 'Status user berhasil diupdate!'
         ]);
+    }
+
+    /**
+     * Restore a soft-deleted user.
+     */
+    public function restore($id)
+    {
+        $user = User::onlyTrashed()->findOrFail($id);
+        $user->restore();
+
+        return redirect()->route('admin.users.index', ['trashed' => 'only'])
+            ->with('success', 'User berhasil direstore!');
+    }
+
+    /**
+     * Permanently delete a soft-deleted user.
+     */
+    public function forceDestroy($id)
+    {
+        $user = User::onlyTrashed()->findOrFail($id);
+
+        if ($user->id === auth()->id()) {
+            return redirect()->route('admin.users.index')
+                ->with('error', 'Anda tidak dapat menghapus akun sendiri!');
+        }
+
+        $user->forceDelete();
+
+        return redirect()->route('admin.users.index', ['trashed' => 'only'])
+            ->with('success', 'User berhasil dihapus permanen!');
     }
 }

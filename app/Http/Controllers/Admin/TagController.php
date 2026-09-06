@@ -14,7 +14,8 @@ class TagController extends Controller
         $query = Tag::withCount('posts');
 
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $search = safe_like_input($request->search);
+            $query->where('name', 'like', '%' . $search . '%');
         }
 
         $tags = $query->latest()->paginate(20);
@@ -85,6 +86,25 @@ class TagController extends Controller
 
     public function destroy(Tag $tag)
     {
+        // Warn admin if tag has posts. The cascade pivot delete still happens
+        // via DB constraint, but the admin should consciously confirm.
+        $postCount = $tag->posts()->count();
+        if ($postCount > 0 && !request()->boolean('force')) {
+            $message = "Tag ini terhubung dengan {$postCount} post. "
+                . "Hapus tag akan melepas tag dari semua post tersebut. "
+                . "Kirim ulang dengan parameter force=1 untuk konfirmasi.";
+
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'requires_confirmation' => true,
+                    'post_count' => $postCount,
+                    'message' => $message,
+                ], 409);
+            }
+            return redirect()->route('admin.tags.index')->with('error', $message);
+        }
+
         $tag->delete();
 
         if (request()->ajax() || request()->wantsJson()) {
@@ -100,8 +120,9 @@ class TagController extends Controller
 
     public function search(Request $request)
     {
-        $query = $request->get('q', '');
-        
+        $request->validate(['q' => 'nullable|string|max:200']);
+        $query = safe_like_input($request->get('q', ''));
+
         $tags = Tag::where('is_active', true)
             ->where('name', 'like', '%' . $query . '%')
             ->limit(10)

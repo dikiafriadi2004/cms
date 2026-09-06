@@ -9,6 +9,13 @@ class Contact extends Model
 {
     use HasFactory;
 
+    /**
+     * Mass-assignable attributes.
+     *
+     * NOTE: `ip_address` is intentionally NOT fillable. It must always be
+     * derived from the actual request via `$request->ip()` and set
+     * explicitly in the controller, never trusted from user input.
+     */
     protected $fillable = [
         'name',
         'email',
@@ -16,7 +23,6 @@ class Contact extends Model
         'subject',
         'message',
         'status',
-        'ip_address',
         'notes',
         'read_at',
         'replied_at',

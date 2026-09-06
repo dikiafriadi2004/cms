@@ -97,28 +97,37 @@ class SettingController extends Controller
         }
 
         // Handle separate file uploads (logo, favicon, hero_image, og_image)
+        // Order: validate → upload new → save DB → delete old (atomic-ish).
+        // If DB save fails, new file is rolled back; old file remains intact.
         $fileUploads = ['logo', 'favicon', 'hero_image', 'og_image'];
         foreach ($fileUploads as $fileKey) {
             if ($request->hasFile($fileKey)) {
                 $file = $request->file($fileKey);
-                $path = $file->store('settings', 'public');
-                
-                // Delete old file if exists
+                $newPath = $file->store('settings', 'public');
+
                 $oldSetting = Setting::where('key', $fileKey)->first();
-                if ($oldSetting && $oldSetting->value) {
-                    Storage::disk('public')->delete($oldSetting->value);
+                $oldPath = $oldSetting?->value;
+
+                try {
+                    Setting::updateOrCreate(
+                        ['key' => $fileKey],
+                        [
+                            'value' => $newPath,
+                            'group' => $fileKey === 'og_image' ? 'seo' : ($fileKey === 'hero_image' ? 'hero' : 'branding'),
+                            'type' => 'file',
+                            'label' => ucfirst(str_replace('_', ' ', $fileKey)),
+                        ]
+                    );
+
+                    // DB save succeeded → safe to delete old file now.
+                    if ($oldPath) {
+                        Storage::disk('public')->delete($oldPath);
+                    }
+                } catch (\Throwable $e) {
+                    // Rollback orphan upload; preserve old setting/file.
+                    Storage::disk('public')->delete($newPath);
+                    throw $e;
                 }
-                
-                // Update or create setting
-                Setting::updateOrCreate(
-                    ['key' => $fileKey],
-                    [
-                        'value' => $path,
-                        'group' => $fileKey === 'og_image' ? 'seo' : ($fileKey === 'hero_image' ? 'hero' : 'branding'),
-                        'type' => 'file',
-                        'label' => ucfirst(str_replace('_', ' ', $fileKey)),
-                    ]
-                );
             }
         }
 
@@ -126,20 +135,31 @@ class SettingController extends Controller
             $setting = Setting::where('key', $key)->first();
             
             if (!$setting) {
+                // SECURITY: Whitelist by existing setting record only — prevent
+                // mass-assign of arbitrary new setting keys via this endpoint.
                 continue;
             }
 
-            // Handle file uploads
+            // Handle file uploads — upload first, save later, delete old last
             if ($setting->type === 'file' && $request->hasFile("settings.{$key}")) {
                 $file = $request->file("settings.{$key}");
-                $path = $file->store('settings', 'public');
-                
-                // Delete old file if exists
-                if ($setting->value) {
-                    Storage::disk('public')->delete($setting->value);
+                $newPath = $file->store('settings', 'public');
+                $oldPath = $setting->value;
+
+                $value = $newPath;
+
+                // Defer old file delete until after $setting->update() succeeds
+                // (handled below with try/catch).
+                try {
+                    $setting->update(['value' => $value]);
+                    if ($oldPath) {
+                        Storage::disk('public')->delete($oldPath);
+                    }
+                    continue; // Skip the generic update below since we already saved
+                } catch (\Throwable $e) {
+                    Storage::disk('public')->delete($newPath);
+                    throw $e;
                 }
-                
-                $value = $path;
             }
 
             // Handle boolean values
@@ -155,17 +175,15 @@ class SettingController extends Controller
             $setting->update(['value' => $value]);
         }
 
-        // Clear settings cache
-        Setting::clearCache();
-        
-        // Also clear SettingsCache helper
+        // Setting::saved boot event already invalidates cache per-key.
+        // Just flush the aggregate cache used by view composers.
         \App\Helpers\SettingsCache::flush();
 
-        // Clear sitemap cache so robots.txt and sitemap.xml reflect new settings
-        cache()->forget('sitemap.xml');
+        // Clear sitemap caches so robots.txt and sitemap.xml reflect new settings
+        \App\Http\Controllers\SitemapController::flushCache();
 
-        // Reconfigure mail with new settings
-        MailConfigService::configure();
+        // Reconfigure mail with new settings (current request scope)
+        MailConfigService::flushAndReconfigure();
 
         // Clear config cache if analytics was updated
         if ($request->filled('ga_credentials_json') || $request->filled('ga_property_id')) {

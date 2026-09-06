@@ -15,7 +15,8 @@ class AdAnalyticsController extends Controller
      */
     public function index(Request $request)
     {
-        $dateRange = $request->get('range', '7'); // 7, 30, 90 days
+        $dateRange = (int) $request->get('range', 7); // 7, 30, 90 days
+        $dateRange = max(1, min(365, $dateRange));
         $startDate = Carbon::now()->subDays($dateRange)->startOfDay();
         $endDate = Carbon::now()->endOfDay();
 
@@ -69,7 +70,8 @@ class AdAnalyticsController extends Controller
      */
     public function show(Ad $ad, Request $request)
     {
-        $dateRange = $request->get('range', '7');
+        $dateRange = (int) $request->get('range', 7);
+        $dateRange = max(1, min(365, $dateRange));
         $startDate = Carbon::now()->subDays($dateRange)->startOfDay();
         $endDate = Carbon::now()->endOfDay();
 
@@ -115,15 +117,71 @@ class AdAnalyticsController extends Controller
     }
 
     /**
+     * Validate that tracking request originates from same site.
+     *
+     * Lenient policy: only REJECT when Origin/Referer is explicitly set AND
+     * does not match. Empty headers are allowed because:
+     * - navigator.sendBeacon() often strips Referer/Origin
+     * - Some privacy-focused browsers strip these headers
+     *
+     * Combined with the throttle middleware (60/30 per minute) and
+     * `ad_id` exists validation, this provides defense-in-depth without
+     * breaking legitimate tracking.
+     */
+    private function isSameOrigin(Request $request): bool
+    {
+        $appUrl = rtrim((string) config('app.url'), '/');
+        $appHost = parse_url($appUrl, PHP_URL_HOST);
+        $appPort = parse_url($appUrl, PHP_URL_PORT);
+
+        if (!$appHost) {
+            return true;
+        }
+
+        $origin = $request->header('Origin');
+        $referer = $request->header('Referer');
+
+        // No origin headers at all — allow (privacy mode, sendBeacon, etc).
+        if (!$origin && !$referer) {
+            return true;
+        }
+
+        // If at least one of them matches our host AND port, accept.
+        foreach ([$origin, $referer] as $candidate) {
+            if (!$candidate) {
+                continue;
+            }
+            $host = parse_url($candidate, PHP_URL_HOST);
+            $port = parse_url($candidate, PHP_URL_PORT);
+            if ($host && strcasecmp($host, $appHost) === 0
+                && (!$appPort || $appPort === $port || $port === null)) {
+                return true;
+            }
+        }
+
+        // Origin/Referer present but neither matches → cross-site, reject.
+        return false;
+    }
+
+    /**
      * Track ad impression (API endpoint)
      */
     public function trackImpression(Request $request)
     {
+        if (!$this->isSameOrigin($request)) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+
         $request->validate([
-            'ad_id' => 'required|exists:ads,id',
-            'page_url' => 'nullable|string',
-            'page_type' => 'nullable|string',
+            'ad_id' => 'required|integer|exists:ads,id',
+            'page_url' => 'nullable|string|max:500',
+            'page_type' => 'nullable|string|max:50',
         ]);
+
+        // Reject obvious bot/script traffic without UA or with empty UA
+        if (empty($request->userAgent())) {
+            return response()->json(['success' => false, 'message' => 'Invalid request'], 400);
+        }
 
         $this->createAnalyticEvent($request, 'impression');
 
@@ -135,11 +193,19 @@ class AdAnalyticsController extends Controller
      */
     public function trackClick(Request $request)
     {
+        if (!$this->isSameOrigin($request)) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+
         $request->validate([
-            'ad_id' => 'required|exists:ads,id',
-            'page_url' => 'nullable|string',
-            'page_type' => 'nullable|string',
+            'ad_id' => 'required|integer|exists:ads,id',
+            'page_url' => 'nullable|string|max:500',
+            'page_type' => 'nullable|string|max:50',
         ]);
+
+        if (empty($request->userAgent())) {
+            return response()->json(['success' => false, 'message' => 'Invalid request'], 400);
+        }
 
         $this->createAnalyticEvent($request, 'click');
 
@@ -147,19 +213,34 @@ class AdAnalyticsController extends Controller
     }
 
     /**
-     * Create analytic event
+     * Create analytic event with per-ad+IP deduplication window
+     * to limit a single visitor inflating CTR.
      */
     private function createAnalyticEvent(Request $request, string $eventType)
     {
-        $userAgent = $request->userAgent();
-        
+        $userAgent = substr((string) $request->userAgent(), 0, 500);
+        $referrer = substr((string) $request->header('referer'), 0, 500);
+        $pageUrl = substr((string) $request->page_url, 0, 500);
+
+        // Dedupe: same IP+ad+event within 5 minutes counted only once.
+        $dedupeKey = sprintf(
+            'adtrack:%s:%d:%s',
+            $eventType,
+            (int) $request->ad_id,
+            sha1($request->ip())
+        );
+        if (\Illuminate\Support\Facades\Cache::has($dedupeKey)) {
+            return; // silently dedupe
+        }
+        \Illuminate\Support\Facades\Cache::put($dedupeKey, 1, now()->addMinutes(5));
+
         AdAnalytic::create([
             'ad_id' => $request->ad_id,
             'event_type' => $eventType,
-            'page_url' => $request->page_url,
+            'page_url' => $pageUrl ?: null,
             'page_type' => $request->page_type,
-            'referrer' => $request->header('referer'),
-            'user_agent' => $userAgent,
+            'referrer' => $referrer ?: null,
+            'user_agent' => $userAgent ?: null,
             'ip_address' => $request->ip(),
             'device_type' => $this->detectDevice($userAgent),
             'browser' => $this->detectBrowser($userAgent),
@@ -247,7 +328,8 @@ class AdAnalyticsController extends Controller
      */
     public function export(Request $request)
     {
-        $dateRange = $request->get('range', '30');
+        $dateRange = (int) $request->get('range', 30);
+        $dateRange = max(1, min(365, $dateRange));
         $startDate = Carbon::now()->subDays($dateRange)->startOfDay();
         $endDate = Carbon::now()->endOfDay();
 

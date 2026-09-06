@@ -16,23 +16,29 @@ class CheckUserActive
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Check if user is authenticated
         if (Auth::check()) {
             $user = Auth::user();
-            
-            // Check if user is inactive
-            if (!$user->is_active) {
+
+            // Defensive null guard: in some race conditions Auth::check()
+            // returns true but Auth::user() resolves to null (cache miss,
+            // session inconsistency).
+            if ($user === null) {
+                return $next($request);
+            }
+
+            // Treat null `is_active` as inactive (legacy data safety).
+            // Default scope: only `false` should logout.
+            if ($user->is_active === false) {
                 Auth::logout();
-                
-                // Invalidate session
+
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
-                
+
                 return redirect()->route('login')
-                    ->with('error', 'Your account has been deactivated. Please contact the administrator.');
+                    ->with('error', 'Akun Anda telah dinonaktifkan. Hubungi administrator.');
             }
         }
-        
+
         return $next($request);
     }
 }

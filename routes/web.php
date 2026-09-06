@@ -27,11 +27,12 @@ Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap')
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 // Ads Tracking API (Public - No Auth Required)
+// Throttle ketat per IP untuk cegah spam tracking yang flood DB.
 Route::post('/api/ads/track-impression', [AdAnalyticsController::class, 'trackImpression'])
-    ->middleware('throttle:100,1')
+    ->middleware('throttle:60,1')
     ->name('api.ads.track-impression');
 Route::post('/api/ads/track-click', [AdAnalyticsController::class, 'trackClick'])
-    ->middleware('throttle:100,1')
+    ->middleware('throttle:30,1')
     ->name('api.ads.track-click');
 
 // Frontend Routes
@@ -52,7 +53,7 @@ Route::post('/contact', [ContactController::class, 'store'])
 Route::get('/about', [HomeController::class, 'about'])->name('about');
 
 // Admin Routes
-Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'throttle:120,1'])->group(function () {
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard')->middleware('permission:dashboard.view');
     
@@ -71,7 +72,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('posts/{post}/edit', [PostController::class, 'edit'])->name('posts.edit')->middleware('permission:posts.edit|posts.edit.own');
     Route::put('posts/{post}', [PostController::class, 'update'])->name('posts.update')->middleware('permission:posts.edit|posts.edit.own');
     Route::delete('posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy')->middleware('permission:posts.delete|posts.delete.own');
-    Route::post('posts/bulk-action', [PostController::class, 'bulkAction'])->name('posts.bulk-action')->middleware('permission:posts.delete');
+    Route::post('posts/bulk-action', [PostController::class, 'bulkAction'])->name('posts.bulk-action')->middleware('permission:posts.delete|posts.edit');
+    // Soft delete management
+    Route::post('posts/{id}/restore', [PostController::class, 'restore'])->name('posts.restore')->middleware('permission:posts.delete|posts.delete.own');
+    Route::delete('posts/{id}/force', [PostController::class, 'forceDestroy'])->name('posts.force-destroy')->middleware('permission:posts.delete');
     
     // Categories
     Route::get('categories/create', [CategoryController::class, 'create'])->name('categories.create')->middleware('permission:categories.create');
@@ -105,6 +109,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('pages/{page}/edit', [PageController::class, 'edit'])->name('pages.edit')->middleware('permission:pages.edit|pages.edit.own');
     Route::put('pages/{page}', [PageController::class, 'update'])->name('pages.update')->middleware('permission:pages.edit|pages.edit.own');
     Route::delete('pages/{page}', [PageController::class, 'destroy'])->name('pages.destroy')->middleware('permission:pages.delete|pages.delete.own');
+    Route::post('pages/{id}/restore', [PageController::class, 'restore'])->name('pages.restore')->middleware('permission:pages.delete|pages.delete.own');
+    Route::delete('pages/{id}/force', [PageController::class, 'forceDestroy'])->name('pages.force-destroy')->middleware('permission:pages.delete');
     
     // Menus
     Route::get('menus/create', [MenuController::class, 'create'])->name('menus.create')->middleware('permission:menus.create');
@@ -142,6 +148,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::put('users/{user}', [UserController::class, 'update'])->name('users.update')->middleware('permission:users.edit');
     Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy')->middleware('permission:users.delete');
     Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status')->middleware('permission:users.toggle.status');
+    Route::post('users/{id}/restore', [UserController::class, 'restore'])->name('users.restore')->middleware('permission:users.delete');
+    Route::delete('users/{id}/force', [UserController::class, 'forceDestroy'])->name('users.force-destroy')->middleware('permission:users.delete');
     
     // Roles & Permissions
     Route::get('roles/create', [\App\Http\Controllers\Admin\RoleController::class, 'create'])->name('roles.create')->middleware('permission:roles.create');
@@ -169,6 +177,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     
     // Ads
     Route::get('ads/create', [AdController::class, 'create'])->name('ads.create')->middleware('permission:ads.create');
+
+    // Ads Analytics — DEFINED BEFORE ads/{ad} routes to avoid route binding collision
+    Route::middleware('permission:ads.view')->group(function () {
+        Route::get('ads/analytics', [\App\Http\Controllers\Admin\AdAnalyticsController::class, 'index'])->name('ads.analytics.index');
+        Route::get('ads/analytics/export', [\App\Http\Controllers\Admin\AdAnalyticsController::class, 'export'])->name('ads.analytics.export');
+        Route::get('ads/{ad}/analytics', [\App\Http\Controllers\Admin\AdAnalyticsController::class, 'show'])->name('ads.analytics.show');
+    });
+
     Route::middleware('permission:ads.view')->group(function () {
         Route::get('ads', [AdController::class, 'index'])->name('ads.index');
     });
@@ -177,11 +193,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::put('ads/{ad}', [AdController::class, 'update'])->name('ads.update')->middleware('permission:ads.edit');
     Route::post('ads/{ad}/toggle-status', [AdController::class, 'toggleStatus'])->name('ads.toggle-status')->middleware('permission:ads.edit');
     Route::delete('ads/{ad}', [AdController::class, 'destroy'])->name('ads.destroy')->middleware('permission:ads.delete');
-    
-    // Ads Analytics
     Route::middleware('permission:ads.view')->group(function () {
-        Route::get('ads/analytics', [\App\Http\Controllers\Admin\AdAnalyticsController::class, 'index'])->name('ads.analytics.index');
-        Route::get('ads/{ad}/analytics', [\App\Http\Controllers\Admin\AdAnalyticsController::class, 'show'])->name('ads.analytics.show');
+        Route::get('ads/{ad}', [AdController::class, 'show'])->name('ads.show');
     });
     
     // Contacts

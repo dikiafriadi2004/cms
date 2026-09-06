@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Helpers\SettingsCache;
+use App\Http\Requests\ContactFormRequest;
 use App\Models\Contact;
 use App\Services\TemplateService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
 class ContactController extends Controller
@@ -25,7 +25,7 @@ class ContactController extends Controller
         return view($viewPath, compact('settings'));
     }
 
-    public function store(Request $request)
+    public function store(ContactFormRequest $request)
     {
         $settings = SettingsCache::all();
 
@@ -33,39 +33,30 @@ class ContactController extends Controller
             return back()->with('error', 'Contact form is currently disabled.');
         }
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => 'nullable|string|max:20',
-            'subject' => 'required|string|max:255',
-            'message' => 'required|string|max:5000',
-        ], [
-            'name.required' => 'Nama wajib diisi.',
-            'email.required' => 'Email wajib diisi.',
-            'email.email' => 'Format email tidak valid.',
-            'subject.required' => 'Subjek wajib diisi.',
-            'message.required' => 'Pesan wajib diisi.',
-        ]);
+        $validated = $request->validated();
 
-        // Create contact record
-        $contact = Contact::create([
+        // Create contact record. ip_address is NEVER taken from user input
+        // (it is not in $fillable on Contact model — set explicitly via forceFill).
+        $contact = new Contact();
+        $contact->fill([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'phone' => $validated['phone'] ?? null,
             'subject' => $validated['subject'],
             'message' => $validated['message'],
             'status' => 'new',
-            'ip_address' => $request->ip(),
         ]);
+        $contact->ip_address = $request->ip();
+        $contact->save();
 
         // Send email notifications
         try {
-            $recipientEmail = $settings->get('mail_username') 
+            $recipientEmail = $settings->get('mail_username')
                 ?: $settings->get('contact_email');
 
             if ($recipientEmail) {
-                Mail::to($contact->email)->queue(new \App\Mail\ContactAutoReply($contact));
-                Mail::to($recipientEmail)->queue(new \App\Mail\ContactNotification($contact));
+                Mail::to($contact->email)->queue(\App\Mail\ContactAutoReply::fromContact($contact));
+                Mail::to($recipientEmail)->queue(\App\Mail\ContactNotification::fromContact($contact));
             }
         } catch (\Exception $e) {
             \Log::error('Failed to queue contact form email: ' . $e->getMessage());

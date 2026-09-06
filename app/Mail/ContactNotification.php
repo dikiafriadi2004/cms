@@ -2,60 +2,87 @@
 
 namespace App\Mail;
 
-use App\Models\Contact;
 use App\Helpers\SettingsCache;
+use App\Models\Contact;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
-class ContactNotification extends Mailable
+class ContactNotification extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public $contact;
-    public $siteName;
-    public $logo;
-    public $adminUrl;
+    public function __construct(
+        public int $contactId,
+        public string $contactName,
+        public string $contactEmail,
+        public string $contactSubject,
+        public string $contactMessage,
+        public ?string $contactPhone = null
+    ) {}
 
-    public function __construct(Contact $contact)
+    public static function fromContact(Contact $contact): self
     {
-        $this->contact = $contact;
-        $settings = SettingsCache::all();
-        $this->siteName = $settings->get('site_name', config('app.name'));
-        $this->logo = $settings->get('logo');
-        $this->adminUrl = url('/admin/contacts/' . $contact->id);
+        return new self(
+            contactId: $contact->id,
+            contactName: $contact->name,
+            contactEmail: $contact->email,
+            contactSubject: $contact->subject,
+            contactMessage: $contact->message,
+            contactPhone: $contact->phone
+        );
     }
 
     public function envelope(): Envelope
     {
+        $settings = SettingsCache::all();
+        $siteName = $settings->get('site_name', config('app.name'));
+
         return new Envelope(
-            subject: '[' . $this->siteName . '] Pesan Baru dari ' . $this->contact->name,
+            subject: '[' . $siteName . '] Pesan Baru dari ' . $this->contactName,
         );
     }
 
     public function content(): Content
     {
-        // Check if using real domain (not ngrok or localhost)
-        $isRealDomain = !str_contains(config('app.url'), 'ngrok') && 
-                        !str_contains(config('app.url'), 'localhost') &&
-                        !str_contains(config('app.url'), '127.0.0.1');
-        
+        $settings = SettingsCache::all();
+        $appUrl = config('app.url');
+        $isRealDomain = !str_contains($appUrl, 'ngrok')
+            && !str_contains($appUrl, 'localhost')
+            && !str_contains($appUrl, '127.0.0.1');
+
+        $logo = $settings->get('logo');
+
+        $contact = (object) [
+            'id' => $this->contactId,
+            'name' => $this->contactName,
+            'email' => $this->contactEmail,
+            'subject' => $this->contactSubject,
+            'message' => $this->contactMessage,
+            'phone' => $this->contactPhone,
+        ];
+
         return new Content(
             view: 'emails.contact-notification',
             with: [
-                'contact' => $this->contact,
-                'siteName' => $this->siteName,
-                'logo' => $this->logo,
-                'hasLogo' => $isRealDomain && !empty($this->logo),
-                'adminUrl' => $this->adminUrl,
+                'contact' => $contact,
+                'siteName' => $settings->get('site_name', config('app.name')),
+                'logo' => $logo,
+                'hasLogo' => $isRealDomain && !empty($logo),
+                'adminUrl' => url('/admin/contacts/' . $this->contactId),
             ]
         );
     }
 
-    public function attachments(): array
+    public function failed(\Throwable $exception): void
     {
-        return [];
+        Log::error('ContactNotification failed', [
+            'contact_id' => $this->contactId,
+            'error' => $exception->getMessage(),
+        ]);
     }
 }

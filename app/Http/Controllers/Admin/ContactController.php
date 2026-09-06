@@ -20,7 +20,7 @@ class ContactController extends Controller
 
         // Search
         if ($request->filled('search')) {
-            $search = $request->search;
+            $search = safe_like_input($request->search);
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")
@@ -31,19 +31,20 @@ class ContactController extends Controller
 
         $contacts = $query->paginate(20);
 
-        // Single query untuk semua stats
+        // Single query untuk semua stats — pakai CASE WHEN supaya portable
+        // (lebih aman dari `SUM(status = 'x')` yang bergantung pada vendor SQL mode).
         $allStats = Contact::selectRaw("
-            COUNT(*) as total,
-            SUM(status = 'new') as new,
-            SUM(status = 'read') as `read`,
-            SUM(status = 'replied') as replied
+            COUNT(*) AS total,
+            SUM(CASE WHEN status = 'new' THEN 1 ELSE 0 END) AS new_count,
+            SUM(CASE WHEN status = 'read' THEN 1 ELSE 0 END) AS read_count,
+            SUM(CASE WHEN status = 'replied' THEN 1 ELSE 0 END) AS replied_count
         ")->first();
 
         $stats = [
-            'total' => $allStats->total,
-            'new' => $allStats->new,
-            'read' => $allStats->read,
-            'replied' => $allStats->replied,
+            'total' => (int) $allStats->total,
+            'new' => (int) $allStats->new_count,
+            'read' => (int) $allStats->read_count,
+            'replied' => (int) $allStats->replied_count,
         ];
 
         return view('admin.contacts.index', compact('contacts', 'stats'));
@@ -120,51 +121,53 @@ class ContactController extends Controller
     {
         $validated = $request->validate([
             'subject' => 'required|string|max:255',
-            'message' => 'required|string',
+            'message' => 'required|string|max:10000',
         ]);
 
         try {
             // Ambil semua settings sekaligus dari cache
             $settings = SettingsCache::all();
-            $siteName = $settings['site_name'] ?? config('app.name');
-            $logo = $settings['logo'] ?? null;
-            $contactEmail = $settings['contact_email'] ?? null;
-            $contactPhone = $settings['contact_phone'] ?? null;
-            $contactAddress = $settings['contact_address'] ?? null;
-            $socialFacebook = $settings['social_facebook'] ?? null;
-            $socialInstagram = $settings['social_instagram'] ?? null;
-            $socialTwitter = $settings['social_twitter'] ?? null;
+            $appUrl = config('app.url');
+            $isRealDomain = !str_contains($appUrl, 'ngrok')
+                && !str_contains($appUrl, 'localhost')
+                && !str_contains($appUrl, '127.0.0.1');
 
-            // Check if using real domain (not ngrok or localhost)
-            $isRealDomain = !str_contains(config('app.url'), 'ngrok') && 
-                            !str_contains(config('app.url'), 'localhost') &&
-                            !str_contains(config('app.url'), '127.0.0.1');
+            $branding = [
+                'siteName' => $settings['site_name'] ?? config('app.name'),
+                'logo' => $settings['logo'] ?? null,
+                'hasLogo' => $isRealDomain && !empty($settings['logo'] ?? null),
+                'contactEmail' => $settings['contact_email'] ?? null,
+                'contactPhone' => $settings['contact_phone'] ?? null,
+                'contactAddress' => $settings['contact_address'] ?? null,
+                'socialFacebook' => $settings['social_facebook'] ?? null,
+                'socialInstagram' => $settings['social_instagram'] ?? null,
+                'socialTwitter' => $settings['social_twitter'] ?? null,
+            ];
 
-            // Send email
-            \Mail::send('emails.contact-reply', [
-                'contact' => $contact,
-                'replyMessage' => $validated['message'],
-                'siteName' => $siteName,
-                'logo' => $logo,
-                'hasLogo' => $isRealDomain && !empty($logo),
-                'contactEmail' => $contactEmail,
-                'contactPhone' => $contactPhone,
-                'contactAddress' => $contactAddress,
-                'socialFacebook' => $socialFacebook,
-                'socialInstagram' => $socialInstagram,
-                'socialTwitter' => $socialTwitter,
-            ], function ($message) use ($contact, $validated) {
-                $message->to($contact->email, $contact->name)
-                        ->subject($validated['subject']);
-            });
+            // Queue (truly async) the mail to avoid blocking the request.
+            // ContactReplyMail::fromContact() unpacks the Contact into plain
+            // properties, so the queue job will not fail if Contact is deleted
+            // between dispatch and worker processing.
+            \Mail::to($contact->email, $contact->name)
+                ->queue(\App\Mail\ContactReplyMail::fromContact(
+                    $contact,
+                    $validated['message'],
+                    $validated['subject'],
+                    $branding
+                ));
 
-            // Mark as replied
+            // Mark as replied immediately. If the queued job fails later,
+            // the failed_jobs table + Queue::failing handler will notify admin.
             $contact->markAsReplied();
 
             return redirect()->route('admin.contacts.show', $contact)
-                ->with('success', 'Balasan berhasil dikirim ke ' . $contact->email);
+                ->with('success', 'Balasan sedang dikirim ke ' . $contact->email);
 
         } catch (\Exception $e) {
+            \Log::error('Contact reply failed', [
+                'contact_id' => $contact->id,
+                'error' => $e->getMessage(),
+            ]);
             return back()->withInput()
                 ->with('error', 'Gagal mengirim email: ' . $e->getMessage());
         }

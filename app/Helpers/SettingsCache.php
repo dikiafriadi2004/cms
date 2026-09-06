@@ -5,6 +5,19 @@ namespace App\Helpers;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * Lightweight aggregate-cache helper for settings.
+ *
+ * Returns RAW values (path/string) — same contract as direct DB column access.
+ * For typed values (URL for files, bool, decoded JSON), use Setting::get($key).
+ *
+ * NOTE: Both APIs return different shapes by design:
+ * - SettingsCache::get('logo') → 'settings/abc.png' (raw path)
+ * - Setting::get('logo')       → 'https://...'      (typed URL)
+ *
+ * Use SettingsCache when you need the bag of all settings (e.g. inject into views),
+ * use Setting::get when you need a single typed value.
+ */
 class SettingsCache
 {
     /**
@@ -13,7 +26,7 @@ class SettingsCache
     const CACHE_DURATION = 3600;
 
     /**
-     * Get a setting value from cache
+     * Get a raw setting value from cache.
      *
      * @param string $key
      * @param mixed $default
@@ -26,7 +39,7 @@ class SettingsCache
     }
 
     /**
-     * Get all settings from cache
+     * Get all settings as a Collection of raw values (key => value).
      *
      * @return \Illuminate\Support\Collection
      */
@@ -38,19 +51,35 @@ class SettingsCache
     }
 
     /**
-     * Flush the settings cache
-     *
-     * @return void
+     * Resolve a 'file' type setting to a public URL. Falls back to default
+     * if the setting is empty or the file does not physically exist.
      */
-    public static function flush()
+    public static function fileUrl(string $key, ?string $default = null): ?string
+    {
+        $path = self::get($key);
+        if (!$path) {
+            return $default;
+        }
+
+        // Validate physical file exists to avoid broken <img> tags
+        $absolute = public_path('storage/' . ltrim($path, '/'));
+        if (!file_exists($absolute)) {
+            return $default;
+        }
+
+        return asset('storage/' . ltrim($path, '/'));
+    }
+
+    /**
+     * Flush the settings cache
+     */
+    public static function flush(): void
     {
         Cache::forget('settings');
     }
 
     /**
      * Refresh the settings cache
-     *
-     * @return \Illuminate\Support\Collection
      */
     public static function refresh()
     {

@@ -68,8 +68,13 @@ class HomeController extends Controller
 
     private function trackPageView($page)
     {
-        // Simple page view tracking
-        // You can implement more sophisticated tracking here
-        $page->increment('views_count');
+        // Idempotent view tracking — bypass model events to avoid cache bust
+        $viewKey = sprintf('page:viewed:%d:%s', $page->id, sha1(request()->ip()));
+        if (!\Illuminate\Support\Facades\Cache::has($viewKey)) {
+            \Illuminate\Support\Facades\Cache::put($viewKey, 1, now()->addHour());
+            \Illuminate\Support\Facades\DB::table('pages')
+                ->where('id', $page->id)
+                ->update(['views_count' => \Illuminate\Support\Facades\DB::raw('views_count + 1')]);
+        }
     }
 }
