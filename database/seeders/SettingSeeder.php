@@ -13,7 +13,7 @@ class SettingSeeder extends Seeder
             // General Settings
             [
                 'key' => 'site_name',
-                'value' => 'Konter Digital CMS',
+                'value' => 'Monetra CMS',
                 'type' => 'text',
                 'group' => 'general',
                 'label' => 'Site Name',
@@ -98,7 +98,7 @@ class SettingSeeder extends Seeder
             // SEO Settings
             [
                 'key' => 'meta_title',
-                'value' => 'Konter Digital CMS - CMS Canggih untuk Landing Page dan Blog',
+                'value' => 'Monetra CMS - CMS Canggih untuk Landing Page dan Blog',
                 'type' => 'text',
                 'group' => 'seo',
                 'label' => 'Default Meta Title',
@@ -381,7 +381,7 @@ class SettingSeeder extends Seeder
             ],
             [
                 'key' => 'hero_subtitle',
-                'value' => 'Aplikasi Konter Digital dirancang khusus untuk memudahkan Anda bertransaksi pulsa, paket data, hingga PPOB dengan interface yang sangat user-friendly.',
+                'value' => 'Aplikasi Monetra dirancang khusus untuk memudahkan Anda bertransaksi pulsa, paket data, hingga PPOB dengan interface yang sangat user-friendly.',
                 'type' => 'textarea',
                 'group' => 'hero',
                 'label' => 'Hero Subtitle',
@@ -437,7 +437,7 @@ class SettingSeeder extends Seeder
             // Footer Settings
             [
                 'key' => 'footer_text',
-                'value' => '© 2026 Konter Digital. All rights reserved.',
+                'value' => '© 2026 Monetra. All rights reserved.',
                 'type' => 'text',
                 'group' => 'footer',
                 'label' => 'Footer Copyright Text',
@@ -446,14 +446,14 @@ class SettingSeeder extends Seeder
             ],
             [
                 'key' => 'footer_about',
-                'value' => 'Konter Digital adalah platform CMS modern yang memudahkan Anda membuat landing page dan blog profesional dengan fitur SEO yang powerful.',
+                'value' => 'Monetra adalah platform CMS modern yang memudahkan Anda membuat landing page dan blog profesional dengan fitur SEO yang powerful.',
                 'type' => 'textarea',
                 'group' => 'footer',
                 'label' => 'Footer About Text',
                 'description' => 'Teks deskripsi tentang perusahaan di footer',
                 'sort_order' => 2,
             ],
-            
+
             // Email Configuration
             [
                 'key' => 'mail_driver',
@@ -522,7 +522,7 @@ class SettingSeeder extends Seeder
             ],
             [
                 'key' => 'mail_from_name',
-                'value' => 'Konter Digital',
+                'value' => 'Monetra',
                 'type' => 'text',
                 'group' => 'email',
                 'label' => 'Mail From Name',

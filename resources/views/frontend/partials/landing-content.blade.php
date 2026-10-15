@@ -16,7 +16,7 @@
     <div class="absolute top-0 right-0 w-1/3 h-full bg-brand-50/50 rounded-l-[5rem] -z-10 hidden lg:block parallax animate-fade-in-right" data-speed="0.3"></div>
     <div class="absolute top-20 left-10 w-64 h-64 bg-brand-600/5 rounded-full blur-3xl -z-10 animate-pulse-glow"></div>
     <div class="absolute bottom-20 right-20 w-48 h-48 bg-indigo-400/10 rounded-full blur-2xl -z-10 animate-float"></div>
-    
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col lg:flex-row items-center gap-16">
             <!-- Left Content -->
@@ -27,7 +27,7 @@
                         {{ $settings['hero_badge_text'] ?? 'Tersedia di Android & iOS' }}
                     </span>
                 </div>
-                
+
                 <h1 class="text-5xl md:text-7xl font-extrabold text-brand-900 leading-[1.1] text-reveal delay-200">
                     @php
                         $heroTitle = $settings['hero_title'] ?? 'Kelola Bisnis Digital dalam Satu Genggaman';
@@ -43,42 +43,42 @@
                         @endif
                     @endforeach
                 </h1>
-                
+
                 <p class="text-slate-500 text-lg md:text-xl leading-relaxed max-w-xl mx-auto lg:mx-0 animate-fade-in-up delay-400">
-                    {{ $settings['hero_subtitle'] ?? 'Aplikasi Konter Digital dirancang khusus untuk memudahkan Anda bertransaksi pulsa, paket data, hingga PPOB dengan interface yang sangat user-friendly.' }}
+                    {{ $settings['hero_subtitle'] ?? 'Aplikasi Monetra dirancang khusus untuk memudahkan Anda bertransaksi pulsa, paket data, hingga PPOB dengan interface yang sangat user-friendly.' }}
                 </p>
-                
+
                 <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 animate-slide-up-fade delay-600">
-                    <a href="{{ $settings['hero_button_url'] ?? '#' }}" 
+                    <a href="{{ $settings['hero_button_url'] ?? '#' }}"
                        class="group px-8 py-5 bg-brand-900 text-white font-bold rounded-2xl hover:bg-brand-800 transition shadow-xl shadow-brand-900/20 flex items-center gap-3 hover-lift animate-glow-pulse">
                         <svg class="w-6 h-6 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M3 20.5V3.5C3 2.9 3.4 2.5 4 2.5C4.2 2.5 4.4 2.6 4.6 2.7L19.3 11.2C19.7 11.4 19.9 11.7 19.9 12.1C19.9 12.5 19.7 12.8 19.3 13L4.6 21.5C4.4 21.6 4.2 21.7 4 21.7C3.4 21.7 3 21.3 3 20.7V20.5Z"/>
                         </svg>
                         {{ $settings['hero_button_text'] ?? 'Download Play Store' }}
                     </a>
-                    <a href="#layanan" 
+                    <a href="#layanan"
                        class="px-8 py-5 bg-white text-slate-700 font-bold rounded-2xl border border-slate-200 hover:bg-slate-50 transition animate-button-pop delay-700">
                         {{ $settings['hero_button_secondary_text'] ?? 'Pelajari Fitur' }}
                     </a>
                 </div>
             </div>
-            
+
             <!-- Right Content - App Screenshot -->
             <div class="lg:w-1/2 relative flex justify-center items-center">
                 <div class="absolute w-[80%] h-[80%] bg-brand-600 rounded-[3rem] rotate-6 opacity-10 animate-rotate"></div>
                 <div class="absolute w-[80%] h-[80%] border-2 border-brand-600/20 rounded-[3rem] -rotate-3 animate-pulse"></div>
-                
+
                 <div class="relative z-10 drop-shadow-[0_35px_35px_rgba(79,70,229,0.2)] animate-image-zoom delay-300">
                     @if(isset($settings['hero_image']) && $settings['hero_image'])
-                        <img src="{{ storage_url($settings['hero_image']) }}" 
-                             alt="App Screenshot" 
+                        <img src="{{ storage_url($settings['hero_image']) }}"
+                             alt="App Screenshot"
                              class="max-w-[280px] md:max-w-[350px] h-auto rounded-[2.5rem] shadow-2xl">
                     @else
-                        <img src="https://via.placeholder.com/350x700/4f46e5/ffffff?text=App+Screenshot" 
-                             alt="App Screenshot" 
+                        <img src="https://via.placeholder.com/350x700/4f46e5/ffffff?text=App+Screenshot"
+                             alt="App Screenshot"
                              class="max-w-[280px] md:max-w-[350px] h-auto rounded-[2.5rem] shadow-2xl">
                     @endif
-                    
+
                     <!-- Floating Card 1 - Transaction Success -->
                     <div class="floating-card absolute -left-10 top-1/4 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 animate-bounce-slow hidden md:block hover-lift delay-500">
                         <div class="flex items-center gap-3">
@@ -93,7 +93,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Floating Card 2 - Daily Profit -->
                     <div class="floating-card absolute -right-10 bottom-1/4 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 animate-pulse hidden md:block hover-lift delay-700">
                         <div class="flex items-center gap-3">

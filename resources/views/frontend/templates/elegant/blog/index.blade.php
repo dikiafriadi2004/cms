@@ -12,7 +12,7 @@
             <div class="h-px bg-gradient-to-r from-transparent via-amber-400 to-transparent mt-2"></div>
         </div>
         <h1 class="text-5xl md:text-6xl font-serif text-slate-900 mb-6 tracking-tight" style="font-family: 'Playfair Display', serif;">
-            Blog {{ $settings['site_name'] ?? 'Konter Digital' }}
+            Blog {{ $settings['site_name'] ?? 'Monetra' }}
         </h1>
         <p class="text-slate-600 max-w-2xl mx-auto text-lg leading-relaxed">
             {{ $settings['blog_page_description'] ?? 'Baca artikel dan berita terbaru dari kami.' }}

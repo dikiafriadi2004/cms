@@ -4,50 +4,50 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
+
     <!-- Primary Meta Tags -->
-    <title>@yield('title', $settings['site_name'] ?? 'Konter Digital CMS')</title>
-    <meta name="title" content="@yield('title', $settings['site_name'] ?? 'Konter Digital CMS')">
+    <title>@yield('title', $settings['site_name'] ?? 'Monetra CMS')</title>
+    <meta name="title" content="@yield('title', $settings['site_name'] ?? 'Monetra CMS')">
     <meta name="description" content="@yield('description', $settings['site_description'] ?? '')">
     <meta name="keywords" content="@yield('keywords', $settings['meta_keywords'] ?? '')">
-    <meta name="author" content="{{ $settings['site_name'] ?? 'Konter Digital' }}">
+    <meta name="author" content="{{ $settings['site_name'] ?? 'Monetra' }}">
     <meta name="robots" content="@yield('robots', 'index, follow')">
     <link rel="canonical" href="@yield('canonical', url()->current())">
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:title" content="@yield('og_title', $settings['site_name'] ?? 'Konter Digital CMS')">
+    <meta property="og:title" content="@yield('og_title', $settings['site_name'] ?? 'Monetra CMS')">
     <meta property="og:description" content="@yield('og_description', $settings['site_description'] ?? '')">
     <meta property="og:image" content="@yield('og_image', isset($settings['og_image']) ? storage_url($settings['og_image']) : storage_url(($settings['logo'] ?? 'default-og-image.jpg')))">
-    <meta property="og:site_name" content="{{ $settings['site_name'] ?? 'Konter Digital' }}">
+    <meta property="og:site_name" content="{{ $settings['site_name'] ?? 'Monetra' }}">
     <meta property="og:locale" content="{{ str_replace('_', '-', app()->getLocale()) }}">
-    
+
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="{{ url()->current() }}">
-    <meta property="twitter:title" content="@yield('twitter_title', $settings['site_name'] ?? 'Konter Digital CMS')">
+    <meta property="twitter:title" content="@yield('twitter_title', $settings['site_name'] ?? 'Monetra CMS')">
     <meta property="twitter:description" content="@yield('twitter_description', $settings['site_description'] ?? '')">
     <meta property="twitter:image" content="@yield('twitter_image', isset($settings['og_image']) ? storage_url($settings['og_image']) : storage_url(($settings['logo'] ?? 'default-og-image.jpg')))">
     @if(isset($settings['twitter_username']) && $settings['twitter_username'])
     <meta property="twitter:site" content="{{ $settings['twitter_username'] }}">
     @endif
-    
+
     <link rel="icon" type="image/png" href="{{ favicon_url() }}">
     <link rel="shortcut icon" type="image/png" href="{{ favicon_url() }}">
     <link rel="apple-touch-icon" href="{{ favicon_url() }}">
-    
+
     @if(isset($settings['google_site_verification']) && $settings['google_site_verification'])
     <meta name="google-site-verification" content="{{ $settings['google_site_verification'] }}" />
     @endif
-    
+
     <!-- Structured Data -->
     @stack('structured-data')
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset_version('css/app.css') }}">
     <script defer src="{{ asset_version('js/app.js') }}"></script>
-    
+
     @if(isset($settings['google_analytics_id']) && $settings['google_analytics_id'])
     <!-- Google Analytics (GA4) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ $settings['google_analytics_id'] }}"></script>
@@ -89,10 +89,10 @@
     src="https://www.facebook.com/tr?id={{ $settings['facebook_pixel_id'] }}&ev=PageView&noscript=1"
     /></noscript>
     @endif
-    
+
     <!-- Animations CSS & JS (No Vite) -->
     <link rel="stylesheet" href="{{ asset_version('css/animations.css') }}">
-    
+
     @stack('styles')
 </head>
 <body class="bg-white text-slate-900 antialiased">
@@ -116,11 +116,11 @@
         document.getElementById('mobile-menu').classList.toggle('hidden');
     });
     </script>
-    
+
     <!-- Animations JS (No Vite) -->
     <script src="{{ asset('js/landing-animations.js') }}"></script>
     <script src="{{ asset('js/ad-tracker.js') }}"></script>
-    
+
     @stack('scripts')
 </body>
 </html>

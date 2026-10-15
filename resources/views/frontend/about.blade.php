@@ -16,15 +16,15 @@
                     </span>
                     <span class="text-xs font-bold text-brand-900 uppercase tracking-widest">Masa Depan UMKM</span>
                 </div>
-                
+
                 <h1 class="text-4xl md:text-6xl font-extrabold text-brand-900 leading-[1.1]">
                     Mendigitalkan <br> Ekonomi Indonesia
                 </h1>
-                
+
                 <p class="text-slate-500 text-lg leading-relaxed">
-                    {{ $settings['site_name'] ?? 'Konter Digital' }} lahir dari mimpi sederhana: Memberikan akses teknologi transaksi termudah bagi setiap pemilik konter dan UMKM di pelosok negeri.
+                    {{ $settings['site_name'] ?? 'Monetra' }} lahir dari mimpi sederhana: Memberikan akses teknologi transaksi termudah bagi setiap pemilik konter dan UMKM di pelosok negeri.
                 </p>
-                
+
                 <div class="flex items-center gap-10 pt-4 border-t border-slate-100">
                     <div>
                         <p class="text-3xl font-extrabold text-brand-600">{{ $settings['about_stat_1_number'] ?? '50K+' }}</p>
@@ -36,16 +36,16 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="lg:w-1/2 relative">
                 <div class="absolute -top-10 -right-10 w-64 h-64 bg-brand-200/50 rounded-full blur-3xl opacity-50"></div>
                 @if(isset($settings['about_image']) && $settings['about_image'])
-                    <img src="{{ storage_url($settings['about_image']) }}" 
-                         class="relative rounded-[3rem] shadow-2xl border-8 border-white" 
+                    <img src="{{ storage_url($settings['about_image']) }}"
+                         class="relative rounded-[3rem] shadow-2xl border-8 border-white"
                          alt="Team Work">
                 @else
-                    <img src="https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?auto=format&fit=crop&q=80&w=800" 
-                         class="relative rounded-[3rem] shadow-2xl border-8 border-white" 
+                    <img src="https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?auto=format&fit=crop&q=80&w=800"
+                         class="relative rounded-[3rem] shadow-2xl border-8 border-white"
                          alt="Team Work">
                 @endif
             </div>
@@ -103,17 +103,17 @@
 <section class="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="bg-brand-900 rounded-[3.5rem] p-12 md:p-20 text-center relative overflow-hidden shadow-2xl">
         <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-        
+
         <h2 class="text-3xl md:text-5xl font-extrabold text-white mb-8 relative z-10 leading-tight">
-            Siap Tumbuh Bersama <br> {{ $settings['site_name'] ?? 'Konter Digital' }}?
+            Siap Tumbuh Bersama <br> {{ $settings['site_name'] ?? 'Monetra' }}?
         </h2>
-        
+
         <div class="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
-            <a href="{{ $settings['hero_button_url'] ?? '#' }}" 
+            <a href="{{ $settings['hero_button_url'] ?? '#' }}"
                class="px-10 py-5 bg-brand-600 text-white font-bold rounded-2xl hover:bg-brand-700 transition shadow-xl shadow-brand-600/20">
                 Daftar Sekarang
             </a>
-            <a href="{{ route('contact.show') }}" 
+            <a href="{{ route('contact.show') }}"
                class="px-10 py-5 bg-white/10 text-white font-bold rounded-2xl hover:bg-white/20 transition backdrop-blur-sm border border-white/10">
                 Hubungi Sales
             </a>

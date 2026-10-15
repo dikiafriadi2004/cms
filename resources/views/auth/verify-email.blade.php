@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Verify Email - {{ config('app.name', 'Konter Digital CMS') }}</title>
-    
+    <title>Verify Email - {{ config('app.name', 'Monetra CMS') }}</title>
+
     <link rel="icon" type="image/png" href="{{ favicon_url() }}">
-    
+
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <script defer src="{{ asset('js/app.js') }}"></script>
 </head>

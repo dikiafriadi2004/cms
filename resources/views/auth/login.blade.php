@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Login - {{ config('app.name', 'Konter Digital CMS') }}</title>
-    
+    <title>Login - {{ config('app.name', 'Monetra CMS') }}</title>
+
     <link rel="icon" type="image/png" href="{{ favicon_url() }}">
-    
+
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <script defer src="{{ asset('js/app.js') }}"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -40,7 +40,7 @@
 
             <form method="POST" action="{{ route('login') }}" class="space-y-5">
                 @csrf
-                
+
                 <div class="relative group">
                     <label for="email" class="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Email Address</label>
                     <div class="relative">
@@ -94,7 +94,7 @@
             </form>
         </div>
 
-        <p class="text-center text-slate-400 text-xs mt-6">&copy; {{ date('Y') }} {{ config('app.name', 'Konter Digital') }}. All rights reserved.</p>
+        <p class="text-center text-slate-400 text-xs mt-6">&copy; {{ date('Y') }} {{ config('app.name', 'Monetra') }}. All rights reserved.</p>
     </div>
 
     <script>
@@ -108,7 +108,7 @@
             // Toggle the type attribute
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
-            
+
             // Toggle the eye icons
             eyeIcon.classList.toggle('hidden');
             eyeSlashIcon.classList.toggle('hidden');

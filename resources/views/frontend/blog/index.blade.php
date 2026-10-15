@@ -45,7 +45,7 @@
 <header class="pt-40 pb-12 bg-white border-b border-slate-100 text-center">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <span class="inline-block py-1 px-4 rounded-full bg-brand-50 text-brand-600 text-xs font-bold mb-4 uppercase tracking-widest">Wawasan Agen</span>
-        <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">Blog {{ $settings['site_name'] ?? 'Konter Digital' }}</h1>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">Blog {{ $settings['site_name'] ?? 'Monetra' }}</h1>
         <p class="text-slate-500 max-w-2xl mx-auto text-lg">Temukan tips eksklusif dan panduan sukses untuk mengembangkan bisnis server pulsa Anda.</p>
     </div>
 </header>
