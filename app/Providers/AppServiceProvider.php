@@ -38,15 +38,15 @@ class AppServiceProvider extends ServiceProvider
     {
         // Force HTTPS for URL generation in production or when explicitly enabled
         // or when behind proxy/load balancer that terminates SSL (X-Forwarded-Proto: https)
-        $forceHttps = env('FORCE_HTTPS', false)
-            || config('app.env') === 'production'
+        $forceHttps = config('app.force_https', false)
+            || (config('app.env') === 'production' && request()->isSecure())
             || request()->header('X-Forwarded-Proto') === 'https';
 
         if ($forceHttps) {
             \URL::forceScheme('https');
             $this->app['request']->server->set('HTTPS', 'on');
         }
-        
+
         // Register policies
         Gate::policy(Post::class, PostPolicy::class);
         Gate::policy(Page::class, PagePolicy::class);
@@ -90,7 +90,7 @@ class AppServiceProvider extends ServiceProvider
                 }
             }
         });
-        
+
         // Configure mail from database settings — only if the settings table
         // already exists. This prevents fatal errors during fresh install
         // before migrations run.

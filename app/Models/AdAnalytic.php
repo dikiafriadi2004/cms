@@ -22,8 +22,6 @@ class AdAnalytic extends Model
         'device_type',
         'browser',
         'os',
-        'country',
-        'city',
         'event_date',
     ];
 
@@ -61,42 +59,6 @@ class AdAnalytic extends Model
     }
 
     /**
-     * Scope for today
-     */
-    public function scopeToday($query)
-    {
-        return $query->whereDate('event_date', Carbon::today());
-    }
-
-    /**
-     * Scope for this week
-     */
-    public function scopeThisWeek($query)
-    {
-        return $query->whereBetween('event_date', [
-            Carbon::now()->startOfWeek(),
-            Carbon::now()->endOfWeek()
-        ]);
-    }
-
-    /**
-     * Scope for this month
-     */
-    public function scopeThisMonth($query)
-    {
-        return $query->whereMonth('event_date', Carbon::now()->month)
-                     ->whereYear('event_date', Carbon::now()->year);
-    }
-
-    /**
-     * Scope for last N days
-     */
-    public function scopeLastDays($query, $days = 7)
-    {
-        return $query->where('event_date', '>=', Carbon::now()->subDays($days));
-    }
-
-    /**
      * Get analytics summary for an ad
      */
     public static function getAdSummary($adId, $startDate = null, $endDate = null)
@@ -124,7 +86,7 @@ class AdAnalytic extends Model
     public static function getDailyStats($adId, $days = 7)
     {
         $startDate = Carbon::now()->subDays($days)->startOfDay();
-        
+
         $impressions = static::where('ad_id', $adId)
             ->impressions()
             ->where('event_date', '>=', $startDate)
@@ -188,25 +150,6 @@ class AdAnalytic extends Model
             ->groupBy('browser')
             ->orderByDesc('count')
             ->limit(5)
-            ->get();
-    }
-
-    /**
-     * Get top performing ads
-     */
-    public static function getTopPerformingAds($limit = 10, $days = 7)
-    {
-        $startDate = Carbon::now()->subDays($days);
-
-        return static::where('event_date', '>=', $startDate)
-            ->selectRaw('ad_id, 
-                COUNT(CASE WHEN event_type = "impression" THEN 1 END) as impressions,
-                COUNT(CASE WHEN event_type = "click" THEN 1 END) as clicks,
-                ROUND((COUNT(CASE WHEN event_type = "click" THEN 1 END) / COUNT(CASE WHEN event_type = "impression" THEN 1 END)) * 100, 2) as ctr')
-            ->groupBy('ad_id')
-            ->orderByDesc('clicks')
-            ->limit($limit)
-            ->with('ad')
             ->get();
     }
 }

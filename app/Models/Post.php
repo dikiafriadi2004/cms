@@ -96,12 +96,12 @@ class Post extends Model
         if (!$value) {
             return null;
         }
-        
+
         // Jika sudah berisi URL lengkap (http/https), return as is
         if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
             return $value;
         }
-        
+
         // Jika berisi path relatif, tambahkan asset
         return asset('storage/' . $value);
     }
@@ -263,23 +263,6 @@ class Post extends Model
             return static::published()
                 ->with(['user', 'category'])
                 ->orderBy('views_count', 'desc')
-                ->take($limit)
-                ->get();
-        });
-    }
-
-    /**
-     * Get latest posts (cached per limit)
-     *
-     * Renamed from `latest()` to avoid clashing with Eloquent's
-     * Builder::latest() which is widely used across the codebase.
-     */
-    public static function latestPublished(int $limit = 6)
-    {
-        return \Illuminate\Support\Facades\Cache::remember("latest_posts:{$limit}", 1800, function () use ($limit) {
-            return static::published()
-                ->with(['user', 'category', 'tags'])
-                ->latest('published_at')
                 ->take($limit)
                 ->get();
         });

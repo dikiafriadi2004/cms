@@ -61,18 +61,18 @@ class TemplateService
     {
         $template = self::getCurrentTemplate();
         $templatePath = "frontend.templates.{$template}.{$view}";
-        
+
         // Check if template view exists, fallback to default
         if (view()->exists($templatePath)) {
             return $templatePath;
         }
-        
+
         return "frontend.{$view}";
     }
 
     /**
      * Get view path for specific template with fallback
-     * 
+     *
      * @param string $template Template name (e.g., 'minimal', 'magazine')
      * @param string $view View name (e.g., 'home', 'blog.index')
      * @return string View path
@@ -80,26 +80,13 @@ class TemplateService
     public static function getView(string $template, string $view): string
     {
         $templatePath = "frontend.templates.{$template}.{$view}";
-        
+
         // Check if template view exists, fallback to default
         if (view()->exists($templatePath)) {
             return $templatePath;
         }
-        
-        return "frontend.{$view}";
-    }
 
-    /**
-     * Check if a specific view exists for a template
-     * 
-     * @param string $template Template name
-     * @param string $view View name
-     * @return bool
-     */
-    public static function viewExists(string $template, string $view): bool
-    {
-        $templatePath = "frontend.templates.{$template}.{$view}";
-        return view()->exists($templatePath);
+        return "frontend.{$view}";
     }
 
     /**

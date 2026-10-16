@@ -58,6 +58,9 @@ class Contact extends Model
 
     public function markAsReplied()
     {
-        $this->update(['status' => 'replied']);
+        $this->update([
+            'status'     => 'replied',
+            'replied_at' => now(),
+        ]);
     }
 }
