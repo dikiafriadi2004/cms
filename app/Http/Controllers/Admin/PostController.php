@@ -47,17 +47,18 @@ class PostController extends Controller
             });
         }
 
-        $posts = $query->latest()->paginate(20);
+        $perPage = in_array($request->input('per_page'), [5, 10, 20, 50]) ? (int) $request->input('per_page') : 20;
+        $posts = $query->latest()->paginate($perPage)->withQueryString();
         $categories = Category::active()->get();
 
-        return view('admin.posts.index', compact('posts', 'categories'));
+        return view('admin.posts.index', compact('posts', 'categories', 'perPage'));
     }
 
     public function create()
     {
         $categories = Category::active()->get();
         $tags = Tag::active()->get();
-        
+
         return view('admin.posts.create', compact('categories', 'tags'));
     }
 
@@ -112,13 +113,13 @@ class PostController extends Controller
 
             return redirect()->route('admin.posts.index')
                 ->with('success', 'Post berhasil dibuat!');
-                
+
         } catch (\Exception $e) {
             \Log::error('Post Creation Failed', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            
+
             return back()
                 ->withInput()
                 ->with('error', 'Gagal membuat post: ' . $e->getMessage());
@@ -148,7 +149,7 @@ class PostController extends Controller
         $categories = Category::active()->get();
         $tags = Tag::active()->get();
         $post->load('tags');
-        
+
         return view('admin.posts.edit', compact('post', 'categories', 'tags'));
     }
 
@@ -292,7 +293,7 @@ class PostController extends Controller
 
     public function bulkAction(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'action' => 'required|in:delete,publish,draft',
             'posts' => 'required|array|min:1|max:100',
             'posts.*' => 'exists:posts,id',
@@ -308,6 +309,9 @@ class PostController extends Controller
                 ->toArray();
 
             if (count($ownedIds) !== count($postIds)) {
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json(['success' => false, 'message' => 'Anda tidak memiliki akses untuk melakukan aksi pada beberapa post yang dipilih.'], 403);
+                }
                 return redirect()->route('admin.posts.index')
                     ->with('error', 'Anda tidak memiliki akses untuk melakukan aksi pada beberapa post yang dipilih.');
             }
@@ -316,17 +320,17 @@ class PostController extends Controller
 
         switch ($request->action) {
             case 'delete':
-                // delete() on Eloquent collection does fire deleting/deleted events.
                 Post::whereIn('id', $postIds)->get()->each->delete();
                 $message = 'Posts berhasil dihapus!';
                 break;
             case 'publish':
-                // Enforce posts.publish permission for bulk publish
                 if (!Auth::user()->can('posts.publish')) {
+                    if ($request->wantsJson() || $request->ajax()) {
+                        return response()->json(['success' => false, 'message' => 'Anda tidak memiliki akses untuk publish post.'], 403);
+                    }
                     return redirect()->route('admin.posts.index')
                         ->with('error', 'Anda tidak memiliki akses untuk publish post.');
                 }
-                // Loop to fire model events (cache invalidation, OG/Twitter regen)
                 Post::whereIn('id', $postIds)->get()->each(function ($p) {
                     if ($p->status !== 'published' || !$p->published_at) {
                         $p->status = 'published';
@@ -345,13 +349,17 @@ class PostController extends Controller
                 });
                 $message = 'Posts berhasil dijadikan draft!';
                 break;
+            default:
+                $message = 'Aksi tidak dikenali.';
         }
 
-        // Defensive: ensure caches cleared even if events somehow skip.
         Post::clearCache();
 
-        return redirect()->route('admin.posts.index')
-            ->with('success', $message);
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'message' => $message]);
+        }
+
+        return redirect()->route('admin.posts.index')->with('success', $message);
     }
 
     /**

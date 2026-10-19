@@ -54,7 +54,7 @@
                 @endif
             </div>
         </div>
-        
+
         <div class="p-6">
             <div class="mb-4">
                 <h4 class="text-sm font-medium text-gray-700 mb-2">Permissions ({{ $role->permissions->count() }})</h4>
@@ -73,7 +73,7 @@
                     @endif
                 </div>
             </div>
-            
+
             <div class="flex gap-2 pt-4 border-t border-gray-100">
                 @can('roles.edit')
                 <a href="{{ route('admin.roles.edit', $role) }}" class="flex-1 inline-flex items-center justify-center px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium">
@@ -127,4 +127,9 @@
     @endcan
 </div>
 @endif
+
+<div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-xl shadow-sm border border-gray-200 px-6 py-4">
+    <x-admin.per-page-selector :perPage="$perPage" :paginator="$roles" />
+    {{ $roles->links() }}
+</div>
 @endsection

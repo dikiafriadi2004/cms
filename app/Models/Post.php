@@ -213,7 +213,7 @@ class Post extends Model
             'twitter:description' => $this->meta_description ?: $this->excerpt ?: substr(strip_tags($this->content), 0, 160),
             'twitter:image' => $this->featured_image ?: asset('images/default-og-image.jpg'),
             'twitter:site' => config('app.twitter_handle', '@yoursite'),
-            'twitter:creator' => $this->user->twitter_handle ?? config('app.twitter_handle', '@yoursite'),
+            'twitter:creator' => config('app.twitter_handle', '@yoursite'),
         ];
     }
 

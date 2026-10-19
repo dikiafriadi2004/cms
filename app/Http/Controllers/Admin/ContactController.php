@@ -29,7 +29,8 @@ class ContactController extends Controller
             });
         }
 
-        $contacts = $query->paginate(20);
+        $perPage = in_array($request->input('per_page'), [5, 10, 20, 50]) ? (int) $request->input('per_page') : 20;
+        $contacts = $query->paginate($perPage)->withQueryString();
 
         // Single query untuk semua stats — pakai CASE WHEN supaya portable
         // (lebih aman dari `SUM(status = 'x')` yang bergantung pada vendor SQL mode).
@@ -47,7 +48,7 @@ class ContactController extends Controller
             'replied' => (int) $allStats->replied_count,
         ];
 
-        return view('admin.contacts.index', compact('contacts', 'stats'));
+        return view('admin.contacts.index', compact('contacts', 'stats', 'perPage'));
     }
 
     public function show(Contact $contact)
@@ -84,7 +85,7 @@ class ContactController extends Controller
     public function destroy(Contact $contact)
     {
         $contact->delete();
-        
+
         // Check if request expects JSON (AJAX)
         if (request()->expectsJson()) {
             return response()->json([
@@ -92,7 +93,7 @@ class ContactController extends Controller
                 'message' => 'Kontak berhasil dihapus!'
             ]);
         }
-        
+
         return redirect()->route('admin.contacts.index')
             ->with('success', 'Kontak berhasil dihapus!');
     }
@@ -105,7 +106,7 @@ class ContactController extends Controller
         ]);
 
         $count = Contact::whereIn('id', $validated['ids'])->delete();
-        
+
         // Check if request expects JSON (AJAX)
         if ($request->expectsJson()) {
             return response()->json([

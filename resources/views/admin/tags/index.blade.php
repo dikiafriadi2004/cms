@@ -93,6 +93,12 @@
     @endif
 </div>
 
+<!-- Pagination -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <x-admin.per-page-selector :perPage="$perPage" :paginator="$tags" />
+    {{ $tags->links() }}
+</div>
+
 <!-- Delete Form -->
 <form id="delete-form" method="POST" style="display: none;">
     @csrf

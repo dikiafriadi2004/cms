@@ -24,8 +24,8 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <form method="GET" action="{{ route('admin.users.index') }}" class="flex flex-wrap gap-4">
             <div class="flex-1 min-w-[200px]">
-                <input type="text" name="search" value="{{ request('search') }}" 
-                    placeholder="Search by name or email..." 
+                <input type="text" name="search" value="{{ request('search') }}"
+                    placeholder="Search by name or email..."
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             </div>
             <div class="min-w-[150px]">
@@ -87,7 +87,7 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex flex-wrap gap-1">
                                 @forelse($user->roles as $role)
-                                <span class="px-2 py-1 text-xs font-medium rounded-full 
+                                <span class="px-2 py-1 text-xs font-medium rounded-full
                                     {{ $role->name === 'admin' ? 'bg-red-100 text-red-800' : '' }}
                                     {{ $role->name === 'editor' ? 'bg-blue-100 text-blue-800' : '' }}
                                     {{ $role->name === 'author' ? 'bg-green-100 text-green-800' : '' }}">
@@ -116,7 +116,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex items-center justify-end gap-2">
                                 @can('users.edit')
-                                <a href="{{ route('admin.users.edit', $user) }}" 
+                                <a href="{{ route('admin.users.edit', $user) }}"
                                     class="text-blue-600 hover:text-blue-900 transition-colors p-2 hover:bg-blue-50 rounded">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -125,7 +125,7 @@
                                 @endcan
                                 @can('users.delete')
                                 @if($user->id !== auth()->id())
-                                <button onclick="deleteUser({{ $user->id }}, '{{ route('admin.users.destroy', $user) }}')" 
+                                <button onclick="deleteUser({{ $user->id }}, '{{ route('admin.users.destroy', $user) }}')"
                                     class="text-red-600 hover:text-red-900 transition-colors p-2 hover:bg-red-50 rounded">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -151,8 +151,9 @@
             </table>
         </div>
 
-        @if($users->hasPages())
-        <div class="px-6 py-4 border-t border-gray-200">
+        @if($users->hasPages() || true)
+        <div class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <x-admin.per-page-selector :perPage="$perPage" :paginator="$users" />
             {{ $users->links() }}
         </div>
         @endif

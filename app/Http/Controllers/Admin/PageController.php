@@ -38,9 +38,10 @@ class PageController extends Controller
             $query->where('status', $request->status);
         }
 
-        $pages = $query->latest()->paginate(20);
+        $perPage = in_array($request->input('per_page'), [5, 10, 20, 50]) ? (int) $request->input('per_page') : 20;
+        $pages = $query->latest()->paginate($perPage)->withQueryString();
 
-        return view('admin.pages.index', compact('pages'));
+        return view('admin.pages.index', compact('pages', 'perPage'));
     }
 
     public function create()

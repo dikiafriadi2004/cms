@@ -10,16 +10,18 @@ use App\Models\Post;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Validation\Rule;
 
 class MenuController extends Controller
 {
     public function index()
     {
+        $perPage = in_array($request->input('per_page'), [5, 10, 20, 50]) ? (int) $request->input('per_page') : 20;
         $menus = Menu::with(['items' => function ($query) {
             $query->whereNull('parent_id')->orderBy('sort_order');
-        }])->get();
+        }])->paginate($perPage)->withQueryString();
 
-        return view('admin.menus.index', compact('menus'));
+        return view('admin.menus.index', compact('menus', 'perPage'));
     }
 
     public function create()
@@ -191,7 +193,7 @@ class MenuController extends Controller
     {
         $items = $request->validate([
             'items' => 'required|array',
-            'items.*.id' => 'required|exists:menu_items,id',
+            'items.*.id' => ['required', 'integer', Rule::exists('menu_items', 'id')->where('menu_id', $menu->id)],
             'items.*.sort_order' => 'required|integer|min:0',
             'items.*.parent_id' => 'nullable|exists:menu_items,id',
         ])['items'];

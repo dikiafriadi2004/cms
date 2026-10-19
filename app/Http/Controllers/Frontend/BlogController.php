@@ -38,7 +38,7 @@ class BlogController extends Controller
         if ($request->filled('category')) {
             $categorySlug = $request->category;
             $selectedCategory = Category::where('slug', $categorySlug)->first();
-            
+
             if ($selectedCategory) {
                 $query->where('category_id', $selectedCategory->id);
             }
@@ -95,23 +95,28 @@ class BlogController extends Controller
         // Eager load tags BEFORE building related-posts query to avoid N+1.
         $post->load(['user', 'category', 'tags']);
 
-        // Get related posts
-        $relatedPosts = Post::published()
-            ->with(['user', 'category', 'tags'])
-            ->where('id', '!=', $post->id)
-            ->where(function ($query) use ($post) {
-                if ($post->category_id) {
-                    $query->where('category_id', $post->category_id);
-                }
-                
-                if ($post->tags->count() > 0) {
-                    $query->orWhereHas('tags', function ($q) use ($post) {
-                        $q->whereIn('tags.id', $post->tags->pluck('id'));
-                    });
-                }
-            })
-            ->limit(4)
-            ->get();
+        // Get related posts — only if post has a category or tags to match against.
+        // If neither is set, returning random articles is misleading, so return empty.
+        if (!$post->category_id && $post->tags->isEmpty()) {
+            $relatedPosts = collect();
+        } else {
+            $relatedPosts = Post::published()
+                ->with(['user', 'category', 'tags'])
+                ->where('id', '!=', $post->id)
+                ->where(function ($query) use ($post) {
+                    if ($post->category_id) {
+                        $query->where('category_id', $post->category_id);
+                    }
+
+                    if ($post->tags->count() > 0) {
+                        $query->orWhereHas('tags', function ($q) use ($post) {
+                            $q->whereIn('tags.id', $post->tags->pluck('id'));
+                        });
+                    }
+                })
+                ->limit(4)
+                ->get();
+        }
 
         // Popular posts excluding current post (cannot reuse Post::popular()
         // cache since this filter is per-post). Limit to 5 with eager-loaded relations.
@@ -128,7 +133,7 @@ class BlogController extends Controller
             'post' => $post->id,
             'category' => $post->category_id,
         ];
-        
+
         $ads = [
             'content_top' => Ad::getByPosition('content_top', $context),
             'content_bottom' => Ad::getByPosition('content_bottom', $context),

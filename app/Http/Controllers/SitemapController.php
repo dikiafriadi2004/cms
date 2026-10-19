@@ -138,34 +138,32 @@ class SitemapController extends Controller
                 case 'posts':
                     Post::published()
                         ->select('slug', 'updated_at')
-                        ->offset($offset)
-                        ->limit(self::MAX_URLS_PER_SITEMAP)
-                        ->chunk(500, function ($posts) use (&$sitemap) {
-                            foreach ($posts as $post) {
-                                $sitemap .= $this->urlEntry(
-                                    route('blog.show', $post->slug),
-                                    $post->updated_at,
-                                    'weekly',
-                                    '0.8'
-                                );
-                            }
+                        ->skip($offset)
+                        ->take(self::MAX_URLS_PER_SITEMAP)
+                        ->get()
+                        ->each(function ($post) use (&$sitemap) {
+                            $sitemap .= $this->urlEntry(
+                                route('blog.show', $post->slug),
+                                $post->updated_at,
+                                'weekly',
+                                '0.8'
+                            );
                         });
                     break;
 
                 case 'pages':
                     Page::published()
                         ->select('slug', 'updated_at')
-                        ->offset($offset)
-                        ->limit(self::MAX_URLS_PER_SITEMAP)
-                        ->chunk(500, function ($pages) use (&$sitemap) {
-                            foreach ($pages as $page) {
-                                $sitemap .= $this->urlEntry(
-                                    route('page.show', $page->slug),
-                                    $page->updated_at,
-                                    'monthly',
-                                    '0.7'
-                                );
-                            }
+                        ->skip($offset)
+                        ->take(self::MAX_URLS_PER_SITEMAP)
+                        ->get()
+                        ->each(function ($page) use (&$sitemap) {
+                            $sitemap .= $this->urlEntry(
+                                route('page.show', $page->slug),
+                                $page->updated_at,
+                                'monthly',
+                                '0.7'
+                            );
                         });
                     break;
 

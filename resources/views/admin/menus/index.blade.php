@@ -83,13 +83,18 @@
         </div>
         @endforelse
     </div>
+
+    <div class="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-xl shadow-sm border border-gray-200 px-6 py-4">
+        <x-admin.per-page-selector :perPage="$perPage" :paginator="$menus" />
+        {{ $menus->links() }}
+    </div>
 </div>
 
 <!-- Create Menu Modal -->
 <div id="createModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
     <div class="flex items-center justify-center min-h-screen px-4">
         <div class="fixed inset-0 bg-black opacity-50" onclick="closeCreateModal()"></div>
-        
+
         <div class="relative bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-bold text-gray-900">Create New Menu</h3>
@@ -102,7 +107,7 @@
 
             <form method="POST" action="{{ route('admin.menus.store') }}" class="space-y-4">
                 @csrf
-                
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Menu Name *</label>
                     <input type="text" name="name" required

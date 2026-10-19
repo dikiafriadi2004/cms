@@ -14,7 +14,7 @@
                 </svg>
                 Upload Files
             </button>
-            
+
             <button onclick="mediaManager.createFolder()" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all font-medium">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
@@ -26,7 +26,7 @@
         <div class="flex items-center gap-3 w-full sm:w-auto">
             <!-- Search -->
             <div class="relative flex-1 sm:flex-initial">
-                <input type="text" id="searchInput" placeholder="Search files..." 
+                <input type="text" id="searchInput" placeholder="Search files..."
                     class="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -51,27 +51,31 @@
 
     <!-- Filter Tabs -->
     <div class="flex gap-2 overflow-x-auto pb-2">
-        <button onclick="mediaManager.setFilter('all')" data-filter="all" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all whitespace-nowrap bg-blue-600 text-white">
+        <a href="{{ route('admin.media.index', array_merge(request()->except('type', 'page'), [])) }}"
+           class="filter-btn px-4 py-2 rounded-lg font-medium transition-all whitespace-nowrap {{ !request('type') ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200' }}">
             All Files
-        </button>
-        <button onclick="mediaManager.setFilter('image')" data-filter="image" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all whitespace-nowrap bg-white text-gray-700 hover:bg-gray-50">
+        </a>
+        <a href="{{ route('admin.media.index', array_merge(request()->except('type', 'page'), ['type' => 'image'])) }}"
+           class="filter-btn px-4 py-2 rounded-lg font-medium transition-all whitespace-nowrap {{ request('type') === 'image' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200' }}">
             <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
             Images
-        </button>
-        <button onclick="mediaManager.setFilter('video')" data-filter="video" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all whitespace-nowrap bg-white text-gray-700 hover:bg-gray-50">
+        </a>
+        <a href="{{ route('admin.media.index', array_merge(request()->except('type', 'page'), ['type' => 'video'])) }}"
+           class="filter-btn px-4 py-2 rounded-lg font-medium transition-all whitespace-nowrap {{ request('type') === 'video' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200' }}">
             <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
             </svg>
             Videos
-        </button>
-        <button onclick="mediaManager.setFilter('document')" data-filter="document" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all whitespace-nowrap bg-white text-gray-700 hover:bg-gray-50">
+        </a>
+        <a href="{{ route('admin.media.index', array_merge(request()->except('type', 'page'), ['type' => 'document'])) }}"
+           class="filter-btn px-4 py-2 rounded-lg font-medium transition-all whitespace-nowrap {{ request('type') === 'document' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200' }}">
             <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
             Documents
-        </button>
+        </a>
     </div>
 
     <!-- Files Grid/List -->
@@ -80,7 +84,7 @@
         <div id="gridView" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 p-6">
             @forelse($files as $file)
             <div class="group relative bg-gray-50 rounded-lg overflow-hidden hover:shadow-lg transition-all border-2 border-transparent hover:border-blue-500 flex flex-col cursor-pointer" data-media-type="{{ $file->file_type }}" onclick="mediaManager.selectFile({{ $file->id }}, '{{ $file->url }}', '{{ $file->name }}')">
-                
+
                 <!-- Preview - Fixed aspect ratio -->
                 <div class="relative w-full" style="padding-bottom: 100%;">
                     <div class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
@@ -187,8 +191,9 @@
         </div>
 
         <!-- Pagination -->
-        @if($files->hasPages())
-        <div class="px-6 py-4 border-t border-gray-200">
+        @if($files->hasPages() || true)
+        <div class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <x-admin.per-page-selector :perPage="$perPage ?? 24" :options="[12, 24, 48, 96]" :paginator="$files" />
             {{ $files->links() }}
         </div>
         @endif
@@ -198,7 +203,7 @@
     <div id="uploadModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
         <div class="flex items-center justify-center min-h-screen px-4">
             <div class="fixed inset-0 bg-black opacity-50" onclick="mediaManager.closeUploadModal()"></div>
-            
+
             <div class="relative bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-bold text-gray-900">Upload Files</h3>
@@ -213,14 +218,14 @@
                     @csrf
                     <div id="dropZone" class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-blue-500 transition-all cursor-pointer"
                         onclick="document.getElementById('fileInput').click()">
-                        
+
                         <svg class="w-16 h-16 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                         </svg>
-                        
+
                         <p class="mt-4 text-lg font-medium text-gray-700">Drop files here or click to browse</p>
                         <p class="mt-2 text-sm text-gray-500">Maximum file size: 10MB</p>
-                        
+
                         <input type="file" id="fileInput" name="files[]" multiple class="hidden" onchange="mediaManager.handleFileSelect(event)">
                     </div>
 
@@ -269,12 +274,12 @@ const mediaManager = {
                 e.preventDefault();
                 dropZone.classList.add('border-blue-500', 'bg-blue-50');
             });
-            
+
             dropZone.addEventListener('dragleave', (e) => {
                 e.preventDefault();
                 dropZone.classList.remove('border-blue-500', 'bg-blue-50');
             });
-            
+
             dropZone.addEventListener('drop', (e) => {
                 e.preventDefault();
                 dropZone.classList.remove('border-blue-500', 'bg-blue-50');
@@ -319,7 +324,7 @@ const mediaManager = {
     updateSelectedFilesList() {
         const container = document.getElementById('selectedFilesContainer');
         const list = document.getElementById('selectedFilesList');
-        
+
         if (this.selectedFiles.length === 0) {
             container.style.display = 'none';
             return;
@@ -359,7 +364,7 @@ const mediaManager = {
 
     async uploadFiles(event) {
         event.preventDefault();
-        
+
         if (this.selectedFiles.length === 0) {
             window.showToast('error', 'Please select files to upload');
             return false;
@@ -439,28 +444,7 @@ const mediaManager = {
     },
 
     setFilter(type) {
-        this.filterType = type;
-        
-        // Update button styles
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            if (btn.dataset.filter === type) {
-                btn.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-50');
-                btn.classList.add('bg-blue-600', 'text-white');
-            } else {
-                btn.classList.remove('bg-blue-600', 'text-white');
-                btn.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-50');
-            }
-        });
-
-        // Filter items client-side (no page reload)
-        const mediaItems = document.querySelectorAll('[data-media-type]');
-        mediaItems.forEach(item => {
-            if (type === 'all' || item.dataset.mediaType === type) {
-                item.style.display = '';
-            } else {
-                item.style.display = 'none';
-            }
-        });
+        // Filter sekarang ditangani via URL (server-side).
     },
 
     selectFile(id, url, name) {
@@ -505,25 +489,36 @@ const mediaManager = {
 
     createFolder() {
         const name = prompt('Enter folder name:');
-        if (!name) return;
+        if (!name || !name.trim()) return;
+
+        const trimmedName = name.trim();
+        // Validate folder name client-side before sending
+        if (!/^[\w\-\.\s]+$/.test(trimmedName)) {
+            window.showToast('error', 'Folder name can only contain letters, numbers, hyphens, dots and spaces.');
+            return;
+        }
 
         fetch('{{ route("admin.media.create-folder") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
             },
-            body: JSON.stringify({ name })
+            body: JSON.stringify({ name: trimmedName, parent: '/' })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                window.showToast('success', 'Folder created successfully!');
+                window.showToast('success', data.message || 'Folder created successfully!');
                 setTimeout(() => window.location.reload(), 1000);
+            } else {
+                window.showToast('error', data.message || 'Failed to create folder.');
             }
         })
         .catch(error => {
-            window.showToast('error', 'Failed to create folder');
+            console.error('Create folder error:', error);
+            window.showToast('error', 'Failed to create folder: ' + error.message);
         });
     }
 };

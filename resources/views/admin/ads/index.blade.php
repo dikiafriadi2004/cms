@@ -96,14 +96,14 @@
                     <div class="flex-1">
                         <h3 class="font-semibold text-gray-900">{{ $ad->name }}</h3>
                         <div class="flex items-center gap-2 mt-1 flex-wrap">
-                            <span class="px-2 py-0.5 text-xs font-medium rounded-full 
+                            <span class="px-2 py-0.5 text-xs font-medium rounded-full
                                 {{ $ad->type === 'image' ? 'bg-green-100 text-green-800' : '' }}
                                 {{ $ad->type === 'adsense' ? 'bg-blue-100 text-blue-800' : '' }}
                                 {{ $ad->type === 'adsera' ? 'bg-purple-100 text-purple-800' : '' }}
                                 {{ $ad->type === 'manual' ? 'bg-gray-100 text-gray-800' : '' }}">
                                 {{ $ad->type === 'image' ? 'Image' : ucfirst($ad->type) }}
                             </span>
-                            <span class="px-2 py-0.5 text-xs font-medium rounded-full 
+                            <span class="px-2 py-0.5 text-xs font-medium rounded-full
                                 {{ $ad->status_color === 'green' ? 'bg-green-100 text-green-800' : '' }}
                                 {{ $ad->status_color === 'blue' ? 'bg-blue-100 text-blue-800' : '' }}
                                 {{ $ad->status_color === 'red' ? 'bg-red-100 text-red-800' : '' }}
@@ -191,8 +191,8 @@
                 @can('ads.edit')
                 <div class="flex items-center gap-2">
                     <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" 
-                            class="sr-only peer toggle-status" 
+                        <input type="checkbox"
+                            class="sr-only peer toggle-status"
                             data-ad-id="{{ $ad->id }}"
                             {{ $ad->is_active ? 'checked' : '' }}>
                         <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
@@ -211,18 +211,18 @@
 
                 <!-- Action Buttons -->
                 <div class="flex items-center gap-2">
-                    <a href="{{ route('admin.ads.analytics.show', $ad) }}" 
+                    <a href="{{ route('admin.ads.analytics.show', $ad) }}"
                         class="px-3 py-1.5 text-sm text-purple-600 hover:text-purple-900 hover:bg-purple-50 rounded transition-colors font-medium">
                         Analytics
                     </a>
                     @can('ads.edit')
-                    <a href="{{ route('admin.ads.edit', $ad) }}" 
+                    <a href="{{ route('admin.ads.edit', $ad) }}"
                         class="px-3 py-1.5 text-sm text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded transition-colors font-medium">
                         Edit
                     </a>
                     @endcan
                     @can('ads.delete')
-                    <button onclick="deleteAd({{ $ad->id }}, '{{ route('admin.ads.destroy', $ad) }}')" 
+                    <button onclick="deleteAd({{ $ad->id }}, '{{ route('admin.ads.destroy', $ad) }}')"
                         class="px-3 py-1.5 text-sm text-red-600 hover:text-red-900 hover:bg-red-50 rounded transition-colors font-medium">
                         Delete
                     </button>
@@ -252,8 +252,9 @@
     </div>
 
     <!-- Pagination -->
-    @if($ads->hasPages())
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-6 py-4">
+    @if($ads->hasPages() || true)
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <x-admin.per-page-selector :perPage="$perPage" :paginator="$ads" />
         {{ $ads->links() }}
     </div>
     @endif
@@ -293,7 +294,7 @@ document.querySelectorAll('.toggle-status').forEach(toggle => {
     toggle.addEventListener('change', async function() {
         const adId = this.dataset.adId;
         const isChecked = this.checked;
-        
+
         try {
             const response = await fetch(`/admin/ads/${adId}/toggle-status`, {
                 method: 'POST',
@@ -314,7 +315,7 @@ document.querySelectorAll('.toggle-status').forEach(toggle => {
                     // Update label color
                     statusLabel.className = `text-xs font-semibold status-label-${adId} ${data.is_active ? 'text-green-600' : 'text-gray-500'}`;
                 }
-                
+
                 // Update status badge in header
                 const card = this.closest('.bg-white');
                 const statusBadges = card.querySelectorAll('.px-2.py-0\\.5.text-xs');
@@ -322,7 +323,7 @@ document.querySelectorAll('.toggle-status').forEach(toggle => {
                     const text = badge.textContent.trim().toLowerCase();
                     if (['active', 'inactive', 'expired', 'scheduled'].includes(text)) {
                         badge.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
-                        
+
                         // Update badge color
                         badge.className = 'px-2 py-0.5 text-xs font-medium rounded-full';
                         if (data.status_color === 'green') {
@@ -336,7 +337,7 @@ document.querySelectorAll('.toggle-status').forEach(toggle => {
                         }
                     }
                 });
-                
+
                 window.showToast('success', data.message);
             } else {
                 // Revert toggle if failed

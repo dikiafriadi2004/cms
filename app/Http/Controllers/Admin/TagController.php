@@ -18,9 +18,10 @@ class TagController extends Controller
             $query->where('name', 'like', '%' . $search . '%');
         }
 
-        $tags = $query->latest()->paginate(20);
+        $perPage = in_array($request->input('per_page'), [5, 10, 20, 50]) ? (int) $request->input('per_page') : 20;
+        $tags = $query->latest()->paginate($perPage)->withQueryString();
 
-        return view('admin.tags.index', compact('tags'));
+        return view('admin.tags.index', compact('tags', 'perPage'));
     }
 
     public function create()

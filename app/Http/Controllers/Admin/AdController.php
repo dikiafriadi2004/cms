@@ -20,9 +20,10 @@ class AdController extends Controller
             $query->where('position', $request->position);
         }
 
-        $ads = $query->orderBy('position')->orderBy('sort_order')->paginate(20);
+        $perPage = in_array($request->input('per_page'), [5, 10, 20, 50]) ? (int) $request->input('per_page') : 20;
+        $ads = $query->orderBy('position')->orderBy('sort_order')->paginate($perPage)->withQueryString();
 
-        return view('admin.ads.index', compact('ads'));
+        return view('admin.ads.index', compact('ads', 'perPage'));
     }
 
     public function create()
@@ -92,14 +93,14 @@ class AdController extends Controller
     {
         // Get target dimensions
         $dimensions = $this->getTargetDimensions($position, $sizePreset, $customWidth, $customHeight);
-        
+
         // Load image using Intervention Image
         $manager = new \Intervention\Image\ImageManager(
             new \Intervention\Image\Drivers\Gd\Driver()
         );
-        
+
         $image = $manager->read($file->getRealPath());
-        
+
         // Resize image maintaining aspect ratio
         if ($dimensions['width'] && $dimensions['height']) {
             // Both width and height specified - cover the area
@@ -111,20 +112,20 @@ class AdController extends Controller
             // Only height specified - scale to height
             $image->scale(height: $dimensions['height']);
         }
-        
+
         // Generate cryptographically random filename to prevent
         // concurrent upload collisions.
         $filename = bin2hex(random_bytes(16)) . '.jpg';
         $path = storage_path('app/public/ads/' . $filename);
-        
+
         // Ensure directory exists
         if (!file_exists(dirname($path))) {
             mkdir(dirname($path), 0755, true);
         }
-        
+
         // Save as JPEG with quality 85
         $image->toJpeg(85)->save($path);
-        
+
         return 'ads/' . $filename;
     }
 
@@ -140,7 +141,7 @@ class AdController extends Controller
                 'height' => $customHeight,
             ];
         }
-        
+
         // Preset dimensions by position
         $presets = [
             'small' => [
@@ -180,7 +181,7 @@ class AdController extends Controller
                 'between_posts' => ['width' => 1200, 'height' => null],
             ],
         ];
-        
+
         return $presets[$preset][$position] ?? $presets['medium'][$position];
     }
 
@@ -224,7 +225,7 @@ class AdController extends Controller
             if ($ad->image && \Storage::disk('public')->exists($ad->image)) {
                 \Storage::disk('public')->delete($ad->image);
             }
-            
+
             $validated['image'] = $this->handleImageUpload(
                 $request->file('image'),
                 $request->input('position'),

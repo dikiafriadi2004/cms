@@ -33,10 +33,11 @@ class UserController extends Controller
             $query->role($request->role);
         }
 
-        $users = $query->latest()->paginate(20);
+        $perPage = in_array($request->input('per_page'), [5, 10, 20, 50]) ? (int) $request->input('per_page') : 20;
+        $users = $query->latest()->paginate($perPage)->withQueryString();
         $roles = Role::all();
 
-        return view('admin.users.index', compact('users', 'roles'));
+        return view('admin.users.index', compact('users', 'roles', 'perPage'));
     }
 
     public function create()

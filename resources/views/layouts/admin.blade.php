@@ -220,14 +220,6 @@
             });
         @endif
 
-        @if($errors->any())
-            document.addEventListener('DOMContentLoaded', () => {
-                setTimeout(() => {
-                    window.showToast('error', '{{ $errors->first() }}');
-                }, 100);
-            });
-        @endif
-
         // Confirmation Modal System
         window.confirmDelete = function(title = 'Delete Item', message = 'Are you sure you want to delete this item? This action cannot be undone.') {
             return new Promise((resolve) => {

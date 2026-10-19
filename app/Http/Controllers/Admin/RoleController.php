@@ -11,8 +11,9 @@ class RoleController extends Controller
 {
     public function index()
     {
-        $roles = Role::with('permissions')->withCount('users')->get();
-        return view('admin.roles.index', compact('roles'));
+        $perPage = in_array($request->input('per_page'), [5, 10, 20, 50]) ? (int) $request->input('per_page') : 20;
+        $roles = Role::with('permissions')->withCount('users')->paginate($perPage)->withQueryString();
+        return view('admin.roles.index', compact('roles', 'perPage'));
     }
 
     public function create()
@@ -20,7 +21,7 @@ class RoleController extends Controller
         $permissions = Permission::all()->groupBy(function($permission) {
             return explode('.', $permission->name)[0];
         });
-        
+
         return view('admin.roles.create', compact('permissions'));
     }
 
@@ -33,7 +34,7 @@ class RoleController extends Controller
         ]);
 
         $role = Role::create(['name' => $validated['name']]);
-        
+
         if (isset($validated['permissions'])) {
             // Convert permission IDs to permission objects
             $permissions = Permission::whereIn('id', $validated['permissions'])->get();
@@ -59,9 +60,9 @@ class RoleController extends Controller
         $permissions = Permission::all()->groupBy(function($permission) {
             return explode('.', $permission->name)[0];
         });
-        
+
         $rolePermissions = $role->permissions->pluck('id')->toArray();
-        
+
         return view('admin.roles.edit', compact('role', 'permissions', 'rolePermissions'));
     }
 
@@ -69,7 +70,7 @@ class RoleController extends Controller
     {
         // Prevent renaming system roles
         $systemRoles = ['super-admin', 'admin', 'editor', 'author'];
-        
+
         if (in_array($role->name, $systemRoles) && $request->name !== $role->name) {
             return back()->with('error', 'Nama system role tidak dapat diubah!');
         }
@@ -81,7 +82,7 @@ class RoleController extends Controller
         ]);
 
         $role->update(['name' => $validated['name']]);
-        
+
         if (isset($validated['permissions'])) {
             // Convert permission IDs to permission objects
             $permissions = Permission::whereIn('id', $validated['permissions'])->get();
@@ -101,7 +102,7 @@ class RoleController extends Controller
     {
         // Prevent deleting system roles
         $systemRoles = ['super-admin', 'admin', 'editor', 'author'];
-        
+
         if (in_array($role->name, $systemRoles)) {
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
@@ -109,7 +110,7 @@ class RoleController extends Controller
                     'message' => 'System role tidak dapat dihapus!'
                 ], 403);
             }
-            
+
             return back()->with('error', 'System role tidak dapat dihapus!');
         }
 
@@ -121,7 +122,7 @@ class RoleController extends Controller
                     'message' => 'Role tidak dapat dihapus karena masih memiliki ' . $role->users()->count() . ' user!'
                 ], 403);
             }
-            
+
             return back()->with('error', 'Role tidak dapat dihapus karena masih memiliki ' . $role->users()->count() . ' user!');
         }
 

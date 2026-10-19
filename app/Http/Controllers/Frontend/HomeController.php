@@ -14,21 +14,21 @@ class HomeController extends Controller
     public function index()
     {
         $homepage = Page::where('is_homepage', true)->published()->first();
-        
+
         $context = ['page' => 'home'];
         $ads = [
             'header' => Ad::getByPosition('header', $context),
             'footer' => Ad::getByPosition('footer', $context),
         ];
-        
+
         $latestPosts = Post::published()
             ->with(['user', 'category', 'tags'])
             ->latest('published_at')
             ->limit(6)
             ->get();
-        
+
         $viewPath = TemplateService::getTemplatePath('home');
-        
+
         if (!$homepage) {
             return view($viewPath, compact('latestPosts', 'ads'));
         }
@@ -63,7 +63,10 @@ class HomeController extends Controller
 
     public function about()
     {
-        return view('frontend.about');
+        $template = TemplateService::getCurrentTemplate();
+        $viewPath = TemplateService::getView($template, 'about');
+
+        return view($viewPath);
     }
 
     private function trackPageView($page)

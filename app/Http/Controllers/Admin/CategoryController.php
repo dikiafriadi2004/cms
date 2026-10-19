@@ -14,12 +14,14 @@ class CategoryController extends Controller
         $query = Category::withCount('posts');
 
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $search = safe_like_input($request->search);
+            $query->where('name', 'like', '%' . $search . '%');
         }
 
-        $categories = $query->orderBy('sort_order')->paginate(20);
+        $perPage = in_array($request->input('per_page'), [5, 10, 20, 50]) ? (int) $request->input('per_page') : 20;
+        $categories = $query->orderBy('sort_order')->paginate($perPage)->withQueryString();
 
-        return view('admin.categories.index', compact('categories'));
+        return view('admin.categories.index', compact('categories', 'perPage'));
     }
 
     public function create()

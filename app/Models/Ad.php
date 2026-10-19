@@ -69,7 +69,7 @@ class Ad extends Model
         if (!$this->end_date) {
             return false;
         }
-        
+
         return $this->end_date->isPast();
     }
 
@@ -81,7 +81,7 @@ class Ad extends Model
         if (!$this->start_date) {
             return false;
         }
-        
+
         return $this->start_date->isFuture();
     }
 
@@ -93,15 +93,15 @@ class Ad extends Model
         if (!$this->is_active) {
             return 'inactive';
         }
-        
+
         if ($this->isExpired()) {
             return 'expired';
         }
-        
+
         if ($this->isScheduled()) {
             return 'scheduled';
         }
-        
+
         return 'active';
     }
 
@@ -241,10 +241,10 @@ class Ad extends Model
         switch ($mode) {
             case 'weighted':
                 return static::selectWeightedAd($ads);
-            
+
             case 'sequential':
                 return static::selectSequentialAd($ads);
-            
+
             case 'random':
             default:
                 return $ads->random();
@@ -257,8 +257,13 @@ class Ad extends Model
     protected static function selectWeightedAd($ads)
     {
         $totalWeight = $ads->sum('rotation_weight');
+
+        if ($totalWeight <= 0) {
+            return $ads->random();
+        }
+
         $random = rand(1, $totalWeight);
-        
+
         $currentWeight = 0;
         foreach ($ads as $ad) {
             $currentWeight += $ad->rotation_weight;
@@ -266,7 +271,7 @@ class Ad extends Model
                 return $ad;
             }
         }
-        
+
         return $ads->first();
     }
 
@@ -277,18 +282,18 @@ class Ad extends Model
     {
         // Get ad with least impressions today
         $adIds = $ads->pluck('id');
-        
+
         $impressions = \App\Models\AdAnalytic::whereIn('ad_id', $adIds)
             ->impressions()
             ->whereDate('event_date', today())
             ->selectRaw('ad_id, COUNT(*) as count')
             ->groupBy('ad_id')
             ->pluck('count', 'ad_id');
-        
+
         // Find ad with minimum impressions
         $minImpressions = PHP_INT_MAX;
         $selectedAd = $ads->first();
-        
+
         foreach ($ads as $ad) {
             $count = $impressions[$ad->id] ?? 0;
             if ($count < $minImpressions) {
@@ -296,7 +301,7 @@ class Ad extends Model
                 $selectedAd = $ad;
             }
         }
-        
+
         return $selectedAd;
     }
 
@@ -306,14 +311,14 @@ class Ad extends Model
     public function render(): string
     {
         $trackingAttr = sprintf('data-ad-id="%d"', $this->id);
-        
+
         // If it's an image ad with link
         if ($this->image && $this->link) {
             $target = $this->open_new_tab ? '_blank' : '_self';
             $rel = $this->open_new_tab ? 'noopener noreferrer' : '';
-            
+
             $maxWidthStyle = $this->getCachedMaxWidthStyle();
-            
+
             return sprintf(
                 '<div %s><a href="%s" target="%s" rel="%s" class="block"><img src="%s" alt="%s" class="rounded-lg" style="%swidth: 100%%; height: auto; display: block; margin: 0 auto;"></a></div>',
                 $trackingAttr,
@@ -325,11 +330,11 @@ class Ad extends Model
                 $maxWidthStyle
             );
         }
-        
+
         // If it's just an image without link
         if ($this->image && !$this->link) {
             $maxWidthStyle = $this->getCachedMaxWidthStyle();
-            
+
             return sprintf(
                 '<div %s><img src="%s" alt="%s" class="rounded-lg" style="%swidth: 100%%; height: auto; display: block; margin: 0 auto;"></div>',
                 $trackingAttr,
@@ -338,7 +343,7 @@ class Ad extends Model
                 $maxWidthStyle
             );
         }
-        
+
         // Otherwise return the code (HTML/JavaScript) wrapped with tracking
         // Sanitize ad code to prevent XSS attacks
         $sanitizedCode = $this->sanitizeAdCode($this->code);
@@ -498,7 +503,7 @@ class Ad extends Model
         // acceptable defensive behavior — content with malformed structure
         // gets fewer ads, not duplicated or wrong-position ads.
         $paragraphs = preg_split('/(<\/p\s*>)/i', $content, -1, PREG_SPLIT_DELIM_CAPTURE);
-        
+
         // Group ads by paragraph number
         $adsByParagraph = $ads->groupBy('in_content_paragraph');
 
@@ -507,11 +512,11 @@ class Ad extends Model
 
         foreach ($paragraphs as $index => $part) {
             $result .= $part;
-            
+
             // Check if this is a closing </p> tag (allow whitespace)
             if (preg_match('#^\s*</p\s*>\s*$#i', $part)) {
                 $paragraphCount++;
-                
+
                 // Insert ads after this paragraph if any
                 if (isset($adsByParagraph[$paragraphCount])) {
                     foreach ($adsByParagraph[$paragraphCount] as $ad) {

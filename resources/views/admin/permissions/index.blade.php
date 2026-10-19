@@ -55,4 +55,9 @@
     </div>
     @endforeach
 </div>
+
+<div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-xl shadow-sm border border-gray-200 px-6 py-4">
+    <x-admin.per-page-selector :perPage="$perPage" :options="[10, 25, 50, 100]" :paginator="$permissionsPaginated" />
+    {{ $permissionsPaginated->links() }}
+</div>
 @endsection

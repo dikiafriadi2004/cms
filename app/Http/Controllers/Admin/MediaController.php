@@ -35,7 +35,8 @@ class MediaController extends Controller
             });
         }
 
-        $files = $query->latest()->paginate(24);
+        $perPage = in_array($request->input('per_page'), [12, 24, 48, 96]) ? (int) $request->input('per_page') : 24;
+        $files = $query->latest()->paginate($perPage)->withQueryString();
 
         // Get folders for filter
         $folders = MediaFile::select('folder')
@@ -43,14 +44,14 @@ class MediaController extends Controller
             ->orderBy('folder')
             ->pluck('folder');
 
-        return view('admin.media.index', compact('files', 'folders'));
+        return view('admin.media.index', compact('files', 'folders', 'perPage'));
     }
 
     public function upload(Request $request)
     {
         // Force JSON response if Accept header is application/json
         $wantsJson = $request->wantsJson() || $request->expectsJson() || $request->ajax();
-        
+
         try {
             $request->validate([
                 'files' => 'required|array',
@@ -67,20 +68,20 @@ class MediaController extends Controller
                     if (!$this->isValidFileContent($file)) {
                         throw new \Exception('File content validation failed for: ' . $file->getClientOriginalName());
                     }
-                    
+
                     $uploadedFile = $this->processUpload($file, $folder);
                     $uploadedFiles[] = $uploadedFile;
                 } catch (\Exception $e) {
                     \Log::error('Upload failed for file: ' . $file->getClientOriginalName() . ' - Error: ' . $e->getMessage());
                     \Log::error('Stack trace: ' . $e->getTraceAsString());
-                    
+
                     if ($wantsJson) {
                         return response()->json([
                             'success' => false,
                             'message' => 'Upload failed: ' . $e->getMessage()
                         ], 500);
                     }
-                    
+
                     return redirect()->back()->with('error', 'Upload failed: ' . $e->getMessage());
                 }
             }
@@ -103,7 +104,7 @@ class MediaController extends Controller
 
             return redirect()->route('admin.media.index')
                 ->with('success', count($uploadedFiles) . ' file(s) berhasil diupload!');
-                
+
         } catch (\Illuminate\Validation\ValidationException $e) {
             if ($wantsJson) {
                 return response()->json([
@@ -115,14 +116,14 @@ class MediaController extends Controller
         } catch (\Exception $e) {
             \Log::error('Upload controller error: ' . $e->getMessage());
             \Log::error('Stack trace: ' . $e->getTraceAsString());
-            
+
             if ($wantsJson) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Upload failed: ' . $e->getMessage()
                 ], 500);
             }
-            
+
             return redirect()->back()->with('error', 'Upload failed: ' . $e->getMessage());
         }
     }
@@ -134,7 +135,7 @@ class MediaController extends Controller
     {
         $mimeType = $file->getMimeType();
         $extension = strtolower($file->getClientOriginalExtension());
-        
+
         // Check if mime type matches extension
         $validMimeTypes = [
             'jpg' => ['image/jpeg', 'image/jpg'],
@@ -149,16 +150,16 @@ class MediaController extends Controller
             'xlsx' => ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
             'zip' => ['application/zip', 'application/x-zip-compressed'],
         ];
-        
+
         if (!isset($validMimeTypes[$extension])) {
             return false;
         }
-        
+
         if (!in_array($mimeType, $validMimeTypes[$extension])) {
             \Log::warning("Mime type mismatch: extension={$extension}, mime={$mimeType}");
             return false;
         }
-        
+
         // Additional check for images: verify it's actually an image
         if (str_starts_with($mimeType, 'image/')) {
             try {
@@ -172,14 +173,14 @@ class MediaController extends Controller
                 return false;
             }
         }
-        
+
         // Check for PHP code in files (prevent PHP file upload disguised as other types)
         $content = file_get_contents($file->getRealPath(), false, null, 0, 1024);
         if (preg_match('/<\?php|<\?=|<script.*language.*php/i', $content)) {
             \Log::warning("PHP code detected in uploaded file");
             return false;
         }
-        
+
         return true;
     }
 
@@ -311,7 +312,7 @@ class MediaController extends Controller
             if (Storage::disk('public')->exists($media->file_path)) {
                 Storage::disk('public')->delete($media->file_path);
             }
-            
+
             // Delete thumbnail if exists (untuk file lama yang masih punya thumbnail)
             $thumbnailPath = str_replace('.', '_thumb.', $media->file_path);
             if (Storage::disk('public')->exists($thumbnailPath)) {
@@ -332,14 +333,14 @@ class MediaController extends Controller
                 ->with('success', 'Media berhasil dihapus!');
         } catch (\Exception $e) {
             \Log::error('Delete media failed: ' . $e->getMessage());
-            
+
             if (request()->ajax()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to delete media: ' . $e->getMessage()
                 ], 500);
             }
-            
+
             return redirect()->back()->with('error', 'Failed to delete media: ' . $e->getMessage());
         }
     }
@@ -391,7 +392,8 @@ class MediaController extends Controller
         }
 
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $search = safe_like_input($request->search);
+            $query->where('name', 'like', '%' . $search . '%');
         }
 
         $files = $query->latest()->paginate(20);

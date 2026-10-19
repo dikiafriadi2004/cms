@@ -26,8 +26,8 @@
         <div class="md:col-span-2">
             <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
             <div class="relative">
-                <input type="text" name="search" value="{{ request('search') }}" 
-                    placeholder="Search posts..." 
+                <input type="text" name="search" value="{{ request('search') }}"
+                    placeholder="Search posts..."
                     class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -72,27 +72,48 @@
 <form id="bulk-form" method="POST" action="{{ route('admin.posts.bulk-action') }}">
     @csrf
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+
         <!-- Bulk Actions Bar -->
-        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
-            <div class="flex items-center gap-4">
-                <label class="flex items-center">
-                    <input type="checkbox" id="select-all" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                    <span class="ml-2 text-sm font-medium text-gray-700">Select All</span>
+        <div class="px-4 py-3 border-b border-gray-200 bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <!-- Kiri: Select All + counter -->
+            <div class="flex items-center gap-3">
+                <label class="flex items-center gap-2 cursor-pointer select-none">
+                    <input type="checkbox" id="select-all"
+                        class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                    <span class="text-sm font-medium text-gray-700">Pilih Semua</span>
                 </label>
+                <span id="selected-count"
+                    class="hidden text-xs font-semibold text-blue-700 bg-blue-100 px-2.5 py-1 rounded-full">
+                    0 dipilih
+                </span>
             </div>
+
+            <!-- Kanan: Bulk action dropdown + tombol -->
             <div class="flex items-center gap-2">
-                <select name="action" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option value="">Bulk Actions</option>
-                    <option value="publish">Publish</option>
-                    <option value="draft">Move to Draft</option>
-                    <option value="delete">Delete</option>
-                </select>
-                <button type="submit" class="px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm" onclick="return handleDelete(event, 'Bulk Action', 'Are you sure you want to apply this action to selected posts?')">
-                    Apply
+                <div class="relative">
+                    <select name="action" id="bulk-action-select"
+                        class="appearance-none pl-3 pr-8 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer hover:border-gray-400 transition-colors">
+                        <option value="">-- Pilih Aksi --</option>
+                        <option value="publish">✓ Publish</option>
+                        <option value="draft">⊘ Jadikan Draft</option>
+                        <option value="delete">🗑 Hapus</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                </div>
+                <button type="button" id="bulk-apply-btn"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Terapkan
                 </button>
             </div>
         </div>
-        
+
         <!-- Table -->
         @if($posts->count() > 0)
             <div class="overflow-x-auto">
@@ -204,7 +225,7 @@
                                         </a>
                                         @endif
                                     @endcan
-                                    
+
                                     @can('posts.view')
                                     <a href="{{ route('admin.posts.show', $post) }}" class="text-green-600 hover:text-green-900 transition-colors" title="View">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -213,7 +234,7 @@
                                         </svg>
                                     </a>
                                     @endcan
-                                    
+
                                     @can('posts.delete')
                                     <button type="button" onclick="deletePost({{ $post->id }}, '{{ route('admin.posts.destroy', $post) }}')" class="text-red-600 hover:text-red-900 transition-colors" title="Delete">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -253,13 +274,12 @@
                 </div>
             </div>
         @endif
-        
-        <!-- Pagination -->
-        @if($posts->hasPages())
-        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+
+        <!-- Footer: per-page + pagination -->
+        <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <x-admin.per-page-selector :perPage="$perPage" :paginator="$posts" />
             {{ $posts->links() }}
         </div>
-        @endif
     </div>
 </form>
 
@@ -272,18 +292,96 @@
 
 @push('scripts')
 <script>
-// Select all functionality
-document.getElementById('select-all').addEventListener('change', function() {
-    const checkboxes = document.querySelectorAll('.post-checkbox');
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = this.checked;
-    });
+// ── Select All ──────────────────────────────────────────────────────────────
+const selectAllBox  = document.getElementById('select-all');
+const selectedCount = document.getElementById('selected-count');
+
+function updateCounter() {
+    const checked = document.querySelectorAll('.post-checkbox:checked').length;
+    if (checked > 0) {
+        selectedCount.textContent = checked + ' dipilih';
+        selectedCount.classList.remove('hidden');
+    } else {
+        selectedCount.classList.add('hidden');
+    }
+    // Indeterminate state
+    const total = document.querySelectorAll('.post-checkbox').length;
+    selectAllBox.indeterminate = checked > 0 && checked < total;
+    selectAllBox.checked = total > 0 && checked === total;
+}
+
+selectAllBox.addEventListener('change', function () {
+    document.querySelectorAll('.post-checkbox').forEach(cb => cb.checked = this.checked);
+    updateCounter();
 });
 
-// Delete post function
+document.querySelectorAll('.post-checkbox').forEach(cb => {
+    cb.addEventListener('change', updateCounter);
+});
+
+// ── Bulk Apply ──────────────────────────────────────────────────────────────
+document.getElementById('bulk-apply-btn').addEventListener('click', async function () {
+    const selected = document.querySelectorAll('.post-checkbox:checked');
+    const action   = document.getElementById('bulk-action-select').value;
+
+    if (selected.length === 0) {
+        window.showToast('error', 'Pilih minimal satu post terlebih dahulu.');
+        return;
+    }
+    if (!action) {
+        window.showToast('error', 'Pilih aksi yang ingin dilakukan.');
+        return;
+    }
+    if (action === 'delete') {
+        const ok = await window.confirmDelete(
+            'Hapus Post',
+            `Hapus ${selected.length} post yang dipilih? Aksi ini tidak dapat dibatalkan.`
+        );
+        if (!ok) return;
+    }
+
+    const postIds = Array.from(selected).map(cb => cb.value);
+    const formData = new FormData();
+    formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+    formData.append('action', action);
+    postIds.forEach(id => formData.append('posts[]', id));
+
+    this.disabled = true;
+    this.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg> Memproses...';
+
+    try {
+        const response = await fetch('{{ route("admin.posts.bulk-action") }}', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            window.showToast('success', data.message || 'Aksi berhasil!');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            const msg = data.message
+                || (data.errors ? Object.values(data.errors).flat().join(', ') : 'Terjadi kesalahan.');
+            window.showToast('error', msg);
+        }
+    } catch (err) {
+        window.showToast('error', 'Gagal: ' + err.message);
+    } finally {
+        this.disabled = false;
+        this.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Terapkan';
+    }
+});
+
+// ── Delete single ───────────────────────────────────────────────────────────
 async function deletePost(postId, deleteUrl) {
-    const confirmed = await window.confirmDelete('Delete Post', 'Are you sure you want to delete this post? This action cannot be undone.');
-    if (!confirmed) return;
+    const ok = await window.confirmDelete('Hapus Post', 'Hapus post ini? Aksi tidak dapat dibatalkan.');
+    if (!ok) return;
 
     try {
         const response = await fetch(deleteUrl, {
@@ -294,41 +392,16 @@ async function deletePost(postId, deleteUrl) {
                 'Accept': 'application/json'
             }
         });
-
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status}`);
-        }
-
         const data = await response.json();
-
         if (data.success || response.ok) {
             window.showToast('success', 'Post berhasil dihapus!');
             setTimeout(() => window.location.reload(), 1000);
         } else {
-            window.showToast('error', data.message || 'Delete failed.');
+            window.showToast('error', data.message || 'Gagal menghapus post.');
         }
-    } catch (error) {
-        console.error('Delete error:', error);
-        window.showToast('error', 'Delete failed: ' + error.message);
+    } catch (err) {
+        window.showToast('error', 'Gagal: ' + err.message);
     }
 }
-
-// Bulk form validation
-document.getElementById('bulk-form').addEventListener('submit', function(e) {
-    const selectedPosts = document.querySelectorAll('.post-checkbox:checked');
-    const action = document.querySelector('select[name="action"]').value;
-    
-    if (selectedPosts.length === 0) {
-        e.preventDefault();
-        window.showToast('error', 'Please select at least one post.');
-        return;
-    }
-    
-    if (!action) {
-        e.preventDefault();
-        window.showToast('error', 'Please select an action.');
-        return;
-    }
-});
 </script>
 @endpush
