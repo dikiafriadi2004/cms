@@ -14,7 +14,7 @@ use Illuminate\Validation\Rule;
 
 class MenuController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $perPage = in_array($request->input('per_page'), [5, 10, 20, 50]) ? (int) $request->input('per_page') : 20;
         $menus = Menu::with(['items' => function ($query) {

@@ -9,7 +9,7 @@ use Spatie\Permission\Models\Permission;
 
 class RoleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $perPage = in_array($request->input('per_page'), [5, 10, 20, 50]) ? (int) $request->input('per_page') : 20;
         $roles = Role::with('permissions')->withCount('users')->paginate($perPage)->withQueryString();
